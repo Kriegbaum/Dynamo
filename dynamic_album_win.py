@@ -128,7 +128,10 @@ def dynamic_image(room):                                                        
         if newAlbum != Album:                                                    #If there isnt a new song playing, don't do image footwork
             Album = newAlbum
             song = File(mbIPC.get_file_url())
-            cover = song.tags['APIC:'].data
+            try:
+                cover = song.tags['APIC:'].data
+            except:
+                print('YOU DONE FUCKED UP EVERYTHING AND NOW THE SOFTWARE DOESNT WORK')
             with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:                           #Write temporary file with new album artwork
                 img.write(cover)
             try:
