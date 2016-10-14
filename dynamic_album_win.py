@@ -131,7 +131,9 @@ def dynamic_image(room):                                                        
             try:
                 cover = song.tags['APIC:'].data
             except:
-                print('YOU DONE FUCKED UP EVERYTHING AND NOW THE SOFTWARE DOESNT WORK')
+                print('SHIT SHIT SHIT....')
+                print('APIC tag failed, attempting to read Musicbee Temporary File')
+                cover = open('C:\Users\akauf\AppData\Local\Temp\MusicBee_000002.tmp', 'r')
             with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:                           #Write temporary file with new album artwork
                 img.write(cover)
             try:
