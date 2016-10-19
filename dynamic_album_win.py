@@ -7,6 +7,7 @@ import colorsys
 import math
 import numpy as np
 import random
+import shutil
 from mutagen import File
 from musicbeeipc import *
 
@@ -130,12 +131,12 @@ def dynamic_image(room):                                                        
             song = File(mbIPC.get_file_url())
             try:
                 cover = song.tags['APIC:'].data
+                with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:                           #Write temporary file with new album artwork
+                    img.write(cover)
             except:
                 print('SHIT SHIT SHIT....')
                 print('APIC tag failed, attempting to read Musicbee Temporary File')
-                cover = open(os.path.join('C:', 'Users', 'akauf', 'AppData', 'Local', 'Temp', 'MusicBee_000002.tmp'), 'r')
-            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:                           #Write temporary file with new album artwork
-                img.write(cover)
+                shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
             try:
                 print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
             except:
