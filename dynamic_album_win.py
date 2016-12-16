@@ -20,6 +20,10 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True                                          
 
 mbIPC = MusicBeeIPC()
 
+global_sat = 1
+global_bri = 1
+global_speed = 1
+
 def sample_image(image):                                                        #Function for grabbing most common colors in an image, currently unused
     im = Image.open(image)
     colors = im.getcolors(100000)                                               #Grabs a list of colors used in images along with count of uses
@@ -116,7 +120,19 @@ def lights_from_image(image, room):                                             
     it = 0
     colorlist = sample_sectors(image, room)
     for l in room:
-        command = {'hue': colorlist[it][0], 'sat': colorlist[it][1], 'bri': colorlist[it][2], 'transitiontime': 100}
+        com_on = True
+        com_sat = colorlist[it][1] * global_sat
+        if com_sat > 255:
+            com_sat = 255
+        if colorlist[it][1] < 10:
+            com_sat = colorlist[it][1]
+        com_bri = colorlist[it][2] * global_bri
+        if com_bri > 255:
+            com_bri = 255
+        if com_bri < 7:
+            com_on = False
+        com_trans = 70 * global_speed
+        command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
         bridge.set_light(l, command)
         it += 1
 
@@ -142,7 +158,7 @@ def dynamic_image(room):                                                        
             except:
                 print('Unable to print name for some reason. Probably because I am dumbguy')
         lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)                                   #Sample colors from temporary file
-        time.sleep(15)
+        time.sleep(15 * global_speed)
         ex += 1
         if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
             random.shuffle(room)
@@ -151,5 +167,6 @@ def dynamic_image(room):                                                        
 print('Which room?')
 group = eval(input())
 bridge.set_light(group, 'on', True)                                             #Turn lights on before executing
-
+bridge.set_light(16, 'on', True)
+bridge.set_light(16, 'bri', 255)
 dynamic_image(group)

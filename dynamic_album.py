@@ -204,5 +204,6 @@ def dynamic_image(room):                                                        
 print('Which room?')
 group = eval(input())
 bridge.set_light(group, 'on', True)                                             #Turn lights on before executing
+bridge.set_light(16, 'on', True)
 
 dynamic_image(group)

@@ -181,5 +181,7 @@ filepath = os.path.join('E:\\', 'Images', 'Color Pallettes', filepath)
 print('Which room?')
 group = eval(input())
 bridge.set_light(group, 'on', True)
+bridge.set_light(16, 'on', True)
+bridge.set_light(16, 'bri', 255)
 
 dynamic_image(filepath, group)
