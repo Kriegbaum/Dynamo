@@ -12,8 +12,8 @@ import random
 
 
 bridge = Bridge('10.0.0.10')
-bedroom = [7,8,10,11,12,14,15]
-living_room = [1,2,3,4,5,6,13]
+bedroom = [7,8,10,11,17,14,15]
+living_room = [1,2,3,4,5,6,12,13]
 everything = [1,2,3,4,5,6,7,8,10,11,12,13,14]
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -176,8 +176,12 @@ def dynamic_image(image, room):
 
 print('Input image name')
 print()
+filedir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
+pallettes = os.listdir(filedir)
+for f in pallettes:
+    print(f)
 filepath = input()
-filepath = os.path.join('E:\\', 'Images', 'Color Pallettes', filepath)
+filepath = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes', filepath)
 print('Which room?')
 group = eval(input())
 bridge.set_light(group, 'on', True)
