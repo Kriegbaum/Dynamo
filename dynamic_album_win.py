@@ -13,7 +13,7 @@ from musicbeeipc import *
 
 
 bridge = Bridge('10.0.0.10')                                                    #Hardcoded for my system, fix this later
-bedroom = [7,8,10,11,17,14,15]                                                     #Hardcoded for my system, fix this later
+bedroom = [7,8,10,11,17,18,15]                                                     #Hardcoded for my system, fix this later
 living_room = [1,2,3,4,5,6,12,13]                                                  #Hardcoded for my system, fix this later
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True                                          #This helps with images that were created stupid
