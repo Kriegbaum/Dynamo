@@ -10,11 +10,18 @@ import random
 import shutil
 from mutagen import File
 from musicbeeipc import *
+import opc
 
+FCclient = opc.Client('localhost:7890')
+
+FCpixels = [ [0, 0, 0] ] * 512
+
+s1 = range(0, 64)
+s2 = range(64, 128)
 
 bridge = Bridge('10.0.0.10')                                                    #Hardcoded for my system, fix this later
-bedroom = [7,8,10,11,17,18,15]                                                     #Hardcoded for my system, fix this later
-living_room = [1,2,3,4,5,6,12,13]                                                  #Hardcoded for my system, fix this later
+bedroom = [7,8,10,11,17,18,15, s1, s2]                                          #Hardcoded for my system, fix this later
+living_room = [1,2,3,4,5,6,12,13]                                               #Hardcoded for my system, fix this later
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True                                          #This helps with images that were created stupid
 
@@ -112,37 +119,47 @@ def sample_sectors(image, room):                                                
                 if type(tmpix) == int:
                     tmpix = [tmpix, tmpix, tmpix]
                 pixels.append([tmpix[0], tmpix[1], tmpix[2]])
-    for i in range(len(pixels)):                                                #Sends all pixels to convert() to get HSV
-        pixels[i] = convert(pixels[i])
     return pixels
 
 def lights_from_image(image, room):                                             #Function takes color list and applies to lights with 10s fade
     it = 0
     colorlist = sample_sectors(image, room)
-    for l in room:
-        com_on = True
-        com_sat = colorlist[it][1] * global_sat
-        if com_sat > 255:
-            com_sat = 255
-        if colorlist[it][1] < 10:
-            com_sat = colorlist[it][1]
-        com_bri = colorlist[it][2] * global_bri
-        if com_bri > 255:
-            com_bri = 255
-        if com_bri < 7:
-            com_on = False
-        com_trans = 70 * global_speed
-        command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
-        bridge.set_light(l, command)
-        it += 1
+    for l in range(len(room)):
+        if type(room[l]) == range:                                               #See if this is a neopixel strip
+            templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]
+            colorlist[it] = templist
+            if sum(templist) < 15:
+                templist = [0,0,0]
+            for p in room[l]:
+                FCpixels[p] = colorlist[it]
+            it += 1
+
+        else:
+            colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
+            com_on = True
+            com_sat = colorlist[it][1] * global_sat
+            if com_sat > 255:
+                com_sat = 255
+            if colorlist[it][1] < 10:
+                com_sat = colorlist[it][1]
+            com_bri = colorlist[it][2] * global_bri
+            if com_bri > 255:
+                com_bri = 255
+            if com_bri < 7:
+                com_on = False
+            com_trans = 70 * global_speed
+            command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
+            bridge.set_light(room[l], command)
+            it += 1
+    FCclient.put_pixels(FCpixels)
 
 def dynamic_image(room):                                                        #Will sample image every 15 seconds for new random color
     ex = 0
     Album = 'dicks'
     while 1 == 1:
-        newAlbum = mbIPC.get_file_tag(MBMD_Album)                              #Pulls trackID of currently playing song
+        newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
 
-        if newAlbum != Album:                                                    #If there isnt a new song playing, don't do image footwork
+        if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
             Album = newAlbum
             song = File(mbIPC.get_file_url())
             try:
@@ -166,7 +183,9 @@ def dynamic_image(room):                                                        
 
 print('Which room?')
 group = eval(input())
-bridge.set_light(group, 'on', True)                                             #Turn lights on before executing
+for i in range(len(group)):
+    if type(group[i]) != range:
+        bridge.set_light(group[i], 'on', True)                                  #Turn lights on before executing
 bridge.set_light(16, 'on', True)
 bridge.set_light(16, 'bri', 255)
 dynamic_image(group)
