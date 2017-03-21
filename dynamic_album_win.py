@@ -11,16 +11,24 @@ import shutil
 from mutagen import File
 from musicbeeipc import *
 import opc
+import atexit
+
+def serverkill():
+    os.system('TASKKILL /F /IM fcserver.exe')
+
+atexit.register(serverkill)
+os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
 
 FCclient = opc.Client('localhost:7890')
 
 FCpixels = [ [0, 0, 0] ] * 512
 
-s1 = range(0, 64)
-s2 = range(64, 128)
+s1 = range(0, 128)
+#s2 = range(64, 128)
+s3 = range(129, 192)
 
 bridge = Bridge('10.0.0.10')                                                    #Hardcoded for my system, fix this later
-bedroom = [7,8,10,11,17,18,15, s1, s2]                                          #Hardcoded for my system, fix this later
+bedroom = [7,8,10,11,17,18,15, s1, s3]                                          #Hardcoded for my system, fix this later
 living_room = [1,2,3,4,5,6,12,13]                                               #Hardcoded for my system, fix this later
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True                                          #This helps with images that were created stupid
@@ -126,7 +134,7 @@ def lights_from_image(image, room):                                             
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
         if type(room[l]) == range:                                               #See if this is a neopixel strip
-            templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]
+            templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
             colorlist[it] = templist
             if sum(templist) < 15:
                 templist = [0,0,0]
@@ -175,7 +183,7 @@ def dynamic_image(room):                                                        
             except:
                 print('Unable to print name for some reason. Probably because I am dumbguy')
         lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)                                   #Sample colors from temporary file
-        time.sleep(15 * global_speed)
+        time.sleep(17 * global_speed)
         ex += 1
         if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
             random.shuffle(room)

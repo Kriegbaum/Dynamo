@@ -8,18 +8,26 @@ import math
 import numpy as np
 import random
 import opc
+import atexit
+
+def serverkill():
+    os.system('TASKKILL /F /IM fcserver.exe')
+
+atexit.register(serverkill)
+os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
 
 FCclient = opc.Client('localhost:7890')
 
 FCpixels = [ [0, 0, 0] ] * 512
 
-s1 = range(0, 64)
-s2 = range(64, 128)
+s1 = range(0, 128)
+#s2 = range(64, 128)
+s3 = range(129, 192)
 #REMINDER FOR FUTURE ME, PHUE.PY NEEDS TO BE IN SCRIPT'S DIRECTORY WHEN PUSHED TO GITHUB
 
 
 bridge = Bridge('10.0.0.10')
-bedroom = [7,8,10,11,17,18,15,s1,s2]
+bedroom = [7,8,10,11,17,18,15,s1,s3]
 living_room = [1,2,3,4,5,6,12,13]
 everything = [1,2,3,4,5,6,7,8,10,11,12,13,14]
 
@@ -168,7 +176,7 @@ def lights_from_image(image, room):
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
         if type(room[l]) == range:                                               #See if this is a neopixel strip
-            templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]
+            templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
             colorlist[it] = templist
             if sum(templist) < 15:
                 templist = [0,0,0]
@@ -177,9 +185,6 @@ def lights_from_image(image, room):
             it += 1
 
         else:
-            print(it)
-            print("Hue, RGB: ")
-            print(colorlist[it])
             colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
             com_on = True
             com_sat = colorlist[it][1]
@@ -194,7 +199,7 @@ def dynamic_image(image, room):
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
-        time.sleep(15)
+        time.sleep(17)
         ex += 1
         if ex % 3 == 0:
             random.shuffle(room)
