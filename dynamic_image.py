@@ -7,13 +7,30 @@ import colorsys
 import math
 import numpy as np
 import random
+import opc
+import atexit
 
+def serverkill():
+    os.system('TASKKILL /F /IM fcserver.exe')
+
+atexit.register(serverkill)
+os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
+
+FCclient = opc.Client('localhost:7890')
+
+FCpixels = [ [0, 0, 0] ] * 512
+
+s1 = range(0, 128)
+
+s2 = range(129, 192)
+
+s3 = range(192, 256)
 #REMINDER FOR FUTURE ME, PHUE.PY NEEDS TO BE IN SCRIPT'S DIRECTORY WHEN PUSHED TO GITHUB
 
 
 bridge = Bridge('10.0.0.10')
-bedroom = [7,8,10,11,12,14]
-living_room = [1,2,3,4,5,6,13]
+bedroom = [7,8,10,11,17,15,s1,s3]
+living_room = [1,2,3,4,5,6,12,13]
 everything = [1,2,3,4,5,6,7,8,10,11,12,13,14]
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -57,7 +74,7 @@ def setup():
 
 def getsettings():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    settings_path = script_dir + '/hue_settings.txt'
+    settings_path = os.path.join(script_dir, 'hue_settings.txt')
     if os.path.exists(settings_path):
         settings = open(settings_path, 'r')
         settings.readline()
@@ -144,6 +161,7 @@ def sample_sectors(image, room):
                 if type(tmpix) == int:
                     tmpix = [tmpix, tmpix, tmpix]
                 pixels.append([tmpix[0], tmpix[1], tmpix[2]])
+
     else:
         for row in range(1, vdiv + 1):
             for vrow in range(1, hdiv + 1):
@@ -153,32 +171,57 @@ def sample_sectors(image, room):
                 if type(tmpix) == int:
                     tmpix = [tmpix, tmpix, tmpix]
                 pixels.append([tmpix[0], tmpix[1], tmpix[2]])
-    for i in range(len(pixels)):
-        pixels[i] = convert(pixels[i])
     return pixels
 
 def lights_from_image(image, room):
     it = 0
     colorlist = sample_sectors(image, room)
-    for l in room:
-        command = {'hue': colorlist[it][0], 'sat': colorlist[it][1], 'bri': colorlist[it][2], 'transitiontime': 100}
-        bridge.set_light(l, command)
-        it += 1
+    for l in range(len(room)):
+        if type(room[l]) == range:                                               #See if this is a neopixel strip
+            templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
+            colorlist[it] = templist
+            if sum(templist) < 15:
+                templist = [0,0,0]
+            for p in room[l]:
+                FCpixels[p] = colorlist[it]
+            it += 1
+
+        else:
+            colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
+            com_on = True
+            com_sat = colorlist[it][1]
+            com_bri = colorlist[it][2]
+            com_trans = 70
+            command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
+            bridge.set_light(room[l], command)
+            it += 1
+    FCclient.put_pixels(FCpixels)
+
 def dynamic_image(image, room):
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
-        time.sleep(15)
+        time.sleep(17)
         ex += 1
         if ex % 3 == 0:
             random.shuffle(room)
             print('Shuffle on iteration', ex)
 
-print('Input image filepath')
+print('Input image name')
 print()
+filedir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
+pallettes = os.listdir(filedir)
+for f in pallettes:
+    print(f)
 filepath = input()
+filepath = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes', filepath)
 print('Which room?')
 group = eval(input())
-bridge.set_light(group, 'on', True)
+for i in range(len(group)):
+    if type(group[i]) != range:
+        bridge.set_light(group[i], 'on', True)
+
+for i in range(256, 321):
+    FCpixels[i] = [255,255,220]
 
 dynamic_image(filepath, group)

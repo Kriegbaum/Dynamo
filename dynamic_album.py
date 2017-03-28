@@ -7,62 +7,39 @@ import colorsys
 import math
 import numpy as np
 import random
-import plistlib
+import shutil
 from mutagen import File
-import mutagen.mp4
-from Foundation import *
-from ScriptingBridge import *
+from musicbeeipc import *
+import opc
+import atexit
 
+def serverkill():
+    os.system('TASKKILL /F /IM fcserver.exe')
+
+atexit.register(serverkill)
+os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
+
+FCclient = opc.Client('localhost:7890')
+
+FCpixels = [ [0, 0, 0] ] * 512
+
+s1 = range(0, 128)
+
+s2 = range(129, 192)
+
+s3 = range(192, 256)
 
 bridge = Bridge('10.0.0.10')                                                    #Hardcoded for my system, fix this later
-bedroom = [7,8,10,11,12,14]                                                     #Hardcoded for my system, fix this later
-living_room = [1,2,3,4,5,6,13]                                                  #Hardcoded for my system, fix this later
-
-iTunes = SBApplication.applicationWithBundleIdentifier_("com.apple.iTunes")     #Grab iTunes parameters from scripting bridge
-
-tunes_library_path = '/Users/andykauff/Music/iTunes/iTunes Music Library.xml'   #Hardcoded for my system, fix this later
-print('loading itunes library...')
-tunes_library = plistlib.readPlist(tunes_library_path)                          #Loads iTunes library into a massive dictionary
-print('LOADED')
+bedroom = [7,8,10,11,17,15, s1,s3]                                          #Hardcoded for my system, fix this later
+living_room = [1,2,3,4,5,6,12,13]                                               #Hardcoded for my system, fix this later
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True                                          #This helps with images that were created stupid
 
+mbIPC = MusicBeeIPC()
 
-def setup():                                                                    #Obtain hue system info from user
-    print('Input bridge IP address')
-    bridgeip = input()
-    bridge = Bridge(bridgeip)
-    settings_body = 'Bridge IP:\n' + bridgeip + '\n'                            #Add bridge ip to settings
-    settings = open(settings_path, 'w')                                         #Create or open settings file
-    settings.write(settings_body)                                               #Write settings to settings file
-    settings.close()
-    print('Within the next 30 seconds, press the bridge connect button')        #Bridge button is security feature, grants access to this program
-    time.sleep(30)                                                              #Give user time to physically reach bridge
-    bridge.connect()                                                            #Connect to bridge
-
-
-def getsettings():                                                              #Grab settings if they have been made
-    script_dir = os.path.dirname(os.path.abspath(__file__))                     #Set directory to script's location
-    settings_path = script_dir + '/hue_settings.txt'
-    if os.path.exists(settings_path):                                           #Check to see if settings already exist
-        settings = open(settings_path, 'r')
-        settings.readline()
-        bridge = Bridge(readline())
-    else:
-        setup()                                                                 #If settings do not exist, run user through setup
-
-def get_song_path(trackID):                                                     #Let's grab this song's filepath
-    path = tunes_library['Tracks'][str(trackID)]['Location']                    #Nabs filepath from library xml, but the format its stored in is not useable, so:
-    path = path.replace('file://', '')                                          #Strip out extraneous info
-    path_list = path.split('%')
-    newpath = bytes(path_list[0], 'utf-8')                                      #We need this to be a bytes literal, but can't do it befor the split command
-    if len(path_list) > 1:                                                      #Skip process if no special characters
-        for i in range(1,len(path_list)):                                       #Iterate through split list
-            tmpbyte = path_list[i][0:2]                                         #Grab hex value after first split
-            newbyte = bytes([int(str(tmpbyte), 16)])                            #Make that hex value into its ascii value and then convert the ascii value back into the same byte, but with proper formatting
-            newpath += newbyte + bytes(path_list[i][2:len(path_list[i])], 'utf-8')  #Drop that byte and its associated chunk into the new filepath
-    newpath = newpath.decode('utf-8')                                           #Decode remaining special characters
-    return newpath
+global_sat = 1
+global_bri = 1
+global_speed = 1
 
 def sample_image(image):                                                        #Function for grabbing most common colors in an image, currently unused
     im = Image.open(image)
@@ -152,50 +129,63 @@ def sample_sectors(image, room):                                                
                 if type(tmpix) == int:
                     tmpix = [tmpix, tmpix, tmpix]
                 pixels.append([tmpix[0], tmpix[1], tmpix[2]])
-    for i in range(len(pixels)):                                                #Sends all pixels to convert() to get HSV
-        pixels[i] = convert(pixels[i])
     return pixels
 
 def lights_from_image(image, room):                                             #Function takes color list and applies to lights with 10s fade
     it = 0
     colorlist = sample_sectors(image, room)
-    for l in room:
-        command = {'hue': colorlist[it][0], 'sat': colorlist[it][1], 'bri': colorlist[it][2], 'transitiontime': 100}
-        bridge.set_light(l, command)
-        it += 1
+    for l in range(len(room)):
+        if type(room[l]) == range:                                               #See if this is a neopixel strip
+            templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
+            colorlist[it] = templist
+            if sum(templist) < 15:
+                templist = [0,0,0]
+            for p in room[l]:
+                FCpixels[p] = colorlist[it]
+            it += 1
+
+        else:
+            colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
+            com_on = True
+            com_sat = colorlist[it][1] * global_sat
+            if com_sat > 255:
+                com_sat = 255
+            if colorlist[it][1] < 10:
+                com_sat = colorlist[it][1]
+            com_bri = colorlist[it][2] * global_bri
+            if com_bri > 255:
+                com_bri = 255
+            if com_bri < 7:
+                com_on = False
+            com_trans = 70 * global_speed
+            command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
+            bridge.set_light(room[l], command)
+            it += 1
+    FCclient.put_pixels(FCpixels)
 
 def dynamic_image(room):                                                        #Will sample image every 15 seconds for new random color
     ex = 0
-    trackID = iTunes.currentTrack().databaseID()
+    Album = 'dicks'
     while 1 == 1:
-        newID = iTunes.currentTrack().databaseID()                              #Pulls trackID of currently playing song
-        try:
-            if tunes_library['Tracks'][str(newID)]['Album'] != tunes_library['Tracks'][str(trackID)]['Album'] or ex == 0:                                                    #If there isnt a new song playing, don't do image footwork
-                trackID = newID
-                song_path = get_song_path(trackID)
-                artwork_dir = os.path.dirname(os.path.abspath(__file__))            #Set directory to where current script is
-                artwork_path = artwork_dir + '/artwork.jpg'
-                if song_path[len(song_path) - 4:] == '.m4a':                        #adds m4a support
-                    song = mutagen.mp4.MP4(song_path)
-                    cover = bytes(song['covr'][0])
-                    with open(artwork_path, 'wb') as img:                           # Write temporary file with new album artwork
-                        img.write(cover)
-                else:
-                    song = File(song_path)                                          #Pull filepath of song, load it up
-                    try:
-                        artwork = song.tags['APIC:'].data                           #Load up image data for album artwork on song
-                    except:
-                        time.sleep(15)
-                        continue
-                    with open(artwork_path, 'wb') as img:                           #Write temporary file with new album artwork
-                        img.write(artwork)
-                print('Sampling album art for', tunes_library['Tracks'][str(trackID)]['Album'], 'by', tunes_library['Tracks'][str(trackID)]['Artist'])
-            lights_from_image(artwork_path, room)                                   #Sample colors from temporary file
-        except:
-            print('Nothing playing, setting lights to white')
-            command = {'bri': 255, 'sat': 0}
-            bridge.set_light(room, command)
-        time.sleep(15)
+        newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
+
+        if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
+            Album = newAlbum
+            song = File(mbIPC.get_file_url())
+            try:
+                cover = song.tags['APIC:'].data
+                with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:                           #Write temporary file with new album artwork
+                    img.write(cover)
+            except:
+                print('SHIT SHIT SHIT....')
+                print('APIC tag failed, attempting to read Musicbee Temporary File')
+                shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
+            try:
+                print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
+            except:
+                print('Unable to print name for some reason. Probably because I am dumbguy')
+        lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)                                   #Sample colors from temporary file
+        time.sleep(30 * global_speed)
         ex += 1
         if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
             random.shuffle(room)
@@ -203,7 +193,11 @@ def dynamic_image(room):                                                        
 
 print('Which room?')
 group = eval(input())
-bridge.set_light(group, 'on', True)                                             #Turn lights on before executing
-bridge.set_light(16, 'on', True)
+for i in range(len(group)):
+    if type(group[i]) != range:
+        bridge.set_light(group[i], 'on', True)                                  #Turn lights on before executing
+
+for i in range(256, 321):
+    FCpixels[i] = [255,255,220]
 
 dynamic_image(group)
