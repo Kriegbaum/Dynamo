@@ -112,7 +112,7 @@ def lights_from_image(image, room):
     it = 0
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
-        if type(room[l]) == range:                                               #See if this is a neopixel strip
+        if type(room[l]) == range:                                              #See if this is a neopixel strip
             templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
             colorlist[it] = templist
             if sum(templist) < 15:
