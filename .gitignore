@@ -92,3 +92,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+#so that people will not snoop on what im listening to
+.jpg
