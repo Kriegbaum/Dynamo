@@ -1,10 +1,12 @@
 import opc
+import time
 import os
+import atexit
 from phue import Bridge
 
 def serverkill():
 #Shuts down server binary, registered in server start as atexit function
-    os.system('TASKKIILL /F /IM fcserver.exe')
+    os.system('TASKKILL /F /IM fcserver.exe')
 
 def serverstart():
 #Initialize Fadecandy server support
@@ -12,22 +14,24 @@ def serverstart():
     atexit.register(serverkill)
     #Run fadecandy server binary in background
     os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
-    FCclient = opc.Client('localhost:7890')
-    #FC control object. 512 RGB pixels, split into eight 64 pixel groups
-    global FCpixels = [ [0,0,0] ] * 512
+    time.sleep(0.3)
 
-    #Window trim top HARDCODED
-    global s1 = range(0,128)
-    #Window trim bottom HARDCODED
-    global s2 = range(129,192)
-    #Computer internal light
-    global s3 = range(192,256)
+FCclient = opc.Client('localhost:7890')
+
+#FC control object. 512 RGB pixels, split into eight 64 pixel groups
+FCpixels = [ [0,0,0] ] * 512
+
+#Window trim HARDCODED
+s1 = range(0,128)
+#Window Frame
+s3 = range(192,256)
 
 
-bridge = Bridge('10.0.10')
-bedroom = [7,8,10,11,17,15,s1,s2]
+
+
+bridge = Bridge('10.0.0.10')
+bedroom = [7,8,10,11,17,18,s1,s3]
 living_room = [1,2,3,4,5,6,12,13]
+dining_room = [15,19,20,21]
 
-global_sat = 1
-global_bri = 1
-global_speed = 1
+room_dict = {'bedroom': bedroom, 'living room': living_room, 'dining room': dining_room}

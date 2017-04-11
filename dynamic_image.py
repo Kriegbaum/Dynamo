@@ -8,81 +8,16 @@ import math
 import numpy as np
 import random
 import opc
-import atexit
+import Dynamo
 
-def serverkill():
-    os.system('TASKKILL /F /IM fcserver.exe')
-
-atexit.register(serverkill)
-os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
+Dynamo.serverstart()
+bridge = Dynamo.bridge
+FCpixels = Dynamo.FCpixels
+FCclient = Dynamo.FCclient
 
 FCclient = opc.Client('localhost:7890')
 
-FCpixels = [ [0, 0, 0] ] * 512
-
-s1 = range(0, 128)
-
-s2 = range(129, 192)
-
-s3 = range(192, 256)
-#REMINDER FOR FUTURE ME, PHUE.PY NEEDS TO BE IN SCRIPT'S DIRECTORY WHEN PUSHED TO GITHUB
-
-
-bridge = Bridge('10.0.0.10')
-bedroom = [7,8,10,11,17,15,s1,s3]
-living_room = [1,2,3,4,5,6,12,13]
-everything = [1,2,3,4,5,6,7,8,10,11,12,13,14]
-
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-def setup():
-    print('Input bridge IP address')
-    bridgeip = input()
-    bridge = Bridge(bridgeip)
-    settings_body = 'Bridge IP:\n' + bridgeip + '\n'
-    settings = open(settings_path, 'w')
-    print('Within the next 30 seconds, press the bridge connect button')
-    time.sleep(30)
-    bridge.connect()
-
-    api = bridge.get_api()
-    lights = bridge.get_light_objects('id')
-
-
-    print('##########  I found these groups in your bridge  ##########')
-
-    for i in api['groups']:
-        group = api['groups'][i]
-        print(group['name'])
-        for i in group['lights']:
-            print(i, lights[int(i)])
-        print('###########################################################')
-
-    print('Writing these groups to settings...')
-
-    group_dict = {}
-
-    for i in api['groups']:
-        tmplist = []
-        group = api['groups'][i]
-        for n in group['lights']:
-            tmplist.append(int(n))
-        group_dict[group['name']] = tmplist
-    settings_body += str(group_dict) + '\n'
-    settings.write(settings_body)
-    settings.close()
-
-def getsettings():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    settings_path = os.path.join(script_dir, 'hue_settings.txt')
-    if os.path.exists(settings_path):
-        settings = open(settings_path, 'r')
-        settings.readline()
-        bridge = Bridge(readline())
-        settings.readline()
-        rooms = eval(settings.readline())
-    else:
-        setup()
 
 def sample_image(image):
     im = Image.open(image)
@@ -177,7 +112,7 @@ def lights_from_image(image, room):
     it = 0
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
-        if type(room[l]) == range:                                               #See if this is a neopixel strip
+        if type(room[l]) == range:                                              #See if this is a neopixel strip
             templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
             colorlist[it] = templist
             if sum(templist) < 15:
@@ -195,12 +130,12 @@ def lights_from_image(image, room):
             command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
             bridge.set_light(room[l], command)
             it += 1
-    FCclient.put_pixels(FCpixels)
 
 def dynamic_image(image, room):
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
+        FCclient.put_pixels(FCpixels)
         time.sleep(17)
         ex += 1
         if ex % 3 == 0:
@@ -216,7 +151,7 @@ for f in pallettes:
 filepath = input()
 filepath = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes', filepath)
 print('Which room?')
-group = eval(input())
+group = Dynamo.room_dict[input().lower()]
 for i in range(len(group)):
     if type(group[i]) != range:
         bridge.set_light(group[i], 'on', True)
