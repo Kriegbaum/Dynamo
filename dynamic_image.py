@@ -130,12 +130,12 @@ def lights_from_image(image, room):
             command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
             bridge.set_light(room[l], command)
             it += 1
-    FCclient.put_pixels(FCpixels)
 
 def dynamic_image(image, room):
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
+        FCclient.put_pixels(FCpixels)
         time.sleep(17)
         ex += 1
         if ex % 3 == 0:

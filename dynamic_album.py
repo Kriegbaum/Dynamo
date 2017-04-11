@@ -13,6 +13,10 @@ import time
 from phue import Bridge
 
 Dynamo.serverstart()
+bridge = Dynamo.bridge
+FCpixels = Dynamo.FCpixels
+FCclient = Dynamo.FCclient
+
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True                                          #This helps with images that were created stupid
 
@@ -122,7 +126,7 @@ def lights_from_image(image, room):                                             
             if sum(templist) < 15:
                 templist = [0,0,0]
             for p in room[l]:
-                Dynamo.FCpixels[p] = colorlist[it]
+                FCpixels[p] = colorlist[it]
             it += 1
 
         else:
@@ -140,9 +144,9 @@ def lights_from_image(image, room):                                             
                 com_on = False
             com_trans = 70 * global_speed
             command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
-            Dynamo.bridge.set_light(room[l], command)
+            bridge.set_light(room[l], command)
             it += 1
-    Dynamo.FCclient.put_pixels(Dynamo.FCpixels)
+    FCclient.put_pixels(FCpixels)
 
 def dynamic_image(room):                                                        #Will sample image every 15 seconds for new random color
     ex = 0
@@ -166,7 +170,7 @@ def dynamic_image(room):                                                        
             except:
                 print('Unable to print name for some reason. Probably because I am dumbguy')
         lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)         #Sample colors from temporary file
-        time.sleep(30 * global_speed)
+        time.sleep(18 * global_speed)
         ex += 1
         if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
             random.shuffle(room)
@@ -176,9 +180,9 @@ print('Which room?')
 group = Dynamo.room_dict[input().lower()]
 for i in range(len(group)):
     if type(group[i]) != range:
-        Dynamo.bridge.set_light(group[i], 'on', True)                                  #Turn lights on before executing
+        bridge.set_light(group[i], 'on', True)                                  #Turn lights on before executing
 
 for i in range(256, 321):
-    Dynamo.FCpixels[i] = [255,255,200]
+    FCpixels[i] = [255,255,200]
 
 dynamic_image(group)
