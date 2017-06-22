@@ -12,7 +12,6 @@ import os
 import time
 from phue import Bridge
 
-Dynamo.serverstart()
 bridge = Dynamo.bridge
 FCpixels = Dynamo.FCpixels
 FCclient = Dynamo.FCclient
@@ -178,11 +177,15 @@ def dynamic_image(room):                                                        
 
 print('Which room?')
 group = Dynamo.room_dict[input().lower()]
+
+#if group == Dynamo.bedroom:
+#    Dynamo.serverstart()
+
 for i in range(len(group)):
     if type(group[i]) != range:
         bridge.set_light(group[i], 'on', True)                                  #Turn lights on before executing
 
 for i in range(256, 321):
-    FCpixels[i] = [255,255,200]
+    FCpixels[i] = [245,245,190]
 
 dynamic_image(group)
