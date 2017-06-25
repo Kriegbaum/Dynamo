@@ -10,12 +10,12 @@ import random
 import opc
 import Dynamo
 
-Dynamo.serverstart()
+
 bridge = Dynamo.bridge
 FCpixels = Dynamo.FCpixels
 FCclient = Dynamo.FCclient
 
-FCclient = opc.Client('localhost:7890')
+FCclient = opc.Client('10.0.0.7:7890')
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -116,7 +116,7 @@ def lights_from_image(image, room):
             templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
             colorlist[it] = templist
             if sum(templist) < 15:
-                templist = [0,0,0]
+                colorlist[it] = [0,0,0]
             for p in room[l]:
                 FCpixels[p] = colorlist[it]
             it += 1
@@ -135,6 +135,11 @@ def dynamic_image(image, room):
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
+        #THIS SUCKS
+        FCpixels[384][0] *= 0.87
+        FCpixels[384][1] *= 1
+        FCpixels[384][2] *= 0.84
+        #THIS REALLY SUCKS
         FCclient.put_pixels(FCpixels)
         time.sleep(17)
         ex += 1
@@ -152,11 +157,15 @@ filepath = input()
 filepath = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes', filepath)
 print('Which room?')
 group = Dynamo.room_dict[input().lower()]
+
+#if group == Dynamo.bedroom:
+#    Dynamo.serverstart()
+
 for i in range(len(group)):
     if type(group[i]) != range:
         bridge.set_light(group[i], 'on', True)
 
 for i in range(256, 321):
-    FCpixels[i] = [255,255,220]
+    FCpixels[i] = [245,245,190]
 
 dynamic_image(filepath, group)
