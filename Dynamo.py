@@ -218,17 +218,17 @@ def lights_from_image(image, room):                                             
         elif room[l].system == 'Hue':
             colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
             com_on = True
-            com_sat = colorlist[it][1] * global_sat
+            com_sat = colorlist[it][1] * global_sat                             #Adjust saturation according to global adjustment value
             if com_sat > 255:
                 com_sat = 255
             if colorlist[it][1] < 10:
                 com_sat = colorlist[it][1]
-            com_bri = colorlist[it][2] * global_bri
+            com_bri = colorlist[it][2] * global_bri                             #Adjust brightness according to global adjustment value
             if com_bri > 255:
                 com_bri = 255
             if com_bri < 7:
                 com_on = False
-            com_trans = 70 * global_speed
+            com_trans = 70 * global_speed                                       #Adjust transition speed according to global adjustment value
             command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
             bridge.set_light(room[l].id, command)
             it += 1
@@ -279,6 +279,15 @@ def dynamic_album(room):                                                        
         if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
             random.shuffle(room)
             print('Shuffled on iteration', ex)
+def off(room):
+    """Turns off lights in a given room"""
+    for l in room:
+        if l.system == "Fadcandy":
+            for i in FCpixels:
+                i = [0, 0, 0]
+        if l.system == 'Hue':
+            bridge.set_light(l.id, 'on', False)
+        FCclient.put_pixels(FCpixels)
 
 ################################################################################
 #                       BEGIN MENU
@@ -291,12 +300,9 @@ def imageLoop():
     for f in pallettes:
         print(f)
     filepath = input()
-    filepath = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes', filepath)
+    filepath = os.path.join(filedir, filepath)
     print('Which room?')
     group = room_dict[input().lower()]
-
-    #if group == Dynamo.bedroom:
-    #    Dynamo.serverstart()
 
     for i in range(len(group)):
         if group[i].system == 'Hue':
@@ -309,7 +315,7 @@ def albumLoop():
     group = room_dict[input().lower()]
     dynamic_album(group)
 
-print('Are we doing an image or album?')
+print('What will it be today?')
 subroutine = input().lower()
 
 if subroutine == 'image':
@@ -317,6 +323,11 @@ if subroutine == 'image':
 
 if subroutine == 'album':
     albumLoop()
+
+if subroutine == 'off':
+    print('Which room?')
+    group = room_dict[input().lower()]
+    off(group)
 
 else:
     print('Yeah right!')
