@@ -1,10 +1,10 @@
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 from phue import Bridge
 import opc
 import colorsys
 
-'''
+
 ###########RPI pins defined
 GPIO.setmode(GPIO.BCM)
 
@@ -23,7 +23,7 @@ GPIO.setup(22, GPIO.OUT)
 GPIO.setup(23, GPIO.OUT)
 #Blue
 GPIO.setup(24, GPIO.OUT)
-'''
+
 ###### Lighting Control Objects
 
 #Hue system control object
@@ -83,7 +83,7 @@ natural_iteration = 0
 Copper = {
             'Worklight'     : [88,83,87],
             'Fan'           : [139,68,4],
-            'Windows'       : [64,67,76],
+            'Windows'       : [83,87,99],
             'Floor Lamp'    : [37,22,15],
             'Duct'          : [122,106,106],
             'Skull'         : [212,146,70],
@@ -154,7 +154,7 @@ Discovery = {
 
 Vaporwave = {
             'Worklight'     : [120,200,164],
-            'Windows'       : [118,69,151],
+            'Windows'       : [188,110,241],
             'Skull'         : [117,35,150],
             'Fan'           : [96,71,126],
             'Corner'        : [70,200,135],
@@ -200,6 +200,7 @@ def colorCorrect(fixture, rgb):
     return tempList
 
 def makeLight(look):
+    FCclient.put_pixels(FCpixels)
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
@@ -218,6 +219,48 @@ def makeLight(look):
 
     FCclient.put_pixels(FCpixels)
 
+def off():
+    for l in room:
+        if l.system == 'Hue':
+            bridge.set_light(l.id, 'on', False)
+        bridge.set_light(24, 'on', False)
+        FCpixels = [ [0,0,0] ] * 512
+        FCclient.put_pixels(FCpixels)
+        FCclient.put_pixels(FCpixels)
 
+while True:
+    button1 = GPIO.input(19)
+    button2 = GPIO.input(16)
+    button3 = GPIO.input(26)
+    button4 = GPIO.input(20)
 
-makeLight(Burma)
+    if button1 == True:
+        makeLight(naturalLooks[natural_iteration])
+
+        print('Button 1 pressed')
+        print('Displaying natural look %s' % str(natural_iteration))
+
+        natural_iteration += 1
+        if natural_iteration > len(naturalLooks) - 1:
+            natural_iteration = 0
+
+    if button2 == True:
+        makeLight(saturatedLooks[saturated_iteration])
+
+        print('Button 2 pressed')
+        print('Displaying saturated look %s' % str(saturated_iteration))
+
+        saturated_iteration += 1
+        if saturated_iteration > len(saturatedLooks) - 1:
+            saturated_iteration = 0
+
+    if button3 == True:
+        off()
+        print('Button 3 pressed')
+        print('Turning off lights')
+
+    if button4 == True:
+        print('Button 4 pressed')
+        print('Doing nothing')
+
+    time.sleep(0.2)

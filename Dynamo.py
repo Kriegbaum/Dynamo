@@ -50,7 +50,7 @@ h2.id = 2
 h3 = Fixture('Hue', 'Entry 2')
 h3.id = 3
 
-h4 = Fixture('Hue', 'Overhead')
+h4 = Fixture('Hue', 'Reaper')
 h4.id = 4
 
 h5 = Fixture('Hue', 'Table Lamp')
@@ -99,9 +99,12 @@ h20.id = 20
 h21 = Fixture('Hue', 'Morty')
 h21.id = 21
 
+h24 = Fixture('Hue', 'Studio Monitors')
+h24.id = 24
+
 bedroom = [h10,h11,h17,h18,s1,s3,s4]
-living_room = [h2,h3,h5,h6,h7,h8,h19,h20]
-kitchen = [h1,h4,h13,h14,h15]
+living_room = [h2,h3,h5,h6,h7,h8,h19,h20,h4]
+kitchen = [h1,h13,h14,h15]
 apartment = [h10,h11,h17,h18,s1,s3,s4,h2,h3,h5,h6,h7,h8,h19,h20,h1,h4,h13,h14,h15]
 
 room_dict = {'bedroom': bedroom, 'living room': living_room, 'kitchen': kitchen, 'apartment':apartment}
