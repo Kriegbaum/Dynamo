@@ -253,7 +253,7 @@ def makeLight(look):
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
-                command - {'on' : False}
+                command = {'on' : False}
             else:
                 color = convert(colorCorrect(l, look[l.name]))
                 command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 7}
