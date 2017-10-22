@@ -251,7 +251,7 @@ def makeLight(look):
 
         elif l.system == 'Hue':
             color = convert(colorCorrect(l, look[l.name]))
-            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 10}
+            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 7}
             bridge.set_light(l.id, command)
 
         else:
@@ -273,32 +273,32 @@ def off():
 for i in range(0,128):
     FCpixels[i] = [255,0,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.2)
+time.sleep(.5)
 
 for i in range(0,128):
     FCpixels[i] = [255,128,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.2)
+time.sleep(.5)
 
 for i in range(0,128):
     FCpixels[i] = [255,255,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.2)
+time.sleep(.5)
 
 for i in range(0,128):
     FCpixels[i] = [0,255,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.2)
+time.sleep(.5)
 
 for i in range(0,128):
     FCpixels[i] = [0,0,255]
 FCclient.put_pixels(FCpixels)
-time.sleep(.2)
+time.sleep(.5)
 
 for i in range(0,128):
     FCpixels[i] = [255,0,255]
 FCclient.put_pixels(FCpixels)
-time.sleep(.2)
+time.sleep(.5)
 
 FCpixels = [ [0,0,0] ] * 512
 FCclient.put_pixels(FCpixels)
