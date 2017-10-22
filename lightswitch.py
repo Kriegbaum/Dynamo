@@ -77,6 +77,7 @@ room = [h10,h11,h17,h18,s1,s3,s4]
 #Function Objects
 saturated_iteration = 0
 natural_iteration = 0
+contrast_iteration = 0
 
 #Natural looks
 
@@ -129,6 +130,16 @@ Sacred = {
             'Worklight'     : [81,42,9],
             'Skull'         : [44,42,69]
             }
+
+Eternity = {
+            'Skull'         : [224,182,165],
+            'Worklight'     : [225,205,162],
+            'Corner'        : [178,110,107],
+            'Windows'       : [223,120,101],
+            'Fan'           : [174,112,101],
+            'Floor Lamp'    : [144,94,97],
+            'Duct'          : [128,85,92]
+            }
 #Saturated looks
 
 Jelly = {
@@ -142,14 +153,14 @@ Jelly = {
             }
 
 
-Discovery = {
-            'Floor Lamp'    : [208,187,0],
-            'Windows'       : [228,216,106],
-            'Corner'        : [0,183,157],
-            'Fan'           : [255,90,0],
-            'Worklight'     : [175,234,137],
-            'Skull'         : [235,160,0],
-            'Duct'          : [63,193,131]
+Valtari = {
+            'Skull'         : [125,124,67],
+            'Floor Lamp'    : [177,150,81],
+            'Corner'        : [145,131,66],
+            'Windows'       : [93,92,46],
+            'Fan'           : [85,85,33],
+            'Worklight'     : [110,98,60],
+            'Duct'         : [130,116,65]
             }
 
 Vaporwave = {
@@ -182,8 +193,39 @@ Eiffel = {
             'Floor Lamp'    : [87,43,8]
             }
 
-naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred]
-saturatedLooks = [Jelly, Discovery, Vaporwave, Intersection, Eiffel]
+Umbrella = {
+            'Worklight'     : [43,133,162],
+            'Skull'         : [24,100,144],
+            'Fan'           : [255,255,255],
+            'Corner'        : [26,120,144],
+            'Floor Lamp'    : [165,64,107],
+            'Duct'          : [7,75,138],
+            'Windows'       : [165,64,107]
+            }
+
+Toplight = {
+            'Worklight'     : [0,0,50],
+            'Skull'         : [0,0,10],
+            'Fan'           : [10,58,220],
+            'Corner'        : [0,0,10],
+            'Floor Lamp'    : [0,0,10],
+            'Duct'          : [0,0,10],
+            'Windows'       : [0,0,50]
+            }
+
+Blinds = {
+            'Worklight'     : [0,0,0],
+            'Skull'         : [1,1,1],
+            'Fan'          : [0,0,0],
+            'Corner'        : [1,1,1],
+            'Floor Lamp'    : [1,1,1],
+            'Duct'          : [1,1,1],
+            'Windows'       : [255,197,120]
+            }
+
+naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity]
+saturatedLooks = [Jelly, Vaporwave, Intersection, Eiffel, Valtari, Umbrella]
+contrastLooks = [Toplight, Blinds]
 
 def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
     R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
@@ -209,7 +251,7 @@ def makeLight(look):
 
         elif l.system == 'Hue':
             color = convert(colorCorrect(l, look[l.name]))
-            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 70}
+            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 10}
             bridge.set_light(l.id, command)
 
         else:
@@ -227,6 +269,39 @@ def off():
         FCpixels = [ [0,0,0] ] * 512
         FCclient.put_pixels(FCpixels)
         FCclient.put_pixels(FCpixels)
+
+for i in range(0,128):
+    FCpixels[i] = [255,0,0]
+FCclient.put_pixels(FCpixels)
+time.sleep(.2)
+
+for i in range(0,128):
+    FCpixels[i] = [255,128,0]
+FCclient.put_pixels(FCpixels)
+time.sleep(.2)
+
+for i in range(0,128):
+    FCpixels[i] = [255,255,0]
+FCclient.put_pixels(FCpixels)
+time.sleep(.2)
+
+for i in range(0,128):
+    FCpixels[i] = [0,255,0]
+FCclient.put_pixels(FCpixels)
+time.sleep(.2)
+
+for i in range(0,128):
+    FCpixels[i] = [0,0,255]
+FCclient.put_pixels(FCpixels)
+time.sleep(.2)
+
+for i in range(0,128):
+    FCpixels[i] = [255,0,255]
+FCclient.put_pixels(FCpixels)
+time.sleep(.2)
+
+FCpixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(FCpixels)
 
 while True:
     button1 = GPIO.input(19)
@@ -260,7 +335,13 @@ while True:
         print('Turning off lights')
 
     if button4 == True:
+        makeLight(contrastLooks[contrast_iteration])
+
         print('Button 4 pressed')
-        print('Doing nothing')
+        print('Displaying high contrast look %s' % str(contrast_iteration))
+
+        contrast_iteration += 1
+        if contrast_iteration > len(contrastLooks) - 1:
+            contrast_iteration = 0
 
     time.sleep(0.2)

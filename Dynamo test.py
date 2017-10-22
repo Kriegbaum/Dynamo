@@ -172,15 +172,6 @@ def sample_image(image):                                                        
         del min_color_count[tmp_index]
     return top_color
 
-def randomcolor(image, n):                                                      #Part of the dominant color function, delivers random color off list of top colors
-    '''also currently unused'''
-    top_color = sample_image(image)
-    colorlist = []
-    for i in range(n):
-        num = random.randrange(0, 24)
-        color = convert(top_color[num])
-        colorlist.append(color)
-    return colorlist
 
 def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
     R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
@@ -295,6 +286,7 @@ def lights_from_image(image, room):                                             
     print('NEXT PLS')
     print()
     print()
+    random.shuffle(room)
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
