@@ -208,7 +208,7 @@ Umbrella = {
 Toplight = {
             'Worklight'     : [0,0,0],
             'Skull'         : [0,0,0],
-            'Fan'           : [30,100,220],
+            'Fan'           : [70,150,220],
             'Corner'        : [0,0,0],
             'Floor Lamp'    : [0,0,0],
             'Duct'          : [0,0,0],
