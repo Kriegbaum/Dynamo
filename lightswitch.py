@@ -206,23 +206,23 @@ Umbrella = {
             }
 
 Toplight = {
-            'Worklight'     : [0,0,50],
-            'Skull'         : [0,0,10],
-            'Fan'           : [10,58,220],
-            'Corner'        : [0,0,10],
-            'Floor Lamp'    : [0,0,10],
-            'Duct'          : [0,0,10],
-            'Windows'       : [0,0,50]
+            'Worklight'     : [0,0,0],
+            'Skull'         : [0,0,0],
+            'Fan'           : [30,100,220],
+            'Corner'        : [0,0,0],
+            'Floor Lamp'    : [0,0,0],
+            'Duct'          : [0,0,0],
+            'Windows'       : [0,0,0]
             }
 
 Blinds = {
             'Worklight'     : [0,0,0],
-            'Skull'         : [1,1,1],
-            'Fan'          : [0,0,0],
-            'Corner'        : [1,1,1],
-            'Floor Lamp'    : [1,1,1],
-            'Duct'          : [1,1,1],
-            'Windows'       : [255,197,120]
+            'Skull'         : [0,0,0],
+            'Fan'           : [0,0,0],
+            'Corner'        : [0,0,0],
+            'Floor Lamp'    : [0,0,0],
+            'Duct'          : [0,0,0],
+            'Windows'       : [255,197,110]
             }
 
 naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity]
@@ -252,8 +252,11 @@ def makeLight(look):
                 FCpixels[p] = color
 
         elif l.system == 'Hue':
-            color = convert(colorCorrect(l, look[l.name]))
-            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 7}
+            if look[l.name] == [0,0,0]:
+                command - {'on' : False}
+            else:
+                color = convert(colorCorrect(l, look[l.name]))
+                command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 7}
             bridge.set_light(l.id, command)
 
         else:
