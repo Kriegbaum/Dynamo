@@ -50,7 +50,7 @@ h2.id = 2
 h3 = Fixture('Hue', 'Entry 2')
 h3.id = 3
 
-h4 = Fixture('Hue', 'Reaper')
+h4 = Fixture('Hue', 'Overhead')
 h4.id = 4
 
 h5 = Fixture('Hue', 'Table Lamp')
@@ -65,7 +65,7 @@ h7.id = 7
 h8 = Fixture('Hue', 'TV')
 h8.id = 8
 
-h10 = Fixture('Hue', 'Dresser')
+h10 = Fixture('Hue', 'Duct')
 h10.id = 10
 
 h11 = Fixture('Hue', 'Skull')
@@ -87,7 +87,7 @@ h15.id = 15
 h17 = Fixture('Hue', 'Floor Lamp')
 h17.id = 17
 
-h18 = Fixture('Hue', 'Drafting Table')
+h18 = Fixture('Hue', 'Corner')
 h18.id = 18
 
 h19 = Fixture('Hue', 'Kitchen Door Right')
@@ -99,12 +99,9 @@ h20.id = 20
 h21 = Fixture('Hue', 'Morty')
 h21.id = 21
 
-h24 = Fixture('Hue', 'Studio Monitors')
-h24.id = 24
-
 bedroom = [h10,h11,h17,h18,s1,s3,s4]
-living_room = [h2,h3,h5,h6,h7,h8,h19,h20,h4]
-kitchen = [h1,h13,h14,h15]
+living_room = [h2,h3,h5,h6,h7,h8,h19,h20]
+kitchen = [h1,h4,h13,h14,h15]
 apartment = [h10,h11,h17,h18,s1,s3,s4,h2,h3,h5,h6,h7,h8,h19,h20,h1,h4,h13,h14,h15]
 
 room_dict = {'bedroom': bedroom, 'living room': living_room, 'kitchen': kitchen, 'apartment':apartment}
@@ -175,15 +172,6 @@ def sample_image(image):                                                        
         del min_color_count[tmp_index]
     return top_color
 
-def randomcolor(image, n):                                                      #Part of the dominant color function, delivers random color off list of top colors
-    '''also currently unused'''
-    top_color = sample_image(image)
-    colorlist = []
-    for i in range(n):
-        num = random.randrange(0, 24)
-        color = convert(top_color[num])
-        colorlist.append(color)
-    return colorlist
 
 def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
     R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
@@ -251,11 +239,14 @@ def lights_from_image(image, room):                                             
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
         if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
+            print(room[l].name)
+            print(colorlist[it][0], colorlist[it][1], colorlist[it][2])
             templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
             colorlist[it] = templist
             colorlist[it][0] *= room[l].colorCorrection[0]
             colorlist[it][1] *= room[l].colorCorrection[1]
             colorlist[it][2] *= room[l].colorCorrection[2]
+            print()
             if sum(templist) < 15:
                 colorlist[it] = [0,0,0]
             for p in room[l].indexrange:
@@ -263,9 +254,12 @@ def lights_from_image(image, room):                                             
             it += 1
 
         elif room[l].system == 'Hue':
+            print(room[l].name)
             colorlist[it][0] *= room[l].colorCorrection[0]
             colorlist[it][1] *= room[l].colorCorrection[1]
             colorlist[it][2] *= room[l].colorCorrection[2]
+            print(colorlist[it][0], colorlist[it][1], colorlist[it][2])
+            print()
             colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
             com_on = True
             com_sat = colorlist[it][1] * global_sat                             #Adjust saturation according to global adjustment value
@@ -289,17 +283,20 @@ def lights_from_image(image, room):                                             
             print('SHAME ON YOU')
             print('FUCK YORSELF WHITE BOI')
     FCclient.put_pixels(FCpixels)
+    print('NEXT PLS')
+    print()
+    print()
+    random.shuffle(room)
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
-        time.sleep(17)
+        dumbshit = input()
         ex += 1
-        if ex % 3 == 0:
+        if ex % 1 == 0:
             random.shuffle(room)
-            print('Shuffle on iteration', ex)
 
 def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
     '''This samples colors off the currently playing album cover'''
@@ -366,19 +363,15 @@ def albumLoop():
     group = room_dict[input().lower()]
     dynamic_album(group)
 
-print('What will it be today?')
-subroutine = input().lower()
+print('Oh shit whaddup?')
+filedir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
+pallettes = os.listdir(filedir)
+for f in pallettes:
+    print(f)
+filepath = input()
+filepath = os.path.join(filedir, filepath)
+group = bedroom
+dynamic_image(filepath, group)
 
-if subroutine == 'image':
-    imageLoop()
 
-if subroutine == 'album':
-    albumLoop()
-
-if subroutine == 'off':
-    print('Which room?')
-    group = room_dict[input().lower()]
-    off(group)
-
-else:
-    print('Yeah right!')
+print('Yeah right!')

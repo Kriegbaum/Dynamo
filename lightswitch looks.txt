@@ -1,0 +1,95 @@
+Copper:
+Worklight 	[199,150,64]
+Fan		[186,103,55]
+Windows		[127,84,60]
+Floor Lamp	[120,70,58]
+Dresser		[69,50,46]
+Skull		[73,27,8]
+Drafting Table	[157,131,114]
+
+Burma:
+Windows		[54,23,5]
+Skull		[157,121,59]
+Worklight	[179,136,47]
+Fan		[188,137,57]
+Drafting Table	[171,130,64]
+Floor Lamp	[116,76,25]
+Dresser		[100,60,11]
+
+Snowy:
+Fan		[238,212,169]
+Windows		[220,182,143]
+Dresser		[147,143,410]
+Worklight	[140,132,85]
+Floor Lamp	[47,46,51]
+Skull		[52,53,54]
+Drafting Table	[60,57,64]
+
+Japanese:
+Windows		[123,141,109]
+Worklight	[198,152,68]
+Drafting Table	[195,145,82]
+Floor Lamp	[216,208,189]
+Dresser		[224,174,175]
+Fan		[196,171,119]
+Skull		[216,221,212]
+
+Sacred:
+Windows		[58,82,130]
+Drafting Table	[85,49,13]
+Dresser		[59,45,17]
+Fan		[79,39,7]
+Floor Lamp	[58,40,26]
+Worklight	[48,51,34]
+Skull		[199,117,37]
+
+
+
+
+
+Jelly:
+Floor Lamp	[0,35,111]
+Dresser		[217,74,0]
+Drafting Table	[1,98,175]
+Windows		[254,138,1]
+Fan		[0,0,255]
+Skull		[0,63,140]
+Worklight	[0,116,132]
+
+Discovery:
+Floor Lamp	[208,187,0]
+Windows		[228,216,106]
+Drafting Table	[0,183,157]
+Fan		[255,90,0]
+Worklight	[208,234,137]
+Skull		[235,160,0]
+Dresser		[63,193,131]
+
+Vaporwave:
+Worklight	[130,74,103]
+Windows		[115,157,86]
+Skull		[124,58,148]
+Fan		[124,171,90]
+Drafting Table	[127,37,151]
+Dresser		[117,172,149]
+Floor Lamp	[119,168,147]
+
+
+Intersection:
+Skull		[135,89,212]
+Floor Lamp	[251,124,169]
+Drafting Table	[103,84,212]
+Windows		[184,63,94]
+Fan		[124,80,149]
+Dresser		[166,73,94]
+Worklight	[124, 86,133]
+
+Heligoland:
+Dresser		[247,143,12]
+Windows		[254,132,2]
+Fan		[143,117,109]
+Skull		[233,133,0]
+Floor Lamp	[251,134,1]
+Worklight	[51,59,48]
+Drafting Table	[10,4,6]
+
