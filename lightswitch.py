@@ -278,7 +278,7 @@ def off():
 for i in range(0,128):
     FCpixels[i] = [255,0,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.5)
+time.sleep(.7)
 
 for i in range(0,128):
     FCpixels[i] = [255,128,0]
@@ -288,22 +288,22 @@ time.sleep(.5)
 for i in range(0,128):
     FCpixels[i] = [255,255,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.5)
+time.sleep(.7)
 
 for i in range(0,128):
     FCpixels[i] = [0,255,0]
 FCclient.put_pixels(FCpixels)
-time.sleep(.5)
+time.sleep(.7)
 
 for i in range(0,128):
     FCpixels[i] = [0,0,255]
 FCclient.put_pixels(FCpixels)
-time.sleep(.5)
+time.sleep(.7)
 
 for i in range(0,128):
     FCpixels[i] = [255,0,255]
 FCclient.put_pixels(FCpixels)
-time.sleep(.5)
+time.sleep(.7)
 
 FCpixels = [ [0,0,0] ] * 512
 FCclient.put_pixels(FCpixels)
@@ -315,6 +315,8 @@ while True:
     button4 = GPIO.input(20)
 
     if button1 == True:
+        for i in range(193, 256):
+            FCpixels[i] = [245,245,190]
         makeLight(naturalLooks[natural_iteration])
 
         print('Button 1 pressed')
@@ -325,6 +327,8 @@ while True:
             natural_iteration = 0
 
     if button2 == True:
+        for i in range(193, 256):
+            FCpixels[i] = [245,245,250]
         makeLight(saturatedLooks[saturated_iteration])
 
         print('Button 2 pressed')
@@ -340,6 +344,8 @@ while True:
         print('Turning off lights')
 
     if button4 == True:
+        for i in range(193, 256):
+            FCpixels[i] = [245,50,0]
         makeLight(contrastLooks[contrast_iteration])
 
         print('Button 4 pressed')
