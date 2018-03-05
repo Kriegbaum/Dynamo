@@ -133,7 +133,6 @@ global_speed = 1
 for i in range(193, 256):
     FCpixels[i] = [245,245,190]
 
-FCclient.put_pixels(FCpixels)
 
 ################################################################################
 #                       Functions
@@ -340,38 +339,10 @@ def off(room):
 ################################################################################
 #                       BEGIN MENU
 
-def imageLoop():
-    print('Input image name')
-    print()
-    filedir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
-    pallettes = os.listdir(filedir)
-    for f in pallettes:
-        print(f)
-    filepath = input()
-    filepath = os.path.join(filedir, filepath)
-    print('Which room?')
-    group = room_dict[input().lower()]
+value1 = int(input())
+value2 = int(input())
+value3 = int(input())
 
-    for i in range(len(group)):
-        if group[i].system == 'Hue':
-            bridge.set_light(group[i].id, 'on', True)
-
-    dynamic_image(filepath, group)
-
-def albumLoop():
-    print('Which room?')
-    group = room_dict[input().lower()]
-    dynamic_album(group)
-
-print('Oh shit whaddup?')
-filedir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
-pallettes = os.listdir(filedir)
-for f in pallettes:
-    print(f)
-filepath = input()
-filepath = os.path.join(filedir, filepath)
-group = bedroom
-dynamic_image(filepath, group)
-
-
-print('Yeah right!')
+color = convert([value1, value2, value3])
+command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True}
+bridge.set_light(2, command)

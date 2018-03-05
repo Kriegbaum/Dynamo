@@ -32,9 +32,9 @@ s1.indexrange = range(0,128)
 s1.colorCorrection = [1,.8627,.6705]
 
 s3 = Fixture('Fadecandy', 'Fan')
-s3.indexrange = range(448,450)
+s3.indexrange = range(448,494)
 #s3.colorCorrection = [.93725, .79607, 1]
-s3.colorCorrection = [1, .91, 0.70588]
+s3.colorCorrection = [1, .8627, 0.6705]
 
 s4 = Fixture('Fadecandy', 'Worklight')
 s4.indexrange = range(384,385)
@@ -44,7 +44,7 @@ s4.colorCorrection = [1, .97777, 0.63137]
 h1 = Fixture('Hue', 'Coffee Station')
 h1.id = 1
 
-h2 = Fixture('Hue', 'Entry 1')
+h2 = Fixture('Hue', 'Desk Lamp')
 h2.id = 2
 
 h3 = Fixture('Hue', 'Entry 2')
@@ -102,12 +102,13 @@ h21.id = 21
 h24 = Fixture('Hue', 'Studio Monitors')
 h24.id = 24
 
-bedroom = [h10,h11,h17,h18,s1,s3,s4]
-living_room = [h2,h3,h5,h6,h7,h8,h19,h20,h4]
+bedroom = [h2,h10,h11,h17,h18,s1,s3,s4]
+living_room = [h3,h5,h6,h7,h8,h19,h20,h4]
 kitchen = [h1,h13,h14,h15]
 apartment = [h10,h11,h17,h18,s1,s3,s4,h2,h3,h5,h6,h7,h8,h19,h20,h1,h4,h13,h14,h15]
+hangout = [h10,h11,h17,h18,s1,s3,s4,h2,h3,h5,h6,h7,h8,h19,h20,h4]
 
-room_dict = {'bedroom': bedroom, 'living room': living_room, 'kitchen': kitchen, 'apartment':apartment}
+room_dict = {'bedroom': bedroom, 'living room': living_room, 'kitchen': kitchen, 'apartment':apartment, 'hangout':hangout}
 
 ################################################################################
 #                       Control Objects
@@ -140,19 +141,6 @@ FCclient.put_pixels(FCpixels)
 
 ################################################################################
 #                       Functions
-#These are currently unused
-def serverkill():
-#Shuts down server binary, registered in server start as atexit function
-    os.system('TASKKILL /F /IM fcserver.exe')
-
-def serverstart():
-#Initialize Fadecandy server support
-    #Make sure server and script are coterminal
-    atexit.register(serverkill)
-    #Run fadecandy server binary in background
-    os.system('START /B E:\\Code\\fadecandy\\bin\\fcserver.exe')
-    time.sleep(0.3)
-
 def sample_image(image):                                                        #Function for grabbing most common colors in an image, currently unused
     '''this is not used at the moment'''
     im = Image.open(image)
@@ -194,7 +182,7 @@ def convert(RGB):                                                               
     return hsv_p
 
 def rekt(n):                                                                    #Function delivers the two closest divisible integers of input (n)
-    '''as in: get rekt skrub'''
+'''as in: get rekt skrub'''
     factors = []
     for i in range(1, n + 1):                                                   #Create a list of integer factors of (n)
         if n % i == 0:
@@ -251,12 +239,13 @@ def lights_from_image(image, room):                                             
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
         if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
-            templist = [colorlist[it][0], colorlist[it][1], colorlist[it][2]]   #Useful for swapping RGB to GBR
-            colorlist[it] = templist
+            if not room[l].grb:
+                templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]   #Useful for swapping RGB to GBR
+                colorlist[it] = templist
             colorlist[it][0] *= room[l].colorCorrection[0]
             colorlist[it][1] *= room[l].colorCorrection[1]
             colorlist[it][2] *= room[l].colorCorrection[2]
-            if sum(templist) < 15:
+            if sum(colorlist[it]) < 15:
                 colorlist[it] = [0,0,0]
             for p in room[l].indexrange:
                 FCpixels[p] = colorlist[it]
@@ -291,7 +280,7 @@ def lights_from_image(image, room):                                             
     FCclient.put_pixels(FCpixels)
 
 def dynamic_image(image, room):
-    '''This takes an image and samples colors from it'''
+'''This takes an image and samples colors from it'''
     ex = 0
     while 1 == 1:
         lights_from_image(image, room)
@@ -302,7 +291,7 @@ def dynamic_image(image, room):
             print('Shuffle on iteration', ex)
 
 def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
-    '''This samples colors off the currently playing album cover'''
+'''This samples colors off the currently playing album cover'''
     ex = 0
     Album = 'dicks'
     while 1 == 1:
@@ -330,7 +319,7 @@ def dynamic_album(room):                                                        
             random.shuffle(room)
             print('Shuffled on iteration', ex)
 def off(room):
-    """Turns off lights in a given room"""
+'''Turns off lights in a given room'''
     FCpixels = [[0,0,0]] * 512
     for l in room:
         if l.system == "Fadcandy":
