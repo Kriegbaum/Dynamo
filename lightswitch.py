@@ -1,5 +1,6 @@
 from DYNAcore import *
 import RPi.GPIO as GPIO
+import datetime
 
 ###########RPI pins defined
 GPIO.setmode(GPIO.BCM)
@@ -238,7 +239,7 @@ def off():
 
 
 for i in range(0,128):
-    FCpixels[i] = [0,0,255]
+    FCpixels[i] = [255,255,255]
 FCclient.put_pixels(FCpixels)
 time.sleep(.7)
 
@@ -281,7 +282,7 @@ while True:
         for i in range(193, 256):
             FCpixels[i] = [245,245,190]
         makeLight(naturalLooks[natural_iteration])
-
+        print(datetime.datetime.now())
         print('Button 1 pressed')
         print('Displaying natural look %s' % str(natural_iteration))
 
@@ -293,7 +294,7 @@ while True:
         for i in range(193, 256):
             FCpixels[i] = [245,245,250]
         makeLight(saturatedLooks[saturated_iteration])
-
+        print(datetime.datetime.now())
         print('Button 2 pressed')
         print('Displaying saturated look %s' % str(saturated_iteration))
 
@@ -303,6 +304,7 @@ while True:
 
     if button3 == True:
         off()
+        print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
 
@@ -310,7 +312,7 @@ while True:
         for i in range(193, 256):
             FCpixels[i] = [245,50,0]
         makeLight(contrastLooks[contrast_iteration])
-
+        print(datetime.datetime.now())
         print('Button 4 pressed')
         print('Displaying high contrast look %s' % str(contrast_iteration))
 
