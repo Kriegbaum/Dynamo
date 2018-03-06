@@ -1,4 +1,4 @@
-from DYNAconfig import *
+from DYNApatch import *
 import time
 from phue import Bridge
 from PIL import Image

@@ -1,12 +1,18 @@
 import os
+import yaml
 ###########################RIG PROPERTIES#####################################
-hasFadecandy = True
-hasHue = True
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yml')) as f:
+    configFile = f.read()
+configs = yaml.load(configFile)
 
-pallettesDir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
+hasFadecandy = configs['hasFadecandy']
+hasHue = configs['hasHue']
+hasMusicbee = configs['hasMusicbee']
 
-hueIP = '192.168.1.31'
-fadecandyIP = '192.168.1.145:7890'
+pallettesDir = configs['pallettesDir']
+
+hueIP = configs['hueIP']
+fadecandyIP = configs['fadecandyIP']
 
 allFixtures = []
 class Fixture:

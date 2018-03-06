@@ -1,4 +1,3 @@
-hasMusicbee = True
 from DYNAcore import *
 ################################################################################
 #                       BEGIN MENU

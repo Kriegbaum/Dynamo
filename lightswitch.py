@@ -1,4 +1,3 @@
-hasMusicbee = False
 from DYNAcore import *
 import RPi.GPIO as GPIO
 

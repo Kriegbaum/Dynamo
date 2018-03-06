@@ -1,0 +1,6 @@
+hasMusicbee: True
+hasHue: True
+hasFadecandy: True
+pallettesDir: E:\\Spidergod\\Images\\Color pallettes
+hueIP: 192.168.1.31
+fadecandyIP: 192.168.1.145:7890
