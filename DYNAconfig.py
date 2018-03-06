@@ -1,7 +1,6 @@
 import os
 ###########################RIG PROPERTIES#####################################
 hasFadecandy = True
-hasMusicbee = True
 hasHue = True
 
 pallettesDir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
