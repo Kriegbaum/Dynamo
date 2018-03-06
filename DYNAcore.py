@@ -1,6 +1,5 @@
-import opc
+from DYNAconfig import *
 import time
-import os
 from phue import Bridge
 from PIL import Image
 from PIL import ImageFile
@@ -9,132 +8,43 @@ import math
 import numpy as np
 import random
 import shutil
-from mutagen import File
-from musicbeeipc import *
 
-class Fixture:
-    def __init__(self, system, name):
-        self.system = system
-        self.name = name
-        self.indexrange = range(0,0)
-        self.colorCorrection = [1, 1, 1]
-        self.id = 0
-        self.grb = True
 
-#############################################################################
-#                           FIXTURE DEFINITIONS
-#Fadecandy Fixtures
-s1 = Fixture('Fadecandy', 'Windows')
-s1.indexrange = range(0,128)
-s1.colorCorrection = [1,.8627,.6705]
 
-s3 = Fixture('Fadecandy', 'Fan')
-s3.indexrange = range(448,494)
-#s3.colorCorrection = [.93725, .79607, 1]
-s3.colorCorrection = [1, .8627, 0.6705]
-
-s4 = Fixture('Fadecandy', 'Worklight')
-s4.indexrange = range(384,385)
-s4.colorCorrection = [1, .97777, 0.63137]
-
-#Hue Fixtures
-h1 = Fixture('Hue', 'Coffee Station')
-h1.id = 1
-
-h2 = Fixture('Hue', 'Desk Lamp')
-h2.id = 2
-
-h3 = Fixture('Hue', 'Entry 2')
-h3.id = 3
-
-h4 = Fixture('Hue', 'Reaper')
-h4.id = 4
-
-h5 = Fixture('Hue', 'Table Lamp')
-h5.id = 5
-
-h6 = Fixture('Hue', 'Flag Left')
-h6.id = 6
-
-h7 = Fixture('Hue', 'Flag Right')
-h7.id = 7
-
-h8 = Fixture('Hue', 'TV')
-h8.id = 8
-
-h10 = Fixture('Hue', 'Dresser')
-h10.id = 10
-
-h11 = Fixture('Hue', 'Skull')
-h11.id = 11
-h11.colorCorrection= [.92,.95,1]
-
-h12 = Fixture('Hue', 'Bedroom Hall')
-h12.id = 12
-
-h13 = Fixture('Hue', 'Sink')
-h13.id = 13
-
-h14 = Fixture('Hue', 'Pantry')
-h14.id = 14
-
-h15 = Fixture('Hue', 'Cabinet Top')
-h15.id = 15
-
-h17 = Fixture('Hue', 'Floor Lamp')
-h17.id = 17
-
-h18 = Fixture('Hue', 'Drafting Table')
-h18.id = 18
-
-h19 = Fixture('Hue', 'Kitchen Door Right')
-h19.id = 19
-
-h20 = Fixture('Hue', 'Kitchen Door Left')
-h20.id = 20
-
-h21 = Fixture('Hue', 'Morty')
-h21.id = 21
-
-h24 = Fixture('Hue', 'Studio Monitors')
-h24.id = 24
-
-bedroom = [h2,h10,h11,h17,h18,s1,s3,s4]
-living_room = [h3,h5,h6,h7,h8,h19,h20,h4]
-kitchen = [h1,h13,h14,h15]
-apartment = [h10,h11,h17,h18,s1,s3,s4,h2,h3,h5,h6,h7,h8,h19,h20,h1,h4,h13,h14,h15]
-hangout = [h10,h11,h17,h18,s1,s3,s4,h2,h3,h5,h6,h7,h8,h19,h20,h4]
-
-room_dict = {'bedroom': bedroom, 'living room': living_room, 'kitchen': kitchen, 'apartment':apartment, 'hangout':hangout}
 
 ################################################################################
 #                       Control Objects
 #This helps with images that were created stupid
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-
 #Hue system control object
-bridge = Bridge('192.168.1.31')
-
-#OPC go-between that talks to FCserver
-FCclient = opc.Client('192.168.1.145:7890')
-
-#FC control object. 512 RGB pixels, split into eight 64 pixel groups
-FCpixels = [ [0,0,0] ] * 512
+bridge = Bridge(hueIP)
 
 #This will let us see what musicbee is doing
-mbIPC = MusicBeeIPC()
+if hasMusicbee:
+    from musicbeeipc import *
+    from mutagen import File
+    mbIPC = MusicBeeIPC()
 
 global_sat = 1
 global_bri = 1
 global_speed = 1
 
 ################################################################################
-#                       Lighting Initialization
-for i in range(193, 256):
-    FCpixels[i] = [245,245,190]
+#                       Fadecandy Initialization
+if hasFadecandy:
+    import opc
 
-FCclient.put_pixels(FCpixels)
+    #OPC go-between that talks to FCserver
+    FCclient = opc.Client(fadecandyIP)
+
+    #FC control object. 512 RGB pixels, split into eight 64 pixel groups
+    FCpixels = [ [0,0,0] ] * 512
+
+    for i in range(193, 256):
+        FCpixels[i] = [245,245,190]
+
+    FCclient.put_pixels(FCpixels)
 
 ################################################################################
 #                       Functions
@@ -235,46 +145,48 @@ def lights_from_image(image, room):                                             
     it = 0
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
-        if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
-            if not room[l].grb:
-                templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]   #Useful for swapping RGB to GBR
-                colorlist[it] = templist
-            colorlist[it][0] *= room[l].colorCorrection[0]
-            colorlist[it][1] *= room[l].colorCorrection[1]
-            colorlist[it][2] *= room[l].colorCorrection[2]
-            if sum(colorlist[it]) < 15:
-                colorlist[it] = [0,0,0]
-            for p in room[l].indexrange:
-                FCpixels[p] = colorlist[it]
-            it += 1
-
-        elif room[l].system == 'Hue':
-            colorlist[it][0] *= room[l].colorCorrection[0]
-            colorlist[it][1] *= room[l].colorCorrection[1]
-            colorlist[it][2] *= room[l].colorCorrection[2]
-            colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
-            com_on = True
-            com_sat = colorlist[it][1] * global_sat                             #Adjust saturation according to global adjustment value
-            if com_sat > 255:
-                com_sat = 255
-            if colorlist[it][1] < 10:
-                com_sat = colorlist[it][1]
-            com_bri = colorlist[it][2] * global_bri                             #Adjust brightness according to global adjustment value
-            if com_bri > 255:
-                com_bri = 255
-            if com_bri < 7:
-                com_on = False
-            com_trans = 70 * global_speed                                       #Adjust transition speed according to global adjustment value
-            command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
-            bridge.set_light(room[l].id, command)
-            it += 1
+        if hasFadecandy:
+            if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
+                if not room[l].grb:
+                    templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]   #Useful for swapping RGB to GBR
+                    colorlist[it] = templist
+                colorlist[it][0] *= room[l].colorCorrection[0]
+                colorlist[it][1] *= room[l].colorCorrection[1]
+                colorlist[it][2] *= room[l].colorCorrection[2]
+                if sum(colorlist[it]) < 15:
+                    colorlist[it] = [0,0,0]
+                for p in room[l].indexrange:
+                    FCpixels[p] = colorlist[it]
+                it += 1
+        if hasHue:
+            if room[l].system == 'Hue':
+                colorlist[it][0] *= room[l].colorCorrection[0]
+                colorlist[it][1] *= room[l].colorCorrection[1]
+                colorlist[it][2] *= room[l].colorCorrection[2]
+                colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
+                com_on = True
+                com_sat = colorlist[it][1] * global_sat                             #Adjust saturation according to global adjustment value
+                if com_sat > 255:
+                    com_sat = 255
+                if colorlist[it][1] < 10:
+                    com_sat = colorlist[it][1]
+                com_bri = colorlist[it][2] * global_bri                             #Adjust brightness according to global adjustment value
+                if com_bri > 255:
+                    com_bri = 255
+                if com_bri < 7:
+                    com_on = False
+                com_trans = 70 * global_speed                                       #Adjust transition speed according to global adjustment value
+                command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
+                bridge.set_light(room[l].id, command)
+                it += 1
         else:
             print('You fucked up and now there is an improperly classed Fixture in your room!')
             print('SHAME ON YOU')
             print('SHAME ON YOU')
             print('SHAME ON YOU')
             print('FUCK YORSELF WHITE BOI')
-    FCclient.put_pixels(FCpixels)
+    if hasFadecandy:
+        FCclient.put_pixels(FCpixels)
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
@@ -287,84 +199,44 @@ def dynamic_image(image, room):
             random.shuffle(room)
             print('Shuffle on iteration', ex)
 
-def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
-    '''This samples colors off the currently playing album cover'''
-    ex = 0
-    Album = 'dicks'
-    while 1 == 1:
-        newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
+if hasMusicbee:
+    def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
+        '''This samples colors off the currently playing album cover'''
+        ex = 0
+        Album = 'dicks'
+        while 1 == 1:
+            newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
 
-        if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
-            Album = newAlbum
-            song = File(mbIPC.get_file_url())
-            try:
-                cover = song.tags['APIC:'].data
-                with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:         #Write temporary file with new album artwork
-                    img.write(cover)
-            except:
-                print('SHIT SHIT SHIT....')
-                print('APIC tag failed, attempting to read Musicbee Temporary File')
-                shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
-            try:
-                print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
-            except:
-                print('Unable to print name for some reason. Probably because I am dumbguy')
-        lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)         #Sample colors from temporary file
-        time.sleep(18 * global_speed)
-        ex += 1
-        if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
-            random.shuffle(room)
-            print('Shuffled on iteration', ex)
+            if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
+                Album = newAlbum
+                song = File(mbIPC.get_file_url())
+                try:
+                    cover = song.tags['APIC:'].data
+                    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:         #Write temporary file with new album artwork
+                        img.write(cover)
+                except:
+                    print('SHIT SHIT SHIT....')
+                    print('APIC tag failed, attempting to read Musicbee Temporary File')
+                    shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
+                try:
+                    print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
+                except:
+                    print('Unable to print name for some reason. Probably because I was too lazy to try and figure out unicode support')
+            lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)         #Sample colors from temporary file
+            time.sleep(18 * global_speed)
+            ex += 1
+            if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
+                random.shuffle(room)
+                print('Shuffled on iteration', ex)
 def off(room):
     '''Turns off lights in a given room'''
-    FCpixels = [[0,0,0]] * 512
     for l in room:
-        if l.system == "Fadcandy":
-            for i in FCpixels:
-                i = [0, 0, 0]
-        if l.system == 'Hue':
-            bridge.set_light(l.id, 'on', False)
-    FCclient.put_pixels(FCpixels)
-
-################################################################################
-#                       BEGIN MENU
-
-def imageLoop():
-    print('Input image name')
-    print()
-    filedir = os.path.join('E:\\', 'Spidergod', 'Images', 'Color Pallettes')
-    pallettes = os.listdir(filedir)
-    for f in pallettes:
-        print(f)
-    filepath = input()
-    filepath = os.path.join(filedir, filepath)
-    print('Which room?')
-    group = room_dict[input().lower()]
-
-    for i in range(len(group)):
-        if group[i].system == 'Hue':
-            bridge.set_light(group[i].id, 'on', True)
-
-    dynamic_image(filepath, group)
-
-def albumLoop():
-    print('Which room?')
-    group = room_dict[input().lower()]
-    dynamic_album(group)
-
-print('What will it be today?')
-subroutine = input().lower()
-
-if subroutine == 'image':
-    imageLoop()
-
-if subroutine == 'album':
-    albumLoop()
-
-if subroutine == 'off':
-    print('Which room?')
-    group = room_dict[input().lower()]
-    off(group)
-
-else:
-    print('Yeah right!')
+        if hasFadecandy:
+            if l.system == "Fadcandy":
+                for i in FCpixels:
+                    i = [0, 0, 0]
+        if hasHue:
+            if l.system == 'Hue':
+                bridge.set_light(l.id, 'on', False)
+    if hasFadecandy:
+        FCclient.put_pixels(FCpixels)

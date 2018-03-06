@@ -1,0 +1,129 @@
+#Included Components
+
+Fadecandy:
+	has: True
+	IP: '192.168.1.145:7890'
+Hue:
+	has: True
+	IP: '192.168.1.31'
+Fixtures:
+	windows:
+		system: 'Fadecandy'
+		name: 'Windows'
+		indexrange: range(0,128)
+		colorCorrection: [1, .8627, .6705]
+		room: 'bedroom'
+	fan:
+		system: 'Fadecandy'
+		name: 'Fan'
+		indexrange: range(448,494)
+		colorCorrection: [1, .8627, .6705]
+		room: 'bedroom'
+	worklight:
+		system: 'Fadecandy'
+		name: 'Worklight'
+		indexrange: range(384,385)
+		colorCorrection: [1,.97777, .63137]
+		room: 'bedroom'
+	coffeeStation:
+		system: 'Hue'
+		name: 'Coffee Station'
+		id: 1
+		room: 'kitchen'
+	deskLamp:
+		system: 'Hue'
+		name: 'Desk Lamp'
+		id: 2
+		room: 'bedroom'
+	entry2:
+		system: 'Hue'
+		name: 'Entry 2'
+		id: 3
+		room: 'living room'
+	reaper:
+		system: 'Hue'
+		name: 'reaper'
+		id: 4
+		room: 'living room'
+	tableLamp:
+		system: 'Hue'
+		name: 'Table Lamp'
+		id: 5
+		room: 'living room'
+	flagLeft:
+		system: 'Hue'
+		name: 'Flag Left'
+		id: 6
+		room: 'living room'
+	flagRight:
+		system: 'Hue'
+		name: 'Flag Right'
+		id: 7
+		room: 'living room'
+	tv:
+		system: 'Hue'
+		name: 'TV'
+		id: 8
+		room: 'living room'
+	dresser:
+		system: 'Hue'
+		name: 'Dresser'
+		id: 10
+		room: 'bedroom'
+	skull:
+		system: 'Hue'
+		name: 'Skull'
+		id: 11
+		room: 'bedroom'
+		colorCorrection: [.92, .95, 1]
+	bedroomHall:
+		system: 'Hue'
+		name: 'Bedroom Hall'
+		id: 12
+		room: 'living room'
+	sink:
+		system: 'Hue'
+		name: 'Sink'
+		id: 13
+		room: 'kitchen'
+	pantry:
+		system: 'Hue'
+		name: 'Pantry'
+		id: 14
+		room: 'kitchen'
+	cabinetTop:
+		system: 'Hue'
+		name: 'Cabinet Top'
+		id: 15
+		room: 'kitchen'
+	floorLamp:
+		system: 'Hue'
+		name: 'Floor Lamp'
+		id: 17
+		room: 'bedroom'
+	draftingTable:
+		system: 'Hue'
+		name: 'Drafting Table'
+		id: 18
+		room: 'bedroom'
+	kitchenDoorR:
+		system: 'Hue'
+		name: 'Kitchen Door Right'
+		id: 19
+		room: 'living room'
+	kitchenDoorL:
+		system: 'Hue'
+		name: 'Kitchen Door Left'
+		id: 20
+		room: 'living room'
+	morty:
+		system: 'Hue'
+		name: 'Morty'
+		id: 21
+	studioMonitors:
+		system: 'Hue'
+		name: 'Studio Monitors'
+		id: 24
+		room: 'bedroom'
+		dimming: False
+		color: False 

@@ -52,8 +52,8 @@ s1.indexrange = range(0,128)
 s1.colorCorrection = [1,.8627,.6705]
 
 s3 = Fixture('Fadecandy', 'Fan')
-s3.indexrange = range(448,450)
-s3.colorCorrection = [1, .91, 0.70588]
+s3.indexrange = range(448,494)
+s3.colorCorrection = [1, .8627, 0.6705]
 
 s4 = Fixture('Fadecandy', 'Worklight')
 s4.indexrange = range(384,385)
@@ -73,7 +73,10 @@ h17.id = 17
 h18 = Fixture('Hue', 'Corner')
 h18.id = 18
 
-room = [h10,h11,h17,h18,s1,s3,s4]
+h2 = Fixture('Hue','Desk Lamp')
+h2.id = 2 
+
+room = [h2,h10,h11,h17,h18,s1,s3,s4]
 #Function Objects
 saturated_iteration = 0
 natural_iteration = 0
@@ -84,13 +87,14 @@ contrast_iteration = 0
 #Natural looks
 
 Copper = {
-            'Worklight'     : [88,83,87],
-            'Fan'           : [139,68,4],
-            'Windows'       : [83,87,99],
-            'Floor Lamp'    : [37,22,15],
+            'Worklight'     : [114,108,113],
+            'Fan'           : [120,68,15],
+            'Windows'       : [128,134,152],
+            'Floor Lamp'    : [44,26,21],
             'Duct'          : [122,106,106],
-            'Skull'         : [212,146,70],
-            'Corner'        : [144,110,85]
+            'Skull'         : [170,117,56],
+            'Corner'        : [144,110,85],
+	    'Desk Lamp'     : [120,87,27]
             }
 
 Burma = {
@@ -100,7 +104,8 @@ Burma = {
             'Fan'           : [199,164,96],
             'Corner'        : [177,137,75],
             'Floor Lamp'    : [118,73,16],
-            'Duct'          : [168,127,65]
+            'Duct'          : [168,127,65],
+            'Desk Lamp'     : [200,200,25]
             }
 
 Snowy = {
@@ -110,7 +115,8 @@ Snowy = {
             'Worklight'     : [114,112,115],
             'Floor Lamp'    : [84,87,94],
             'Skull'         : [172,173,188],
-            'Corner'        : [106,90,93]
+            'Corner'        : [106,90,93],
+    	    'Desk Lamp'     : [120,120,125]
             }
 
 Japanese = {
@@ -120,17 +126,19 @@ Japanese = {
             'Floor Lamp'    : [216,208,189],
             'Duct'          : [224,174,175],
             'Fan'           : [196,171,119],
-            'Skull'         : [205,221,200]
+            'Skull'         : [205,221,200],
+	    'Desk Lamp'     : [95,150,160]
             }
 
 Sacred = {
-            'Windows'       : [35,178,220],
+            'Windows'       : [47,183,220],
             'Corner'        : [100,49,25],
             'Duct'          : [81,46,14],
             'Fan'           : [79,60,25],
             'Floor Lamp'    : [85,49,15],
             'Worklight'     : [81,42,9],
-            'Skull'         : [44,42,69]
+            'Skull'         : [44,42,69],
+            'Desk Lamp'     : [120,120,115]
             }
 
 Eternity = {
@@ -140,7 +148,8 @@ Eternity = {
             'Windows'       : [223,120,101],
             'Fan'           : [174,112,101],
             'Floor Lamp'    : [144,94,97],
-            'Duct'          : [128,85,92]
+            'Duct'          : [128,85,92],
+            'Desk Lamp'     : [170,95,85]
             }
 #Saturated looks
 
@@ -151,18 +160,20 @@ Jelly = {
             'Windows'       : [254,138,1],
             'Fan'           : [0,0,255],
             'Skull'         : [95,45,0],
-            'Worklight'     : [0,174,198]
+            'Worklight'     : [0,174,198],
+            'Desk Lamp'     : [112,112,128]
             }
 
 
 Valtari = {
             'Skull'         : [125,124,67],
-            'Floor Lamp'    : [177,150,81],
+            'Floor Lamp'    : [167,190,71],
             'Corner'        : [145,131,66],
-            'Windows'       : [93,92,46],
+            'Windows'       : [170,168,84],
             'Fan'           : [85,85,33],
-            'Worklight'     : [110,98,60],
-            'Duct'         : [130,116,65]
+            'Worklight'     : [148,131,74],
+            'Duct'          : [130,110,39],
+            'Desk Lamp'     : [160,70,0]
             }
 
 Vaporwave = {
@@ -172,7 +183,8 @@ Vaporwave = {
             'Fan'           : [96,71,126],
             'Corner'        : [70,200,135],
             'Duct'          : [129,31,142],
-            'Floor Lamp'    : [120,168,146]
+            'Floor Lamp'    : [120,168,146],
+            'Desk Lamp'     : [0,110,170]
             }
 
 Intersection = {
@@ -182,7 +194,8 @@ Intersection = {
             'Windows'       : [208,89,153],
             'Fan'           : [75,40,190],
             'Duct'          : [80,47,150],
-            'Worklight'     : [79,39,73]
+            'Worklight'     : [79,39,73],
+            'Desk Lamp'     : [190,90,150]
             }
 
 Eiffel = {
@@ -192,7 +205,8 @@ Eiffel = {
             'Corner'        : [123,50,0],
             'Windows'       : [119,62,7],
             'Duct'          : [112,64,0],
-            'Floor Lamp'    : [87,43,8]
+            'Floor Lamp'    : [87,43,8],
+	    'Desk Lamp'     : [255,170,10]
             }
 
 Umbrella = {
@@ -202,7 +216,8 @@ Umbrella = {
             'Corner'        : [26,120,144],
             'Floor Lamp'    : [165,64,107],
             'Duct'          : [7,75,138],
-            'Windows'       : [165,64,107]
+            'Windows'       : [165,64,107],
+            'Desk Lamp'     : [50,50,128]
             }
 
 Toplight = {
@@ -212,7 +227,8 @@ Toplight = {
             'Corner'        : [0,0,0],
             'Floor Lamp'    : [0,0,0],
             'Duct'          : [0,0,0],
-            'Windows'       : [0,0,0]
+            'Windows'       : [0,0,0],
+            'Desk Lamp'     : [0,0,0]
             }
 
 Blinds = {
@@ -222,12 +238,24 @@ Blinds = {
             'Corner'        : [0,0,0],
             'Floor Lamp'    : [0,0,0],
             'Duct'          : [0,0,0],
-            'Windows'       : [255,197,110]
+            'Windows'       : [255,197,110],
+            'Desk Lamp'     : [40,40,20]
             }
+
+Cabinet = {
+           'Worklight'      : [0,0,0],
+	   'Skull'	    : [0,0,0],
+	   'Fan'	    : [0,0,0],
+	   'Corner'	    : [90,40,25],
+	   'Floor Lamp'     : [0,0,0],
+	   'Duct'           : [0,0,0],
+	   'Windows' 	    : [0,0,0],
+           'Desk Lamp'      : [0,0,0]
+	   }
 
 naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity]
 saturatedLooks = [Jelly, Vaporwave, Intersection, Eiffel, Valtari, Umbrella]
-contrastLooks = [Toplight, Blinds]
+contrastLooks = [Toplight, Blinds, Cabinet]
 
 def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
     R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
