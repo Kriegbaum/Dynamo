@@ -238,6 +238,7 @@ def off():
 
 
 for i in range(0,128):
+    FCpixels[i] = [0,0,255]
     FCclient.put_pixels(FCpixels)
     time.sleep(.7)
 
