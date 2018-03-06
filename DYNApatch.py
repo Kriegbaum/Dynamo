@@ -84,7 +84,7 @@ h8 = Fixture('Hue', 'TV')
 h8.id = 8
 h8.room = 'living room'
 
-h10 = Fixture('Hue', 'Dresser')
+h10 = Fixture('Hue', 'Duct')
 h10.id = 10
 h10.room = 'bedroom'
 
@@ -113,7 +113,7 @@ h17 = Fixture('Hue', 'Floor Lamp')
 h17.id = 17
 h17.room = 'bedroom'
 
-h18 = Fixture('Hue', 'Drafting Table')
+h18 = Fixture('Hue', 'Corner')
 h18.id = 18
 h18.room = 'bedroom'
 
