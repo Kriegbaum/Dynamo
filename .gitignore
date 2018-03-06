@@ -96,3 +96,7 @@ ENV/
 #so that people will not snoop on what im listening to
 .jpg
 .png
+.jpeg
+
+#settings file
+.yml

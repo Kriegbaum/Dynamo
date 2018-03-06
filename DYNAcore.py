@@ -33,6 +33,7 @@ global_speed = 1
 ################################################################################
 #                       Fadecandy Initialization
 if hasFadecandy:
+    print('Initializing Fadecandy Objects')
     import opc
 
     #OPC go-between that talks to FCserver

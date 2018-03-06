@@ -236,40 +236,39 @@ def off():
         FCclient.put_pixels(FCpixels)
         FCclient.put_pixels(FCpixels)
 
-def readySequence():
-    for i in range(0,128):
-        FCclient.put_pixels(FCpixels)
-        time.sleep(.7)
 
-    for i in range(0,128):
-        FCpixels[i] = [255,255,255]
-        FCclient.put_pixels(FCpixels)
-        time.sleep(.5)
-
-    for i in range(0,128):
-        FCpixels[i] = [0,0,0]
-        FCclient.put_pixels(FCpixels)
-        time.sleep(.7)
-
-    for i in range(0,128):
-        FCpixels[i] = [255,255,255]
-        FCclient.put_pixels(FCpixels)
-        time.sleep(.7)
-
-    for i in range(0,128):
-        FCpixels[i] = [0,0,0]
-        FCclient.put_pixels(FCpixels)
-        time.sleep(.7)
-
-    for i in range(0,128):
-        FCpixels[i] = [255,255,255]
-        FCclient.put_pixels(FCpixels)
-        time.sleep(.7)
-
-    FCpixels = [ [0,0,0] ] * 512
+for i in range(0,128):
     FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
 
-readySequence()
+for i in range(0,128):
+    FCpixels[i] = [255,255,255]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.5)
+
+for i in range(0,128):
+    FCpixels[i] = [0,0,0]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
+
+for i in range(0,128):
+    FCpixels[i] = [255,255,255]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
+
+for i in range(0,128):
+    FCpixels[i] = [0,0,0]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
+
+for i in range(0,128):
+    FCpixels[i] = [255,255,255]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
+
+FCpixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(FCpixels)
+
 
 while True:
     button1 = GPIO.input(19)
