@@ -88,6 +88,12 @@ def convert(RGB):                                                               
     hsv_p = [int(hsv[0] * 360 * 181.33), int(hsv[1] * 255), int(hsv[2] * 255)]  #Converts to Hue api HSV
     return hsv_p
 
+def colorCorrect(fixture, rgb):
+    tempList =  [fixture.colorCorrection[0] * rgb[0],
+                fixture.colorCorrection[1] * rgb[1],
+                fixture.colorCorrection[2] * rgb[2]]
+    return tempList
+
 def rekt(n):                                                                    #Function delivers the two closest divisible integers of input (n)
     '''as in: get rekt skrub'''
     factors = []
@@ -150,9 +156,7 @@ def lights_from_image(image, room):                                             
                 if not room[l].grb:
                     templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]   #Useful for swapping RGB to GBR
                     colorlist[it] = templist
-                colorlist[it][0] *= room[l].colorCorrection[0]
-                colorlist[it][1] *= room[l].colorCorrection[1]
-                colorlist[it][2] *= room[l].colorCorrection[2]
+                colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
                 for p in room[l].indexrange:
@@ -160,9 +164,7 @@ def lights_from_image(image, room):                                             
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':
-                colorlist[it][0] *= room[l].colorCorrection[0]
-                colorlist[it][1] *= room[l].colorCorrection[1]
-                colorlist[it][2] *= room[l].colorCorrection[2]
+                colorlist[it] = colorCorrect(room[l], colorlist[it])
                 colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
                 com_on = True
                 com_sat = colorlist[it][1] * global_sat                             #Adjust saturation according to global adjustment value

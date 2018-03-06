@@ -1,9 +1,5 @@
+from DYNAcore import *
 import RPi.GPIO as GPIO
-import time
-from phue import Bridge
-import opc
-import colorsys
-
 
 ###########RPI pins defined
 GPIO.setmode(GPIO.BCM)
@@ -25,57 +21,6 @@ GPIO.setup(23, GPIO.OUT)
 GPIO.setup(24, GPIO.OUT)
 
 ###### Lighting Control Objects
-
-#Hue system control object
-bridge = Bridge('192.168.1.31')
-
-#OPC go-between that talks to FCserver
-FCclient = opc.Client('192.168.1.145:7890')
-
-#FC control object. 512 RGB pixels, split into eight 64 pixel groups
-FCpixels = [ [0,0,0] ] * 512
-
-class Fixture:
-    def __init__(self, system, name):
-        self.system = system
-        self.name = name
-        self.indexrange = range(0,0)
-        self.colorCorrection = [1, 1, 1]
-        self.id = 0
-        self.grb = True
-
-##### FIXTURE DEFINITIONS
-
-#Fadecandy Fixtures
-s1 = Fixture('Fadecandy', 'Windows')
-s1.indexrange = range(0,128)
-s1.colorCorrection = [1,.8627,.6705]
-
-s3 = Fixture('Fadecandy', 'Fan')
-s3.indexrange = range(448,494)
-s3.colorCorrection = [1, .8627, 0.6705]
-
-s4 = Fixture('Fadecandy', 'Worklight')
-s4.indexrange = range(384,385)
-s4.colorCorrection = [1, .97777, 0.63137]
-
-#Hue Fixtures
-h10 = Fixture('Hue', 'Duct')
-h10.id = 10
-
-h11 = Fixture('Hue', 'Skull')
-h11.id = 11
-h11.colorCorrection= [.92,.95,1]
-
-h17 = Fixture('Hue', 'Floor Lamp')
-h17.id = 17
-
-h18 = Fixture('Hue', 'Corner')
-h18.id = 18
-
-h2 = Fixture('Hue','Desk Lamp')
-h2.id = 2 
-
 room = [h2,h10,h11,h17,h18,s1,s3,s4]
 #Function Objects
 saturated_iteration = 0
@@ -83,6 +28,7 @@ natural_iteration = 0
 contrast_iteration = 0
 
 #Spidergod aint no fuckboi
+#Spidergod aint never been a fuckboi
 
 #Natural looks
 
@@ -94,7 +40,7 @@ Copper = {
             'Duct'          : [122,106,106],
             'Skull'         : [170,117,56],
             'Corner'        : [144,110,85],
-	    'Desk Lamp'     : [120,87,27]
+	        'Desk Lamp'     : [120,87,27]
             }
 
 Burma = {
@@ -127,7 +73,7 @@ Japanese = {
             'Duct'          : [224,174,175],
             'Fan'           : [196,171,119],
             'Skull'         : [205,221,200],
-	    'Desk Lamp'     : [95,150,160]
+	        'Desk Lamp'     : [95,150,160]
             }
 
 Sacred = {
@@ -206,7 +152,7 @@ Eiffel = {
             'Windows'       : [119,62,7],
             'Duct'          : [112,64,0],
             'Floor Lamp'    : [87,43,8],
-	    'Desk Lamp'     : [255,170,10]
+	        'Desk Lamp'     : [255,170,10]
             }
 
 Umbrella = {
@@ -243,33 +189,20 @@ Blinds = {
             }
 
 Cabinet = {
-           'Worklight'      : [0,0,0],
-	   'Skull'	    : [0,0,0],
-	   'Fan'	    : [0,0,0],
-	   'Corner'	    : [90,40,25],
-	   'Floor Lamp'     : [0,0,0],
-	   'Duct'           : [0,0,0],
-	   'Windows' 	    : [0,0,0],
-           'Desk Lamp'      : [0,0,0]
+            'Worklight'      : [0,0,0],
+	        'Skull'	         : [0,0,0],
+	        'Fan'            : [0,0,0],
+	        'Corner'         : [90,40,25],
+	        'Floor Lamp'     : [0,0,0],
+	        'Duct'           : [0,0,0],
+	        'Windows'        : [0,0,0],
+            'Desk Lamp'      : [0,0,0]
 	   }
 
 naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity]
 saturatedLooks = [Jelly, Vaporwave, Intersection, Eiffel, Valtari, Umbrella]
 contrastLooks = [Toplight, Blinds, Cabinet]
 
-def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
-    R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
-    G = RGB[1] / 255
-    B = RGB[2] / 255
-    hsv = colorsys.rgb_to_hsv(R, G, B)                                          #Makes standard HSV
-    hsv_p = [int(hsv[0] * 360 * 181.33), int(hsv[1] * 255), int(hsv[2] * 255)]  #Converts to Hue api HSV
-    return hsv_p
-
-def colorCorrect(fixture, rgb):
-    tempList =  [fixture.colorCorrection[0] * rgb[0],
-                fixture.colorCorrection[1] * rgb[1],
-                fixture.colorCorrection[2] * rgb[2]]
-    return tempList
 
 def makeLight(look):
     FCclient.put_pixels(FCpixels)
@@ -303,38 +236,40 @@ def off():
         FCclient.put_pixels(FCpixels)
         FCclient.put_pixels(FCpixels)
 
-for i in range(0,128):
-    FCpixels[i] = [255,0,0]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
+def readySequence():
+    for i in range(0,128):
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
 
-for i in range(0,128):
-    FCpixels[i] = [255,128,0]
-FCclient.put_pixels(FCpixels)
-time.sleep(.5)
+    for i in range(0,128):
+        FCpixels[i] = [255,255,255]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.5)
 
-for i in range(0,128):
-    FCpixels[i] = [255,255,0]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
+    for i in range(0,128):
+        FCpixels[i] = [0,0,0]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
 
-for i in range(0,128):
-    FCpixels[i] = [0,255,0]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
+    for i in range(0,128):
+        FCpixels[i] = [255,255,255]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
 
-for i in range(0,128):
-    FCpixels[i] = [0,0,255]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
+    for i in range(0,128):
+        FCpixels[i] = [0,0,0]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
 
-for i in range(0,128):
-    FCpixels[i] = [255,0,255]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
+    for i in range(0,128):
+        FCpixels[i] = [255,255,255]
+    FCclient.put_pixels(FCpixels)
+    time.sleep(.7)
 
-FCpixels = [ [0,0,0] ] * 512
-FCclient.put_pixels(FCpixels)
+    FCpixels = [ [0,0,0] ] * 512
+    FCclient.put_pixels(FCpixels)
+
+readySequence()
 
 while True:
     button1 = GPIO.input(19)
