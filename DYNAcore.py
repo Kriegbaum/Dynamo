@@ -9,19 +9,18 @@ import numpy as np
 import random
 import shutil
 
-
-
-
 ################################################################################
 #                       Control Objects
 #This helps with images that were created stupid
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 #Hue system control object
+print('Initializing hue bridge')
 bridge = Bridge(hueIP)
 
 #This will let us see what musicbee is doing
 if hasMusicbee:
+    print('Initializing Musicbee support')
     from musicbeeipc import *
     from mutagen import File
     mbIPC = MusicBeeIPC()
@@ -152,6 +151,7 @@ def lights_from_image(image, room):                                             
     it = 0
     colorlist = sample_sectors(image, room)
     for l in range(len(room)):
+        print('%s: %s' % (room[l].name, colorlist[it]))
         if hasFadecandy:
             if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
                 if not room[l].grb:
@@ -195,12 +195,16 @@ def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
     ex = 0
     while 1 == 1:
+        print('...')
+        print('...')
+        print('Iteration', ex)
         lights_from_image(image, room)
         time.sleep(17)
         ex += 1
         if ex % 3 == 0:
             random.shuffle(room)
-            print('Shuffle on iteration', ex)
+            print(' ')
+            print('Shuffling fixture order')
 
 if hasMusicbee:
     def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
@@ -208,6 +212,9 @@ if hasMusicbee:
         ex = 0
         Album = 'dicks'
         while 1 == 1:
+            print('...')
+            print('...')
+            print('Iteration', ex)
             newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
 
             if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
@@ -230,7 +237,8 @@ if hasMusicbee:
             ex += 1
             if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
                 random.shuffle(room)
-                print('Shuffled on iteration', ex)
+                print('...')
+                print('Shuffling fixture order')
 def off(room):
     '''Turns off lights in a given room'''
     for l in room:
