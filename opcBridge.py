@@ -37,7 +37,7 @@ def bridgeValues(totalSteps, start, end):
     diffR = (end[0] - start[0]) / float(totalSteps)
     diffG = (end[1] - start[1]) / float(totalSteps)
     diffB = (end[2] - start[2]) / float(totalSteps)
-    for i in range(totalSteps):
+    for i in range(totalSteps - 1):
         newRGB = [newRGB[0] + diffR, newRGB[1] + diffG, newRGB[2] + diffB]
         yield newRGB
     yield end
@@ -63,7 +63,8 @@ def clockLoop():
     while True:
         if not pixelLock:
             queueLock = True
-            alteration = queue.pop(0)
+            if queue:
+                alteration = queue.pop(0)
             queueLock = False
             for q in alteration:
                 pixels[q] = alteration[q]
