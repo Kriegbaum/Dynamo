@@ -14,10 +14,10 @@ import json
 
 
 #########################CONTROL OBJECT DEFINITIONS#############################
-pixels = [[0,0,0] * 512]
+pixels = [ [0,255,128] ] * 512
 commands = []
 queue = []
-frameRate = 20
+frameRate = 24
 FCclient = opc.Client('localhost:7890')
 pixelLock = False
 commandLock = False
@@ -29,17 +29,18 @@ def brightnessChange(rgb, magnitude, positive):
     '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
     majorColor = rgb.index(max(rgb))
     if positive:
+        pass
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
     newRGB = start
-    diffR = (start[0] - end[0]) / float(totalSteps)
-    diffG = (start[1] - end[1]) / float(totalSteps)
-    diffB = (start[2] - end[2]) / float(totalSteps)
-    for i in range(totalSteps - 1):
+    diffR = (end[0] - start[0]) / float(totalSteps)
+    diffG = (end[1] - start[1]) / float(totalSteps)
+    diffB = (end[2] - start[2]) / float(totalSteps)
+    for i in range(totalSteps):
         newRGB = [newRGB[0] + diffR, newRGB[1] + diffG, newRGB[2] + diffB]
         yield newRGB
-    return end
+    yield end
 
 
 #############################SERVER LOOPS#######################################
@@ -50,7 +51,7 @@ def queueLoop():
     while True:
         commandLock = True
         if commands:
-            if !(queueLock):
+            if not queueLock:
                 pixelLock = True
                 commandParse(newCommand, queue)
                 pixelLock = False
@@ -60,12 +61,13 @@ def queueLoop():
 def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     while True:
-        if !(pixelLock):
+        if not pixelLock:
             queueLock = True
-            alteration = queue.pop()
+            alteration = queue.pop(0)
             queueLock = False
             for q in alteration:
                 pixels[q] = alteration[q]
+            print(pixels[0])
             FCclient.put_pixels(pixels)
         time.sleep(1/frameRate)
 
@@ -94,10 +96,11 @@ def fetchLoop():
                     print('Oh, by the way, he says', command)
                     break
             comDict = json.loads(command)
-            commands.append(command)
+            commands.append(comDict)
+        except:
+            pass
 
 ###################COMMAND TYPE HANDLING########################################
-
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
@@ -113,17 +116,22 @@ def absoluteFade(indexes, rgb, fadeTime):
             queue.append({})
     #Iterate down indexes, figure out what items in queue need to be altered
     for i in indexes:
-        bridgeGenerator = bridgeValues(alterations, pixels[i], rgb)
+        start = pixels[i]
+        bridgeGenerator = bridgeValues(alterations, start, rgb)
         for m in range(alterations):
             queue[m][i] = next(bridgeGenerator)
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
-    '''Is given a brightness change, and alters the brightness'''
+    '''INCOMPLETE: Is given a brightness change, and alters the brightness'''
     for i in indexes:
-
+        pass
 
 
 def pixelRequest():
     '''informs the server of current pixel values'''
     return pixels
+
+
+absoluteFade(range(100), [0,128,255], 6)
+clockLoop()
