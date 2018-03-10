@@ -28,7 +28,10 @@ queueLock = False
 def brightnessChange(rgb, magnitude, positive):
     '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
     majorColor = rgb.index(max(rgb))
+
     if positive:
+        pass
+    else:
         pass
 
 def bridgeValues(totalSteps, start, end):
@@ -39,7 +42,7 @@ def bridgeValues(totalSteps, start, end):
     diffB = (end[2] - start[2]) / float(totalSteps)
     for i in range(totalSteps - 1):
         newRGB = [newRGB[0] + diffR, newRGB[1] + diffG, newRGB[2] + diffB]
-        yield newRGB
+        yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
     yield end
 
 
@@ -65,10 +68,13 @@ def clockLoop():
             queueLock = True
             if queue:
                 alteration = queue.pop(0)
-            queueLock = False
-            for q in alteration:
-                pixels[q] = alteration[q]
-            FCclient.put_pixels(pixels)
+                print(pixels[0])
+                queueLock = False
+                for q in alteration:
+                    pixels[q] = alteration[q]
+                FCclient.put_pixels(pixels)
+            else:
+                queueLock = False
         time.sleep(1/frameRate)
 
 def fetchLoop():
@@ -105,7 +111,7 @@ def fetchLoop():
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
     #Calculates how many individual fade frames are needed
-    alterations = fadeTime * frameRate
+    alterations = int(fadeTime * frameRate)
     #Amount of frames that need to be added to queue
     appends = alterations - len(queue)
     if appends < 0:
@@ -123,9 +129,13 @@ def absoluteFade(indexes, rgb, fadeTime):
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
-    '''INCOMPLETE: Is given a brightness change, and alters the brightness'''
+    '''Is given a brightness change, and alters the brightness'''
     for i in indexes:
-        pass
+        start = pixels[i]
+        if start == [0,0,0]:
+            start = [1,1,1]
+        endVal = brightnessChange(pixels[i], magnitude, positive)
+        absoluteFade(range(i), endVal, fadeTime)
 
 
 def pixelRequest():
@@ -133,5 +143,6 @@ def pixelRequest():
     return pixels
 
 
-absoluteFade(range(100), [0,128,255], 6)
+absoluteFade(range(150), [0,0,255], 90)
+absoluteFade(range(151, 512), [255,0,0], 120)
 clockLoop()
