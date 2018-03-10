@@ -14,7 +14,7 @@ import json
 
 
 #########################CONTROL OBJECT DEFINITIONS#############################
-pixels = [ [0,255,128] ] * 512
+pixels = [ [0,0,0] ] * 512
 commands = []
 queue = []
 frameRate = 24
@@ -68,7 +68,6 @@ def clockLoop():
             queueLock = False
             for q in alteration:
                 pixels[q] = alteration[q]
-            print(pixels[0])
             FCclient.put_pixels(pixels)
         time.sleep(1/frameRate)
 
