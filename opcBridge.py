@@ -4,6 +4,7 @@ import socket
 import sys
 import json
 import threading
+import Queue
 
 #sample command
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
@@ -16,13 +17,11 @@ import threading
 
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = [ [0,0,0] ] * 512
-commands = []
-queue = []
+commands = Queue.Queue(maxsize=100)
+queue = Queue.Queue(maxsize=4500)
 frameRate = 24
 FCclient = opc.Client('localhost:7890')
-pixelLock = False
-commandLock = False
-queueLock = False
+queueLock = threading.Lock()
 
 ############################SUPPORT FUNCTIONS###################################
 
@@ -54,35 +53,24 @@ def queueLoop():
     '''Grabs new commands and populates the queue'''
     print('Initiating queuer')
     while True:
-        commandLock = True
-        if commands:
-            if not queueLock:
-                pixelLock = True
-                print('Oh, uh, hey')
-                print('I got a thing')
-                newCommand = commands.pop(0)
-                commandParse(newCommand)
-                pixelLock = False
-                command = newCommand
-        commandLock = False
+        if not commands.empty()::
+            print('Processing command...')
+            newCommand = commands.get()
+            commands.task_done()
+            commandParse(newCommand)
 
 def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        if not pixelLock:
-            queueLock = True
-            if queue:
-                alteration = queue.pop(0)
+        if not queueLock:
+            if not queue.empty():
+                alteration = queue.get()
+                queue.task_done()
                 print(pixels[0])
-                queueLock = False
-                pixelLock = True, client_address
-                for q in alteration:
-                    pixels[q] = alteration[q]
+                for alt in alteration:
+                    pixels[alt] = alteration[alt]
                 FCclient.put_pixels(pixels)
-                pixelLock = False
-            else:
-                queueLock = False
         time.sleep(1/frameRate)
 
 def fetchLoop():
@@ -96,8 +84,6 @@ def fetchLoop():
     print('I\'m, uh, LISTENING!')
     while True:
         connection, client_address = sock.accept()
-
-
         print('Hey, I found a guy, he is', client_address)
         command = ''
         while True:
@@ -109,10 +95,7 @@ def fetchLoop():
                 print('Hey, that guy SUCKS')
                 break
         comDict = json.loads(command)
-        """while commandLock:
-            pass
-        commandLock = True"""
-        commands.append(comDict)
+        commands.put(comDict)
         #commandLock = False
 
 
@@ -131,20 +114,28 @@ def absoluteFade(indexes, rgb, fadeTime):
     print('Starting absoluteFade')
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
+    queueList = []
+    queueLock.acquire()
+    while not queue.empty():
+        queueList.append(queue.get())
+        queue.task_done()
     #Amount of frames that need to be added to queue
-    appends = alterations - len(queue)
+    appends = alterations - len(queueList)
     if appends < 0:
         appends = 0
     #fill out the queue with blank dictionaries to populate
     if appends > 0:
         for i in range(appends):
-            queue.append({})
+            queueList.append({})
     #Iterate down indexes, figure out what items in queue need to be altered
     for i in indexes:
         start = pixels[i]
         bridgeGenerator = bridgeValues(alterations, start, rgb)
         for m in range(alterations):
-            queue[m][i] = next(bridgeGenerator)
+            queueList[m][i] = next(bridgeGenerator)
+    while queueList:
+        queue.put(queueList.pop(0))
+    queueLock.release()
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
@@ -168,4 +159,4 @@ queuer =  threading.Thread(target=queueLoop)
 
 fetcher.start()
 queuer.start()
-#clocker.start()
+clocker.start()

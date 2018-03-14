@@ -203,7 +203,7 @@ def dynamic_image(image, room):
         ex += 1
         if ex % 3 == 0:
             random.shuffle(room)
-            print(' ')
+            print('\n')
             print('Shuffling fixture order')
 
 if hasMusicbee:
