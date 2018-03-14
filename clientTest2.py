@@ -9,7 +9,7 @@ print('connecting to %s port %s' % server_address)
 sock.connect(server_address)
 
 try:
-    command = {'type': 'absoluteFade', 'color': [255,200,50], 'fade time': 30, 'index range': [0,150]}
+    command = {'type': 'absoluteFade', 'color': [255,0,0], 'fade time': 5, 'index range': [0,64]}
     message = json.dumps(command)
     print('sending %s' % message)
     sock.sendall(message.encode())

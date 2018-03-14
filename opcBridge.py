@@ -4,7 +4,7 @@ import socket
 import sys
 import json
 import threading
-import Queue
+import queue
 
 #sample command
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
@@ -17,8 +17,8 @@ import Queue
 
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = [ [0,0,0] ] * 512
-commands = Queue.Queue(maxsize=100)
-queue = Queue.Queue(maxsize=4500)
+commands = queue.Queue(maxsize=100)
+queue = queue.Queue(maxsize=4500)
 frameRate = 24
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
@@ -53,7 +53,7 @@ def queueLoop():
     '''Grabs new commands and populates the queue'''
     print('Initiating queuer')
     while True:
-        if not commands.empty()::
+        if not commands.empty():
             print('Processing command...')
             newCommand = commands.get()
             commands.task_done()
@@ -63,15 +63,16 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        if not queueLock:
-            if not queue.empty():
-                alteration = queue.get()
-                queue.task_done()
-                print(pixels[0])
-                for alt in alteration:
-                    pixels[alt] = alteration[alt]
-                FCclient.put_pixels(pixels)
-        time.sleep(1/frameRate)
+        #if not queueLock:
+        if not queue.empty():
+            print('Grabbing queue item')
+            alteration = queue.get()
+            queue.task_done()
+            print(pixels[0])
+            for alt in alteration:
+                pixels[alt] = alteration[alt]
+            FCclient.put_pixels(pixels)
+            time.sleep(1/frameRate)
 
 def fetchLoop():
     '''Fetches commands from the socket'''
@@ -136,6 +137,7 @@ def absoluteFade(indexes, rgb, fadeTime):
     while queueList:
         queue.put(queueList.pop(0))
     queueLock.release()
+    print('Completing absoluteFade')
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
