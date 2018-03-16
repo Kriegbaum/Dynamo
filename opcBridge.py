@@ -84,7 +84,6 @@ def fetchLoop():
     sock.bind(server_address)
 
     sock.listen(1)
-    print('I\'m, uh, LISTENING!')
     while True:
         connection, client_address = sock.accept()
         print('Hey, I found a guy, he is', client_address)
@@ -95,7 +94,6 @@ def fetchLoop():
             if data:
                 pass
             else:
-                print('Hey, that guy SUCKS')
                 break
         comDict = json.loads(command)
         commands.put(comDict)
