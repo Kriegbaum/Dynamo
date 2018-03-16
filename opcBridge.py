@@ -74,7 +74,7 @@ def clockLoop():
 def fetchLoop():
     '''Fetches commands from the socket'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (socket.gethostbyname(), 8000)
+    server_address = (socket.gethostbyname(socket.gethostname()), 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
 
