@@ -6,12 +6,12 @@ import json
 import threading
 import queue
 
-#sample command
+#typical command
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
 #{'type': 'pixelRequest'}
 #{'type': 'relativeFade', 'index range': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fade time': 8-bit integer}
 
-#sample queue item
+#typical queue item
 #[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
 
 
@@ -63,12 +63,9 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        #if not queueLock:
         if not queue.empty():
-            print('Grabbing queue item')
             alteration = queue.get()
             queue.task_done()
-            print(pixels[0])
             for alt in alteration:
                 pixels[alt] = alteration[alt]
             FCclient.put_pixels(pixels)
@@ -122,11 +119,9 @@ def absoluteFade(indexes, rgb, fadeTime):
         queue.task_done()
     #Amount of frames that need to be added to queue
     appends = alterations - len(queueList)
-    if appends < 0:
-        appends = 0
     #fill out the queue with blank dictionaries to populate
     if appends > 0:
-        for i in range(appends):
+        for i in range(abs(appends)):
             queueList.append({})
     #Iterate down indexes, figure out what items in queue need to be altered
     for i in indexes:
@@ -134,6 +129,12 @@ def absoluteFade(indexes, rgb, fadeTime):
         bridgeGenerator = bridgeValues(alterations, start, rgb)
         for m in range(alterations):
             queueList[m][i] = next(bridgeGenerator)
+    #If this command overrides a previous command to the pixel, it should wipe any commands remaining
+        if appends < 0:
+            for r in range(abs(appends)):
+                if i in queueList[alterations + r]:
+                    del queueList[alterations + r][i]
+
     while queueList:
         queue.put(queueList.pop(0))
     queueLock.release()
