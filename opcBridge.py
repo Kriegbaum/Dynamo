@@ -13,6 +13,11 @@ import queue
 
 #typical queue item
 #[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
+##########################GET LOCAL IP##########################################
+ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+ipSock.connect(('8.8.8.8', 80))
+localIP = ipSock.getsockname()[0]
+ipSock.close()
 
 
 #########################CONTROL OBJECT DEFINITIONS#############################
@@ -74,7 +79,7 @@ def clockLoop():
 def fetchLoop():
     '''Fetches commands from the socket'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (socket.gethostbyname(socket.gethostname()), 8000)
+    server_address = (localIP, 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
 
