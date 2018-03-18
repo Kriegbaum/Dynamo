@@ -235,13 +235,13 @@ def off():
 
 
 
-sendCommand(l, [255,255,255], 1)
+sendCommand(s1, [255,255,255], 1)
 time.sleep(1)
-sendCommand(l, [0,0,0], 1)
+sendCommand(s1, [0,0,0], 1)
 time.sleep(1)
-sendCommand(l, [255,255,255], 2)
+sendCommand(s1, [255,255,255], 2)
 time.sleep(1)
-sendCommand(l, [0,0,0], 2)
+sendCommand(s1, [0,0,0], 2)
 
 
 while True:
@@ -251,8 +251,7 @@ while True:
     button4 = GPIO.input(20)
 
     if button1 == True:
-        for i in range(193, 256):
-            FCpixels[i] = [245,245,190]
+        sendCommand(s5, [220,228,245])
         makeLight(naturalLooks[natural_iteration])
         print(datetime.datetime.now())
         print('Button 1 pressed')
@@ -263,8 +262,7 @@ while True:
             natural_iteration = 0
 
     if button2 == True:
-        for i in range(193, 256):
-            FCpixels[i] = [245,245,250]
+        sendCommand(s5, [220,228,245])
         makeLight(saturatedLooks[saturated_iteration])
         print(datetime.datetime.now())
         print('Button 2 pressed')
@@ -281,8 +279,7 @@ while True:
         print('Turning off lights')
 
     if button4 == True:
-        for i in range(193, 256):
-            FCpixels[i] = [245,50,0]
+        sendCommand(s5, [245,50,0])
         makeLight(contrastLooks[contrast_iteration])
         print(datetime.datetime.now())
         print('Button 4 pressed')

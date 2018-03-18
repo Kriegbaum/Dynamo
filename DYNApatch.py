@@ -51,6 +51,10 @@ s4.indexrange = [384,385]
 s4.colorCorrection = [1, .97777, 0.63137]
 s4.room = 'bedroom'
 
+s5 = Fixture('Fadecandy', 'Spidergod')
+s5.indexrange = [193,256]
+s5.colorCorrection = [1, .8627, 0.6705]
+
 #Hue Fixtures
 h1 = Fixture('Hue', 'Coffee Station')
 h1.id = 1
