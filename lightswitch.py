@@ -209,14 +209,14 @@ def makeLight(look):
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
-            sendCommand(l, color)
+            sendCommand(l, color, .5)
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
                 command = {'on' : False}
             else:
                 color = convert(colorCorrect(l, look[l.name]))
-                command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 7}
+                command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 5}
             bridge.set_light(l.id, command)
 
         else:
@@ -229,7 +229,7 @@ def off():
         if l.system == 'Hue':
             bridge.set_light(l.id, 'on', False)
         if l.system == 'Fadecandy':
-            sendCommand(l, [0,0,0])
+            sendCommand(l, [0,0,0], 0.5)
         bridge.set_light(24, 'on', False)
 
 
