@@ -206,7 +206,6 @@ contrastLooks = [Toplight, Blinds, Cabinet]
 
 
 def makeLight(look):
-    FCclient.put_pixels(FCpixels)
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
