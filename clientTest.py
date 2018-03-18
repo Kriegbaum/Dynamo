@@ -21,15 +21,9 @@ def sendCommand(command):
         sock.close()
 
 
-command1 = {'type': 'absoluteFade', 'color': [255,255,255], 'fade time': 10, 'index range': [0,15]}
-command2 = {'type': 'absoluteFade', 'color': [0,0,255], 'fade time': 20, 'index range': [15,30]}
-command3 = {'type': 'absoluteFade', 'color': [255,0,0], 'fade time': 30, 'index range': [30,60]}
-command4 = {'type': 'absoluteFade', 'color': [255,255,255], 'fade time': 40, 'index range': [65,128]}
+command1 = {'type': 'absoluteFade', 'color': [255,255,255], 'fade time': 1, 'index range': [0,150]}
+command2 = {'type': 'absoluteFade', 'color': [0,0,0], 'fade time': 10, 'index range': [0,150]}
 
 sendCommand(command1)
-
+time.sleep(1)
 sendCommand(command2)
-
-sendCommand(command3)
-
-sendCommand(command4)

@@ -210,8 +210,7 @@ def makeLight(look):
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
-            for p in l.indexrange:
-                FCpixels[p] = color
+            sendCommand(l, color)
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
@@ -226,50 +225,23 @@ def makeLight(look):
             print(l.name)
             print(l.system)
 
-    FCclient.put_pixels(FCpixels)
-
 def off():
     for l in room:
         if l.system == 'Hue':
             bridge.set_light(l.id, 'on', False)
+        if l.system == 'Fadecandy':
+            sendCommand(l, [0,0,0])
         bridge.set_light(24, 'on', False)
-        FCpixels = [ [0,0,0] ] * 512
-        FCclient.put_pixels(FCpixels)
-        FCclient.put_pixels(FCpixels)
 
 
-for i in range(0,128):
-    FCpixels[i] = [255,255,255]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
 
-for i in range(0,128):
-    FCpixels[i] = [255,255,255]
-FCclient.put_pixels(FCpixels)
-time.sleep(.5)
-
-for i in range(0,128):
-    FCpixels[i] = [0,0,0]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
-
-for i in range(0,128):
-    FCpixels[i] = [255,255,255]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
-
-for i in range(0,128):
-    FCpixels[i] = [0,0,0]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
-
-for i in range(0,128):
-    FCpixels[i] = [255,255,255]
-FCclient.put_pixels(FCpixels)
-time.sleep(.7)
-
-FCpixels = [ [0,0,0] ] * 512
-FCclient.put_pixels(FCpixels)
+sendCommand(l, [255,255,255], 1)
+time.sleep(1)
+sendCommand(l, [0,0,0], 1)
+time.sleep(1)
+sendCommand(l, [255,255,255], 2)
+time.sleep(1)
+sendCommand(l, [0,0,0], 2)
 
 
 while True:

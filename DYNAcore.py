@@ -8,6 +8,8 @@ import math
 import numpy as np
 import random
 import shutil
+import socket
+import json
 
 ################################################################################
 #                       Control Objects
@@ -33,18 +35,19 @@ global_speed = 1
 #                       Fadecandy Initialization
 if hasFadecandy:
     print('Initializing Fadecandy Objects')
-    import opc
 
-    #OPC go-between that talks to FCserver
-    FCclient = opc.Client(fadecandyIP)
+    def sendCommand(Fixture, rgb, fadetime=5, type='absoluteFade'):
+        command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': Fixture.indexrange}
 
-    #FC control object. 512 RGB pixels, split into eight 64 pixel groups
-    FCpixels = [ [0,0,0] ] * 512
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_address = (fadecandyIP, 8000)
+        sock.connect(server_address)
+        message = json.dumps(command)
+        try:
+            sock.sendall(message.encode())
 
-    for i in range(193, 256):
-        FCpixels[i] = [245,245,190]
-
-    FCclient.put_pixels(FCpixels)
+        finally:
+            sock.close()
 
 ################################################################################
 #                       Functions
@@ -160,8 +163,7 @@ def lights_from_image(image, room):                                             
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
-                for p in room[l].indexrange:
-                    FCpixels[p] = colorlist[it]
+                sendCommand(room[l], colorlist[it], 7 * global_speed)
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':
@@ -188,8 +190,6 @@ def lights_from_image(image, room):                                             
             print('SHAME ON YOU')
             print('SHAME ON YOU')
             print('FUCK YORSELF WHITE BOI')
-    if hasFadecandy:
-        FCclient.put_pixels(FCpixels)
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
@@ -244,10 +244,7 @@ def off(room):
     for l in room:
         if hasFadecandy:
             if l.system == "Fadcandy":
-                for i in FCpixels:
-                    i = [0, 0, 0]
+                sendCommand(l, [0,0,0])
         if hasHue:
             if l.system == 'Hue':
                 bridge.set_light(l.id, 'on', False)
-    if hasFadecandy:
-        FCclient.put_pixels(FCpixels)

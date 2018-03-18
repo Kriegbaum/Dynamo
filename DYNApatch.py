@@ -25,7 +25,7 @@ class Fixture:
             self.color = True
             self.id = 0
         if system == 'Fadecandy':
-            self.indexrange = range(0,0)
+            self.indexrange = [0,0]
             self.grb = True
         self.room = 'UNUSED'
         allFixtures.append(self)
@@ -37,17 +37,17 @@ class Fixture:
 
 #Fadecandy Fixtures
 s1 = Fixture('Fadecandy', 'Windows')
-s1.indexrange = range(0,128)
+s1.indexrange = [0,128]
 s1.colorCorrection = [1,.8627,.6705]
 s1.room = 'bedroom'
 
 s3 = Fixture('Fadecandy', 'Fan')
-s3.indexrange = range(448,494)
+s3.indexrange = [448,494]
 s3.colorCorrection = [1, .8627, 0.6705]
 s3.room = 'bedroom'
 
 s4 = Fixture('Fadecandy', 'Worklight')
-s4.indexrange = range(384,385)
+s4.indexrange = [384,385]
 s4.colorCorrection = [1, .97777, 0.63137]
 s4.room = 'bedroom'
 
