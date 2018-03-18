@@ -86,7 +86,7 @@ def fetchLoop():
     sock.listen(1)
     while True:
         connection, client_address = sock.accept()
-        print('Hey, I found a guy, he is', client_address)
+        print('Connection from', client_address)
         command = ''
         while True:
             data = connection.recv(16).decode()
@@ -102,7 +102,6 @@ def fetchLoop():
 
 ###################COMMAND TYPE HANDLING########################################
 def commandParse(command):
-    print('starting commandParse')
     if command['type'] == 'absoluteFade':
         absoluteFade(range(command['index range'][0], command['index range'][1]), command['color'], command['fade time'])
     elif command['type'] == relativeFade:
@@ -112,7 +111,6 @@ def commandParse(command):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
-    print('Starting absoluteFade')
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
     queueList = []
@@ -141,7 +139,6 @@ def absoluteFade(indexes, rgb, fadeTime):
     while queueList:
         queue.put(queueList.pop(0))
     queueLock.release()
-    print('Completing absoluteFade')
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):

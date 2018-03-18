@@ -243,7 +243,7 @@ def off(room):
     '''Turns off lights in a given room'''
     for l in room:
         if hasFadecandy:
-            if l.system == "Fadcandy":
+            if l.system == "Fadecandy":
                 sendCommand(l, [0,0,0])
         if hasHue:
             if l.system == 'Hue':
