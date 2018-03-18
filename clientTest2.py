@@ -1,19 +1,26 @@
 import socket
 import sys
 import json
+import time
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def sendCommand(command):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server_address = ('localhost', 8000)
-print('connecting to %s port %s' % server_address)
-sock.connect(server_address)
+    server_address = ('192.168.1.244', 8000)
+    print('connecting to %s port %s' % server_address)
+    sock.connect(server_address)
 
-try:
-    command = {'type': 'absoluteFade', 'color': [0,0,0], 'fade time': 2, 'index range': [0,150]}
+
     message = json.dumps(command)
-    print('sending %s' % message)
-    sock.sendall(message.encode())
+    try:
+        print('sending %s' % message)
+        sock.sendall(message.encode())
 
-finally:
-    print('closing socket')
-    sock.close()
+    finally:
+        print('Closing socket 1')
+        sock.close()
+
+
+
+command = {'type': 'absoluteFade', 'color': [0,0,0], 'fade time': 5, 'index range': [0,150]}
+sendCommand(command)

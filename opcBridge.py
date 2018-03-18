@@ -21,7 +21,7 @@ ipSock.close()
 
 
 #########################CONTROL OBJECT DEFINITIONS#############################
-pixels = [ [0,0,0] ] * 512
+pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
 frameRate = 24
@@ -163,6 +163,19 @@ fetcher = threading.Thread(target=fetchLoop)
 queuer =  threading.Thread(target=queueLoop)
 
 
+#Test pattern to indicate server is up and running
+FCclient.put_pixels(pixels)
+time.sleep(1)
+pixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(pixels)
+time.sleep(1)
+pixels = [ [255,0,0] ] * 512
+FCclient.put_pixels(pixels)
+time.sleep(1)
+pixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(pixels)
+
+#Initiate server
 fetcher.start()
 queuer.start()
 clocker.start()
