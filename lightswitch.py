@@ -273,6 +273,7 @@ while True:
 
     if button3 == True:
         off()
+        sendCommand(s5, [0,0,0])
         print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
