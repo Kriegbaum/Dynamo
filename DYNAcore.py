@@ -163,7 +163,7 @@ def lights_from_image(image, room):                                             
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
-                sendCommand(room[l], colorlist[it], 7 * global_speed)
+                sendCommand(room[l], colorlist[it], 7 * 0.1 * random.randrange(6,14) * global_speed)
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':
@@ -180,7 +180,7 @@ def lights_from_image(image, room):                                             
                     com_bri = 255
                 if com_bri < 7:
                     com_on = False
-                com_trans = 70 * global_speed                                       #Adjust transition speed according to global adjustment value
+                com_trans = int(70 * global_speed * 0.1 * random.randrange(6,14))      #Adjust transition speed according to global adjustment value
                 command = {'hue': colorlist[it][0], 'sat': com_sat , 'bri': com_bri , 'transitiontime': com_trans, 'on' : com_on}
                 bridge.set_light(room[l].id, command)
                 it += 1
