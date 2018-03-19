@@ -36,18 +36,22 @@ global_speed = 1
 if hasFadecandy:
     print('Initializing Fadecandy Objects')
 
-    def sendCommand(Fixture, rgb, fadetime=5, type='absoluteFade'):
-        command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': Fixture.indexrange}
-
+    def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade'):
+        command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = (fadecandyIP, 8000)
         sock.connect(server_address)
         message = json.dumps(command)
         try:
             sock.sendall(message.encode())
-
         finally:
             sock.close()
+
+    def rippleFade(indexrange, rgb, fadetime=5, type='wipe'):
+        for index in range(indexrange[0], indexrange[1]):
+            sendCommand(range(index, index + 1), rgb, .9)
+            time.sleep((indexrange[1] - indexrange[0]) / fadetime)
+
 
 ################################################################################
 #                       Functions
@@ -163,7 +167,7 @@ def lights_from_image(image, room):                                             
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
-                sendCommand(room[l], colorlist[it], 7 * 0.1 * random.randrange(6,14) * global_speed)
+                sendCommand(room[l].indexrange, colorlist[it], 7 * 0.1 * random.randrange(6,14) * global_speed)
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':
@@ -244,7 +248,7 @@ def off(room):
     for l in room:
         if hasFadecandy:
             if l.system == "Fadecandy":
-                sendCommand(l, [0,0,0])
+                sendCommand(l.indexrange, [0,0,0])
         if hasHue:
             if l.system == 'Hue':
                 bridge.set_light(l.id, 'on', False)
