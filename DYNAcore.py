@@ -190,10 +190,7 @@ def lights_from_image(image, room):                                             
                 it += 1
         else:
             print('You fucked up and now there is an improperly classed Fixture in your room!')
-            print('SHAME ON YOU')
-            print('SHAME ON YOU')
-            print('SHAME ON YOU')
-            print('FUCK YORSELF WHITE BOI')
+            print(l.name, l.system)
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''

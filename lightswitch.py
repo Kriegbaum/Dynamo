@@ -209,7 +209,7 @@ def makeLight(look):
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
-            sendCommand(l, color, .5)
+            sendCommand(l.indexrange, color, .5)
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
@@ -229,18 +229,18 @@ def off():
         if l.system == 'Hue':
             bridge.set_light(l.id, 'on', False)
         if l.system == 'Fadecandy':
-            sendCommand(l, [0,0,0], 0.5)
+            sendCommand(l.indexrange, [0,0,0], 0.5)
         bridge.set_light(24, 'on', False)
 
 
 
-sendCommand(s1, [255,255,255], 1)
+sendCommand(s1.indexrange, [255,255,255], 1)
 time.sleep(1)
-sendCommand(s1, [0,0,0], 1)
+sendCommand(s1.indexrange, [0,0,0], 1)
 time.sleep(1)
-sendCommand(s1, [255,255,255], 2)
+sendCommand(s1.indexrange, [255,255,255], 2)
 time.sleep(1)
-sendCommand(s1, [0,0,0], 2)
+sendCommand(s1.indexrange, [0,0,0], 2)
 
 
 while True:
@@ -250,7 +250,7 @@ while True:
     button4 = GPIO.input(20)
 
     if button1 == True:
-        sendCommand(s5, [220,228,245])
+        sendCommand(s5.indexrange, [220,228,245])
         makeLight(naturalLooks[natural_iteration])
         print(datetime.datetime.now())
         print('Button 1 pressed')
@@ -261,7 +261,7 @@ while True:
             natural_iteration = 0
 
     if button2 == True:
-        sendCommand(s5, [220,228,245])
+        sendCommand(s5.indexrange, [220,228,245])
         makeLight(saturatedLooks[saturated_iteration])
         print(datetime.datetime.now())
         print('Button 2 pressed')
@@ -273,13 +273,13 @@ while True:
 
     if button3 == True:
         off()
-        sendCommand(s5, [0,0,0])
+        sendCommand(s5.indexrange, [0,0,0])
         print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
 
     if button4 == True:
-        sendCommand(s5, [245,50,0])
+        sendCommand(s5.indexrange, [245,50,0])
         makeLight(contrastLooks[contrast_iteration])
         print(datetime.datetime.now())
         print('Button 4 pressed')
