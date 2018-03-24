@@ -265,9 +265,8 @@ while True:
         if natural_iteration > len(naturalLooks) - 1:
             natural_iteration = 0
         button1last = True
-        break
 
-    if button2 and not button2last:
+    elif button2 and not button2last:
         sendCommand(s5.indexrange, [220,228,245])
         makeLight(saturatedLooks[saturated_iteration])
         print(datetime.datetime.now())
@@ -278,18 +277,16 @@ while True:
         if saturated_iteration > len(saturatedLooks) - 1:
             saturated_iteration = 0
         button2last = True
-        break
 
-    if button3 and not button3last:
+    elif button3 and not button3last:
         off()
         sendCommand(s5.indexrange, [0,0,0])
         print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
         button3last = True
-        break
 
-    if button4 and not button4last:
+    elif button4 and not button4last:
         sendCommand(s5.indexrange, [245,50,0])
         makeLight(contrastLooks[contrast_iteration])
         print(datetime.datetime.now())
@@ -300,11 +297,11 @@ while True:
         if contrast_iteration > len(contrastLooks) - 1:
             contrast_iteration = 0
         button4last = True
-        break
 
-    button1last = False
-    button2last = False
-    button3last = False
-    button4last = False
+    else:
+        button1last = False
+        button2last = False
+        button3last = False
+        button4last = False
 
     time.sleep(0.2)
