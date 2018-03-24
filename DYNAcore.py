@@ -48,9 +48,24 @@ if hasFadecandy:
             sock.close()
 
     def rippleFade(indexrange, rgb, fadetime=5, type='wipe'):
+        sleepTime = fadetime / (indexrange[1] - indexrange[0])
+        #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
+        if sleepTime < .06:
+            sleepTime = .06
         for index in range(indexrange[0], indexrange[1]):
-            sendCommand(range(index, index + 1), rgb, .9)
-            time.sleep((indexrange[1] - indexrange[0]) / fadetime)
+            sendCommand([index, index + 1], rgb, .9)
+            time.sleep(sleepTime)
+
+    def dappleFade(indexrange, rgb, fadetime=5):
+        indexes = list(range(indexrange[0], indexrange[1]))
+        sleepTime = fadetime / (indexrange[1] - indexrange[0])
+        #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
+        if sleepTime < .06:
+            sleepTime = .06
+        while indexes:
+            index = indexes.pop(random.randrange(0, len(indexes)))
+            sendCommand([index, index + 1], rgb, 1.5)
+            time.sleep(sleepTime)
 
 
 ################################################################################
