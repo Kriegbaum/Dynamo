@@ -242,6 +242,10 @@ sendCommand(s1.indexrange, [255,255,255], 2)
 time.sleep(1)
 sendCommand(s1.indexrange, [0,0,0], 2)
 
+button1last = False
+button2last = False
+button3last = False
+button4last = False
 
 while True:
     button1 = GPIO.input(19)
@@ -249,7 +253,8 @@ while True:
     button3 = GPIO.input(26)
     button4 = GPIO.input(20)
 
-    if button1 == True:
+
+    if button1 and not button1last:
         sendCommand(s5.indexrange, [220,228,245])
         makeLight(naturalLooks[natural_iteration])
         print(datetime.datetime.now())
@@ -259,8 +264,10 @@ while True:
         natural_iteration += 1
         if natural_iteration > len(naturalLooks) - 1:
             natural_iteration = 0
+        button1last = True
+        break
 
-    if button2 == True:
+    if button2 and not button2last:
         sendCommand(s5.indexrange, [220,228,245])
         makeLight(saturatedLooks[saturated_iteration])
         print(datetime.datetime.now())
@@ -270,15 +277,19 @@ while True:
         saturated_iteration += 1
         if saturated_iteration > len(saturatedLooks) - 1:
             saturated_iteration = 0
+        button2last = True
+        break
 
-    if button3 == True:
+    if button3 and not button3last:
         off()
         sendCommand(s5.indexrange, [0,0,0])
         print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
+        button3last = True
+        break
 
-    if button4 == True:
+    if button4 and not button4last:
         sendCommand(s5.indexrange, [245,50,0])
         makeLight(contrastLooks[contrast_iteration])
         print(datetime.datetime.now())
@@ -288,5 +299,12 @@ while True:
         contrast_iteration += 1
         if contrast_iteration > len(contrastLooks) - 1:
             contrast_iteration = 0
+        button4last = True
+        break
+
+    button1last = False
+    button2last = False
+    button3last = False
+    button4last = False
 
     time.sleep(0.2)
