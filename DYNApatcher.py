@@ -30,7 +30,7 @@ class Fixture:
         self.name = name
         self.colorCorrection = testDict(patchDict, 'colorCorrection', [1,1,1])
         if self.system == 'Hue':
-            self.dimming = testDict(patchDict, 'dimming', False)
+            self.dimming = testDict(patchDict, 'dimming', True)
             self.color = testDict(patchDict, 'color', True)
             self.id = testDict(patchDict, 'id', 0)
         if self.system == 'Fadecandy':
