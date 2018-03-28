@@ -1,4 +1,4 @@
-from DYNApatch import *
+from DYNApatcher import *
 import time
 from phue import Bridge
 from PIL import Image
@@ -64,7 +64,8 @@ if hasFadecandy:
             sleepTime = .06
         while indexes:
             index = indexes.pop(random.randrange(0, len(indexes)))
-            sendCommand([index, index + 1], rgb, 1.5)
+            fadeTime = 1.5 * random.randrange(8, 15) * .1
+            sendCommand([index, index + 1], rgb, fadeTime)
             time.sleep(sleepTime)
 
 
@@ -182,7 +183,7 @@ def lights_from_image(image, room):                                             
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
-                sendCommand(room[l].indexrange, colorlist[it], 7 * 0.1 * random.randrange(6,14) * global_speed)
+                sendCommand(room[l].indexrange, colorlist[it], 7 * 0.1 * random.randrange(6,14))
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':

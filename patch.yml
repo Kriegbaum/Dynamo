@@ -1,0 +1,123 @@
+Windows:
+  system: Fadecandy
+  indexrange: [0,128]
+  colorCorrection: [1,.8627,.6705]
+  room: bedroom
+
+Fan:
+  system: Fadecandy
+  indexrange: [448,494]
+  colorCorrection: [1,.8627,.6705]
+  room: bedroom
+
+Worklight:
+  system: Fadecandy
+  indexrange: [384, 385]
+  colorCorrection: [1, .97777, 0.63137]
+  room: bedroom
+
+Spidergod:
+  system: Fadecandy
+  indexrange: [193, 256]
+  colorCorrection: [1, .8627, .6705]
+
+Coffee Station:
+  system: Hue
+  id: 1
+  room: 'kitchen'
+
+Desk Lamp:
+  system: Hue
+  id: 2
+  room: bedroom
+
+Entry 2:
+  system: Hue
+  id: 3
+  room: living room
+
+Reaper:
+  system: Hue
+  id: 4
+  room: living room
+
+Table Lamp:
+  system: Hue
+  id: 5
+  room: living room
+
+Flag Left:
+  system: Hue
+  id: 6
+  room: living room
+
+Flag Right:
+  system: Hue
+  id: 7
+  room: living room
+
+TV:
+  system: Hue
+  id: 8
+  room: living room
+
+Duct:
+  system: Hue
+  id: 10
+  room: bedroom
+
+Skull:
+  system: Hue
+  id: 11
+  colorCorrection: [.92, .95, 1]
+
+Bedroom Hall:
+  system: Hue
+  id: 12
+  room: living room
+
+Sink:
+  system: Hue
+  id: 13
+  room: kitchen
+
+Pantry:
+  system: Hue
+  id: 14
+  room: kitchen
+
+Cabinet Top:
+  system: Hue
+  id: 15
+  room: kitchen
+
+Floor Lamp:
+  system: Hue
+  id: 17
+  room: bedroom
+
+Corner:
+  system: Hue
+  id: 18
+  room: bedroom
+
+Kitchen Door Right:
+  system: Hue
+  id: 19
+  room: living room
+
+Kitchen Door Left:
+  system: Hue
+  id: 20
+  room: living room
+
+Morty:
+  system: Hue
+  id: 21
+
+Studio Monitors:
+  system: Hue
+  id: 24
+  room: bedroom
+  dimming: False
+  color: False
