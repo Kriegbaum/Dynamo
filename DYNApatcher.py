@@ -51,14 +51,14 @@ for f in patch:
 
 #######################GROUPS###################################################
 
-rooms = {'all': []}
+rooms = {'all': [], 'nonDim': []}
 for i in allFixtures:
-    if hasattr(i, 'dimming') or hasattr(i, 'color'):
-        if not i.dimming or not i.color:
-            break
-    if i.room in rooms:
+    if i.system == 'Hue' and not (i.dimming or i.color):
+        rooms['nonDim'].append(i)
+    elif i.room in rooms:
         rooms[i.room].append(i)
     else:
         rooms[i.room] = [i]
     rooms['all'].append(i)
+
 groups = {}

@@ -185,7 +185,7 @@ def lights_from_image(image, room):                                             
                     colorlist[it] = [0,0,0]
                 sendCommand(room[l].indexrange, colorlist[it], 7 * 0.1 * random.randrange(6,14))
                 it += 1
-        elif hasHue:
+        if hasHue:
             if room[l].system == 'Hue':
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 colorlist[it] = convert(colorlist[it])                              #Get color values into something hue API can understand
