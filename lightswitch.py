@@ -22,7 +22,7 @@ GPIO.setup(23, GPIO.OUT)
 GPIO.setup(24, GPIO.OUT)
 
 ###### Lighting Control Objects
-room = [h2,h10,h11,h17,h18,s1,s3,s4]
+room = rooms['bedroom']
 #Function Objects
 saturated_iteration = 0
 natural_iteration = 0
@@ -234,13 +234,13 @@ def off():
 
 
 
-sendCommand(s1.indexrange, [255,255,255], 1)
+sendCommand([0,128], [255,255,255], 1)
 time.sleep(1)
-sendCommand(s1.indexrange, [0,0,0], 1)
+sendCommand([0,128], [0,0,0], 1)
 time.sleep(1)
-sendCommand(s1.indexrange, [255,255,255], 2)
+sendCommand([0,128], [255,255,255], 2)
 time.sleep(1)
-sendCommand(s1.indexrange, [0,0,0], 2)
+sendCommand([0,128], [0,0,0], 2)
 
 button1last = False
 button2last = False
@@ -255,7 +255,7 @@ while True:
 
 
     if button1 and not button1last:
-        sendCommand(s5.indexrange, [220,228,245])
+        sendCommand([193,256], [220,228,245])
         makeLight(naturalLooks[natural_iteration])
         print(datetime.datetime.now())
         print('Button 1 pressed')
@@ -267,7 +267,7 @@ while True:
         button1last = True
 
     elif button2 and not button2last:
-        sendCommand(s5.indexrange, [220,228,245])
+        sendCommand([193,256] [220,228,245])
         makeLight(saturatedLooks[saturated_iteration])
         print(datetime.datetime.now())
         print('Button 2 pressed')
@@ -280,14 +280,14 @@ while True:
 
     elif button3 and not button3last:
         off()
-        sendCommand(s5.indexrange, [0,0,0])
+        sendCommand([193,256], [0,0,0])
         print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
         button3last = True
 
     elif button4 and not button4last:
-        sendCommand(s5.indexrange, [245,50,0])
+        sendCommand([193,256]] [245,50,0])
         makeLight(contrastLooks[contrast_iteration])
         print(datetime.datetime.now())
         print('Button 4 pressed')
