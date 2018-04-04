@@ -2,4 +2,4 @@ from DYNAcore import *
 
 rgb = eval(input())
 
-dappleFade(s3.indexrange, rgb)
+dappleFade([0,128], rgb)

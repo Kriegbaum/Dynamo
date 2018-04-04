@@ -113,14 +113,14 @@ Jelly = {
 
 
 Valtari = {
-            'Skull'         : [125,124,67],
-            'Floor Lamp'    : [167,190,71],
-            'Corner'        : [145,131,66],
-            'Windows'       : [170,168,84],
-            'Fan'           : [85,85,33],
-            'Worklight'     : [148,131,74],
-            'Duct'          : [130,110,39],
-            'Desk Lamp'     : [160,70,0]
+            'Skull'         : [103,122,4],
+            'Floor Lamp'    : [101,0,33],
+            'Corner'        : [255,176,100],
+            'Windows'       : [101,55,0],
+            'Fan'           : [6,71,12],
+            'Worklight'     : [110,117,14],
+            'Duct'          : [230,115,6],
+            'Desk Lamp'     : [190,253,140]
             }
 
 Vaporwave = {

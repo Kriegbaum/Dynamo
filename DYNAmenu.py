@@ -12,7 +12,6 @@ def imageLoop():
     filepath = os.path.join(pallettesDir, filepath)
     print('Which room?')
     group = rooms[input().lower()]
-    print(group)
     for i in range(len(group)):
         if group[i].system == 'Hue':
             bridge.set_light(group[i].id, 'on', True)
