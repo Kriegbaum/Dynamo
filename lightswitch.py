@@ -83,7 +83,7 @@ Sacred = {
             'Duct'          : [81,46,14],
             'Fan'           : [79,60,25],
             'Floor Lamp'    : [85,49,15],
-            'Worklight'     : [81,42,9],
+            'Worklight'     : [97,50,12],
             'Skull'         : [44,42,69],
             'Desk Lamp'     : [120,120,115]
             }
@@ -98,6 +98,18 @@ Eternity = {
             'Duct'          : [128,85,92],
             'Desk Lamp'     : [170,95,85]
             }
+
+Warm = {
+            'Skull'         : [255,197,143],
+            'Worklight'     : [255,197,143],
+            'Corner'        : [255,197,143],
+            'Windows'       : [255,197,143],
+            'Fan'           : [255,197,143],
+            'Floor Lamp'    : [255,197,143],
+            'Duct'          : [255,197,143],
+            'Desk Lamp'     : [255,197,143]
+            }
+
 #Saturated looks
 
 Jelly = {
@@ -114,13 +126,13 @@ Jelly = {
 
 Valtari = {
             'Skull'         : [103,122,4],
-            'Floor Lamp'    : [101,0,33],
-            'Corner'        : [255,176,100],
+            'Floor Lamp'    : [6,71,12],
+            'Corner'        : [110,117,14],
             'Windows'       : [101,55,0],
             'Fan'           : [6,71,12],
             'Worklight'     : [110,117,14],
             'Duct'          : [230,115,6],
-            'Desk Lamp'     : [190,253,140]
+            'Desk Lamp'     : [95,130,70]
             }
 
 Vaporwave = {
@@ -200,8 +212,19 @@ Cabinet = {
             'Desk Lamp'      : [0,0,0]
 	   }
 
-naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity]
-saturatedLooks = [Jelly, Vaporwave, Intersection, Eiffel, Valtari, Umbrella]
+Void = {
+            'Worklight'      : [183,176,218],
+	        'Skull'	         : [200,72,159],
+	        'Fan'            : [74,11,203],
+	        'Corner'         : [28,0,28],
+	        'Floor Lamp'     : [39,2,20],
+	        'Duct'           : [144,0,171],
+	        'Windows'        : [218,211,218],
+            'Desk Lamp'      : [5,0,6]
+	   }
+
+naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity, Warm]
+saturatedLooks = [Jelly, Vaporwave, Intersection, Eiffel, Valtari, Umbrella, Void]
 contrastLooks = [Toplight, Blinds, Cabinet]
 
 
