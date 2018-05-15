@@ -27,6 +27,7 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 24
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
+arbitration = False
 
 ############################SUPPORT FUNCTIONS###################################
 
@@ -69,12 +70,14 @@ def clockLoop():
     print('Initiating Clocker')
     while True:
         if not queue.empty():
+            now = time.time()
             alteration = queue.get()
             queue.task_done()
             for alt in alteration:
                 pixels[alt] = alteration[alt]
             FCclient.put_pixels(pixels)
-            time.sleep(1/frameRate)
+            while time.time() <= now + (1 / frameRate):
+                pass
 
 def fetchLoop():
     '''Fetches commands from the socket'''
@@ -82,8 +85,7 @@ def fetchLoop():
     server_address = (localIP, 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
-
-    sock.listen(1)
+    sock.listen(5)
     while True:
         connection, client_address = sock.accept()
         print('Connection from', client_address)
@@ -94,13 +96,17 @@ def fetchLoop():
             if data:
                 pass
             else:
+                comDict = json.loads(command)
+                commands.put(comDict)
+                commands.task_done()
                 break
-        comDict = json.loads(command)
-        commands.put(comDict)
-        #commandLock = False
+
 
 
 ###################COMMAND TYPE HANDLING########################################
+def getArbitration():
+
+
 def commandParse(command):
     if command['type'] == 'absoluteFade':
         absoluteFade(range(command['index range'][0], command['index range'][1]), command['color'], command['fade time'])
