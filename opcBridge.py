@@ -98,7 +98,6 @@ def fetchLoop():
             else:
                 comDict = json.loads(command)
                 commands.put(comDict)
-                commands.task_done()
                 break
 
 
