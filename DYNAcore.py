@@ -50,8 +50,8 @@ if hasFadecandy:
     def rippleFade(indexrange, rgb, fadetime=5, type='wipe'):
         sleepTime = fadetime / (indexrange[1] - indexrange[0])
         #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
-        if sleepTime < .06:
-            sleepTime = .06
+        #if sleepTime < .06:
+        #    sleepTime = .06
         for index in range(indexrange[0], indexrange[1]):
             sendCommand([index, index + 1], rgb, .9)
             time.sleep(sleepTime)
