@@ -105,7 +105,7 @@ def fetchLoop():
 
 ###################COMMAND TYPE HANDLING########################################
 def getArbitration():
-
+    return arbitration
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
