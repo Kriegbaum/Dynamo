@@ -233,6 +233,7 @@ def makeLight(look):
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
             sendCommand(l.indexrange, color, .5)
+            print(l.name, color)
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
@@ -241,6 +242,7 @@ def makeLight(look):
                 color = convert(colorCorrect(l, look[l.name]))
                 command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 5}
             bridge.set_light(l.id, command)
+            print(l.name, color)
 
         else:
             print('You fucked up and now there is an improperly classed Fixture in your room!')
