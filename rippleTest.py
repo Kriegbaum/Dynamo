@@ -1,5 +1,6 @@
 from DYNAcore import *
 
 rgb = eval(input())
+time = eval(input())
 
-dappleFade([0,128], rgb)
+rippleFade([0,128], rgb, time)

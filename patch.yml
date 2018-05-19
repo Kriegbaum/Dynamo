@@ -6,19 +6,19 @@ Windows:
 
 Fan:
   system: Fadecandy
-  indexrange: [448,494]
+  indexrange: [256, 302]
   colorCorrection: [1,.8627,.6705]
   room: bedroom
 
 Worklight:
   system: Fadecandy
-  indexrange: [384, 385]
+  indexrange: [448, 449]
   colorCorrection: [1, .97777, 0.63137]
   room: bedroom
 
 Spidergod:
   system: Fadecandy
-  indexrange: [193, 256]
+  indexrange: [320, 340]
   colorCorrection: [1, .8627, .6705]
 
 Coffee Station:
@@ -70,6 +70,7 @@ Skull:
   system: Hue
   id: 11
   colorCorrection: [.92, .95, 1]
+  room: bedroom
 
 Bedroom Hall:
   system: Hue
