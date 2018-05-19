@@ -233,7 +233,6 @@ def makeLight(look):
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
             sendCommand(l.indexrange, color, .5)
-            time.sleep(0.05)
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
@@ -242,7 +241,6 @@ def makeLight(look):
                 color = convert(colorCorrect(l, look[l.name]))
                 command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 5}
             bridge.set_light(l.id, command)
-            time.sleep(0.05)
 
         else:
             print('You fucked up and now there is an improperly classed Fixture in your room!')
@@ -263,7 +261,7 @@ sendCommand([0,128], [255,255,255], 1)
 time.sleep(1)
 sendCommand([0,128], [0,0,0], 1)
 time.sleep(1)
-sendCommand([0,128], [255,255,255], 2)
+sendCommand([0,128], [255,255,255], 1)
 time.sleep(1)
 sendCommand([0,128], [0,0,0], 2)
 
@@ -329,4 +327,4 @@ while True:
         button3last = False
         button4last = False
 
-    time.sleep(0.7)
+    time.sleep(0.2)

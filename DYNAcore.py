@@ -44,6 +44,8 @@ if hasFadecandy:
         message = json.dumps(command)
         try:
             sock.sendall(message.encode())
+        except:
+            print('OPC Command Failed')
         finally:
             sock.close()
 

@@ -84,7 +84,7 @@ def fetchLoop():
     server_address = (localIP, 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
-    sock.listen(512)
+    sock.listen(128)
     while True:
         connection, client_address = sock.accept()
         print('Connection from', client_address)
