@@ -56,10 +56,8 @@ def recieve():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (localIP, 8000)
     sock.bind(server_address)
-    print('Listening at', server_address)
     sock.listen(1)
     connection, client_address = sock.accept()
-    print('Recieving data from', client_address)
     message = ''
     while True:
         data = connection.recv(16).decode()
@@ -254,7 +252,7 @@ def dynamic_image(image, room):
     ex = 0
     setArbitration(True)
     while True:
-        if getArbitration():
+        if requestArbitration():
             print('...')
             print('...')
             print('Iteration', ex)
@@ -267,6 +265,7 @@ def dynamic_image(image, room):
                 print('Shuffling fixture order')
         else:
             print('Halting automated routine, overriden by user')
+            break
 
 if hasMusicbee:
     def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
@@ -275,7 +274,7 @@ if hasMusicbee:
         Album = 'dicks'
         setArbitration(True)
         while True:
-            if getArbitration():
+            if requestArbitration():
                 print('...')
                 print('...')
                 print('Iteration', ex)
@@ -305,6 +304,7 @@ if hasMusicbee:
                     print('Shuffling fixture order')
             else:
                 print('Halting automated routine, overriden by user')
+                break
 def off(room):
     '''Turns off lights in a given room'''
     for l in room:
