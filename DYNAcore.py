@@ -81,6 +81,8 @@ if hasFadecandy:
         arbitration = json.loads(arbitration)
         return arbitration
 
+    def setArbitration(setting):
+        transmit({'type': 'setArbitration', 'setting': setting})
 
     def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade'):
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}

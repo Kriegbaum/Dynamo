@@ -110,6 +110,11 @@ def commandParse(command):
         pass
     elif command['type'] == 'requestArbitration':
         getArbitration(command['ip'])
+    elif command['type'] == 'setArbitration':
+        setArbitration(command['setting'])
+
+def setArbitration(setting):
+    arbitration = setting
 
 def getArbitration(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
