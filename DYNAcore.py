@@ -44,15 +44,8 @@ if hasFadecandy:
         sock.connect(server_address)
         message = json.dumps({'type':'requestArbitration'})
         try:
-            response = ''
             sock.sendall(message.encode())
             print('Message Sent')
-            data = sock.recv(16)
-            response += data
-            if data:
-                pass
-            else:
-                return response
         except:
             print('arbitration request failed')
             arbitration = False

@@ -99,14 +99,11 @@ def fetchLoop():
             #Parse out arbitration immediately while the connection is in scope
                 if comDict['type'] == 'requestArbitration':
                     print('Arbitration request recieved')
-                    connection.sendall(json.dumps(arbitration))
                 else:
                     commands.put(comDict)
                 break
 
 ###################COMMAND TYPE HANDLING########################################
-def getArbitration():
-    return arbitration
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
