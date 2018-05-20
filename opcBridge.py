@@ -5,6 +5,7 @@ import sys
 import json
 import threading
 import queue
+import datetime
 
 #typical command
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
@@ -94,7 +95,7 @@ def fetchLoop():
                 pass
             else:
                 comDict = json.loads(command)
-                print(comDict['type'] + ' recieved from ', client_address)
+                print(datetime.datetime.now(), comDict['type'] + ' recieved from ', client_address)
                 commands.put(comDict)
                 break
 
