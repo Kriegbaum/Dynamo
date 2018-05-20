@@ -28,7 +28,7 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 24
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
-arbitration = False
+arbitration = [False]
 
 ############################SUPPORT FUNCTIONS###################################
 
@@ -111,18 +111,18 @@ def commandParse(command):
     elif command['type'] == 'requestArbitration':
         getArbitration(command['ip'])
     elif command['type'] == 'setArbitration':
-        setArbitration(arbitration, command['setting'])
+        setArbitration(command['setting'])
     else:
         print('Invalid command type recieved')
 
-def setArbitration(arbitration, setting):
-    arbitration = setting
+def setArbitration(setting):
+    arbitration[0] = setting
 
 def getArbitration(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8000)
     sock.connect(server_address)
-    message = json.dumps(arbitration)
+    message = json.dumps(arbitration[0])
     try:
         sock.sendall(message.encode())
     except:

@@ -101,8 +101,8 @@ if hasFadecandy:
         indexes = list(range(indexrange[0], indexrange[1]))
         sleepTime = fadetime / (indexrange[1] - indexrange[0])
         #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
-        if sleepTime < .06:
-            sleepTime = .06
+        #if sleepTime < .06:
+        #    sleepTime = .06
         while indexes:
             index = indexes.pop(random.randrange(0, len(indexes)))
             fadeTime = 1.5 * random.randrange(8, 15) * .1
