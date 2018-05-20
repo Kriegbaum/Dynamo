@@ -38,53 +38,53 @@ global_bri = 1
 global_speed = 1
 
 ################################################################################
+#                       Network socket operations
+
+def transmit(command):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (fadecandyIP, 8000)
+    sock.connect(server_address)
+    message = json.dumps(command)
+    try:
+        sock.sendall(message.encode())
+    except:
+        print('Sending ' + command['type'] + ' failed')
+    finally:
+        sock.close()
+
+def recieve():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (localIP, 8000)
+    sock.bind(server_address)
+    print('Listening at', server_address)
+    sock.listen(1)
+    connection, client_address = sock.accept()
+    print('Recieving data from', client_address)
+    message = ''
+    while True:
+        data = connection.recv(16).decode()
+        message += data
+        if data:
+            pass
+        else:
+            return message
+            sock.close()
+
+################################################################################
 #                       Fadecandy Initialization
 if hasFadecandy:
     print('Initializing Fadecandy Objects')
 
     def requestArbitration():
-        print('Requesting Arbitration')
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_address = (fadecandyIP, 8000)
-        print('Sending Rquest')
-        sock.connect(server_address)
-        message = json.dumps({'type':'requestArbitration', 'ip': localIP})
-        try:
-            sock.sendall(message.encode())
-            print('Message Sent')
-            try:
-                connection, client_address = sock.accept()
-                print('Connection from server')
-                command = ''
-                while True:
-                    data = connection.recv(16).decode()
-                    command += data
-                    if data:
-                        pass
-                    else:
-                        arbitration = json.loads(command)
-                        print('Arbitration:')
-                        print(arbitration)
-                        break
-        except:
-            print('Arbitration request failed')
-            arbitration = False
-        finally:
-            sock.close()
+        transmit({'type': 'requestArbitration', 'ip': localIP})
+        arbitration = recieve()
+        arbitration = json.loads(arbitration)
         return arbitration
+
 
     def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade'):
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_address = (fadecandyIP, 8000)
-        sock.connect(server_address)
-        message = json.dumps(command)
-        try:
-            sock.sendall(message.encode())
-        except:
-            print('OPC Command Failed')
-        finally:
-            sock.close()
+        transmit(command)
 
     def rippleFade(indexrange, rgb, fadetime=5, type='wipe'):
         sleepTime = fadetime / (indexrange[1] - indexrange[0])

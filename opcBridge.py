@@ -60,7 +60,6 @@ def queueLoop():
     print('Initiating queuer')
     while True:
         if not commands.empty():
-            print('Processing command...')
             newCommand = commands.get()
             commands.task_done()
             commandParse(newCommand)
@@ -87,7 +86,6 @@ def fetchLoop():
     sock.listen(128)
     while True:
         connection, client_address = sock.accept()
-        print('Connection from', client_address)
         command = ''
         while True:
             data = connection.recv(16).decode()
@@ -96,6 +94,7 @@ def fetchLoop():
                 pass
             else:
                 comDict = json.loads(command)
+                print(comDict['type'] + ' recieved from ', client_address)
                 commands.put(comDict)
                 break
 
@@ -119,7 +118,7 @@ def getArbitration(ip):
     try:
         sock.sendall(message.encode())
     except:
-        print('Faled returning arbitration')
+        print('Failed returning arbitration')
     finally:
         sock.close()
 
