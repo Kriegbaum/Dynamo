@@ -96,11 +96,7 @@ def fetchLoop():
                 pass
             else:
                 comDict = json.loads(command)
-            #Parse out arbitration immediately while the connection is in scope
-                if comDict['type'] == 'requestArbitration':
-                    print('Arbitration request recieved')
-                else:
-                    commands.put(comDict)
+                commands.put(comDict)
                 break
 
 ###################COMMAND TYPE HANDLING########################################
@@ -108,10 +104,24 @@ def fetchLoop():
 def commandParse(command):
     if command['type'] == 'absoluteFade':
         absoluteFade(range(command['index range'][0], command['index range'][1]), command['color'], command['fade time'])
-    elif command['type'] == relativeFade:
+    elif command['type'] == 'relativeFade':
         pass
-    elif command['type'] == pixelRequest:
+    elif command['type'] == 'pixelRequest':
         pass
+    elif command['type'] == 'requestArbitration':
+        getArbitration(command['ip'])
+
+def getArbitration(ip):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (ip, 8000)
+    sock.connect(server_address)
+    message = json.dumps(arbitration)
+    try:
+        sock.sendall(message.encode())
+    except:
+        print('Faled returning arbitration')
+    finally:
+        sock.close()
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''

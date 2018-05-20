@@ -16,6 +16,12 @@ import json
 #This helps with images that were created stupid
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+#Oour local IP address, tells server where to send data back to
+ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+ipSock.connect(('8.8.8.8', 80))
+localIP = ipSock.getsockname()[0]
+ipSock.close()
+
 #Hue system control object
 print('Initializing hue bridge')
 bridge = Bridge(hueIP)
@@ -42,15 +48,30 @@ if hasFadecandy:
         server_address = (fadecandyIP, 8000)
         print('Sending Rquest')
         sock.connect(server_address)
-        message = json.dumps({'type':'requestArbitration'})
+        message = json.dumps({'type':'requestArbitration', 'ip': localIP})
         try:
             sock.sendall(message.encode())
             print('Message Sent')
+            try:
+                connection, client_address = sock.accept()
+                print('Connection from server')
+                command = ''
+                while True:
+                    data = connection.recv(16).decode()
+                    command += data
+                    if data:
+                        pass
+                    else:
+                        arbitration = json.loads(command)
+                        print('Arbitration:')
+                        print(arbitration)
+                        break
         except:
-            print('arbitration request failed')
+            print('Arbitration request failed')
             arbitration = False
         finally:
             sock.close()
+        return arbitration
 
     def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade'):
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
