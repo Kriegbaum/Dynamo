@@ -37,13 +37,16 @@ if hasFadecandy:
     print('Initializing Fadecandy Objects')
 
     def requestArbitration():
+        print('Requesting Arbitration')
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = (fadecandyIP, 8000)
+        print('Sending Rquest')
         sock.connect(server_address)
         message = json.dumps({'type':'requestArbitration'})
         try:
             response = ''
             sock.sendall(message.encode())
+            print('Message Sent')
             data = sock.recv(16)
             response += data
             if data:
