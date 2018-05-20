@@ -95,7 +95,7 @@ def fetchLoop():
                 pass
             else:
                 comDict = json.loads(command)
-                print(datetime.datetime.now(), comDict['type'] + ' recieved from ', client_address)
+                print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
                 commands.put(comDict)
                 break
 
@@ -111,9 +111,11 @@ def commandParse(command):
     elif command['type'] == 'requestArbitration':
         getArbitration(command['ip'])
     elif command['type'] == 'setArbitration':
-        setArbitration(command['setting'])
+        setArbitration(arbitration, command['setting'])
+    else:
+        print('Invalid command type recieved')
 
-def setArbitration(setting):
+def setArbitration(arbitration, setting):
     arbitration = setting
 
 def getArbitration(ip):
