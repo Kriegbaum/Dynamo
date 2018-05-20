@@ -252,51 +252,59 @@ def lights_from_image(image, room):                                             
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
     ex = 0
-    while 1 == 1:
-        print('...')
-        print('...')
-        print('Iteration', ex)
-        lights_from_image(image, room)
-        time.sleep(17)
-        ex += 1
-        if ex % 3 == 0:
-            random.shuffle(room)
-            print('\n')
-            print('Shuffling fixture order')
+    setArbitration(True)
+    while True:
+        if getArbitration():
+            print('...')
+            print('...')
+            print('Iteration', ex)
+            lights_from_image(image, room)
+            time.sleep(17)
+            ex += 1
+            if ex % 3 == 0:
+                random.shuffle(room)
+                print('\n')
+                print('Shuffling fixture order')
+        else:
+            print('Halting automated routine, overriden by user')
 
 if hasMusicbee:
     def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
         '''This samples colors off the currently playing album cover'''
         ex = 0
         Album = 'dicks'
-        while 1 == 1:
-            print('...')
-            print('...')
-            print('Iteration', ex)
-            newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
-
-            if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
-                Album = newAlbum
-                song = File(mbIPC.get_file_url())
-                try:
-                    cover = song.tags['APIC:'].data
-                    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:         #Write temporary file with new album artwork
-                        img.write(cover)
-                except:
-                    print('SHIT SHIT SHIT....')
-                    print('APIC tag failed, attempting to read Musicbee Temporary File')
-                    shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
-                try:
-                    print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
-                except:
-                    print('Unable to print name for some reason. Probably because I was too lazy to try and figure out unicode support')
-            lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)         #Sample colors from temporary file
-            time.sleep(18 * global_speed)
-            ex += 1
-            if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
-                random.shuffle(room)
+        setArbitration(True)
+        while True:
+            if getArbitration():
                 print('...')
-                print('Shuffling fixture order')
+                print('...')
+                print('Iteration', ex)
+                newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
+
+                if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
+                    Album = newAlbum
+                    song = File(mbIPC.get_file_url())
+                    try:
+                        cover = song.tags['APIC:'].data
+                        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:         #Write temporary file with new album artwork
+                            img.write(cover)
+                    except:
+                        print('SHIT SHIT SHIT....')
+                        print('APIC tag failed, attempting to read Musicbee Temporary File')
+                        shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
+                    try:
+                        print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
+                    except:
+                        print('Unable to print name for some reason. Probably because I was too lazy to try and figure out unicode support')
+                lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)         #Sample colors from temporary file
+                time.sleep(18 * global_speed)
+                ex += 1
+                if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
+                    random.shuffle(room)
+                    print('...')
+                    print('Shuffling fixture order')
+            else:
+                print('Halting automated routine, overriden by user')
 def off(room):
     '''Turns off lights in a given room'''
     for l in room:
