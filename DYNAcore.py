@@ -36,6 +36,26 @@ global_speed = 1
 if hasFadecandy:
     print('Initializing Fadecandy Objects')
 
+    def requestArbitration():
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_address = (fadecandyIP, 8000)
+        sock.connect(server_address)
+        message = json.dumps({'type':'requestArbitration'})
+        try:
+            response = ''
+            sock.sendall(message.encode())
+            data = sock.recv(16)
+            response += data
+            if data:
+                pass
+            else:
+                return response
+        except:
+            print('arbitration request failed')
+            arbitration = False
+        finally:
+            sock.close()
+
     def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade'):
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
