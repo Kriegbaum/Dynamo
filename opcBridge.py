@@ -176,7 +176,7 @@ def relativeFade(indexes, positive, magnitude, fadeTime):
 
 
 def pixelRequest():
-    '''informs the server of current pixel values'''
+    '''informs the client of current pixel values'''
     return pixels
 
 clocker = threading.Thread(target=clockLoop)

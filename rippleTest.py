@@ -1,3 +1,8 @@
 from DYNAcore import *
 
-print(requestArbitration())
+setArbitration('potatoes')
+arbitration = requestArbitration()
+print(arbitration)
+print(type(arbitration))
+
+print(1 / 24)

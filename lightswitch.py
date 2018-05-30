@@ -126,7 +126,7 @@ Jelly = {
 
 Valtari = {
             'Skull'         : [103,122,4],
-            'Floor Lamp'    : [6,71,12],
+            'Floor Lamp'    : [16,61,12],
             'Corner'        : [110,117,14],
             'Windows'       : [101,55,0],
             'Fan'           : [6,71,12],

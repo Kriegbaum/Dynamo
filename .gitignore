@@ -102,3 +102,7 @@ ENV/
 .yml
 
 artwork\.jpg
+
+*.yml
+
+*.jpg
