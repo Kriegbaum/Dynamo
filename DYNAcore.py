@@ -40,9 +40,9 @@ global_speed = 1
 ################################################################################
 #                       Network socket operations
 
-def transmit(command):
+def transmit(command, controller):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (fadecandyIP, 8000)
+    server_address = (fadecandyIPs[controller], 8000)
     sock.connect(server_address)
     message = json.dumps(command)
     try:
@@ -73,39 +73,63 @@ def recieve():
 if hasFadecandy:
     print('Initializing Fadecandy Objects')
 
-    def requestArbitration():
-        transmit({'type': 'requestArbitration', 'ip': localIP})
+    def requestArbitration(controller):
+        transmit({'type': 'requestArbitration', 'ip': localIP}, controller)
         arbitration = recieve()
         arbitration = json.loads(arbitration)
         return arbitration
 
-    def setArbitration(setting):
-        transmit({'type': 'setArbitration', 'setting': setting})
+    def setArbitration(controller, setting):
+        transmit({'type': 'setArbitration', 'setting': setting}, controller)
 
-    def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade'):
+    def sendCommand(fixture, rgb, fadetime=5, type='absoluteFade'):
+        #This function can accept an index range directly instead of reading it off the fixture
+        if isinstance(fixture, Fixture):
+            indexrange = fixture.indexrange
+        elif isinstance(fixture, list):
+            pass
+        else:
+            print('Failed to send command, %s should either be a fixture or a list', fixture)
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
-        transmit(command)
+        transmit(command, fixture.controller)
 
-    def rippleFade(indexrange, rgb, fadetime=5, type='wipe'):
-        sleepTime = fadetime / (indexrange[1] - indexrange[0])
+    def rippleFade(fixture, rgb, fadetime=5, type='wipe'):
+        sleepTime = fadetime / (fixture.indexrange[1] - fixture.indexrange[0])
         #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
         #if sleepTime < .06:
         #    sleepTime = .06
-        for index in range(indexrange[0], indexrange[1]):
-            sendCommand([index, index + 1], rgb, .9)
+        for index in range(fixture.indexrange[0], fixture.indexrange[1]):
+            sendCommand([index, index + 1], rgb, fixture.controller, fadetime=.9)
             time.sleep(sleepTime)
 
-    def dappleFade(indexrange, rgb, fadetime=5):
-        indexes = list(range(indexrange[0], indexrange[1]))
-        sleepTime = fadetime / (indexrange[1] - indexrange[0])
+    def dappleFade(fixture, rgb, fadetime=5):
+        indexes = list(range(fixture.indexrange[0], fixture.indexrange[1]))
+        sleepTime = fadetime / (fixture.indexrange[1] - fixture.indexrange[0])
         #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
         #if sleepTime < .06:
         #    sleepTime = .06
         while indexes:
             index = indexes.pop(random.randrange(0, len(indexes)))
             fadeTime = 1.5 * random.randrange(8, 15) * .1
-            sendCommand([index, index + 1], rgb, fadeTime)
+            sendCommand([index, index + 1], rgb, fixture.controller, fadeTime=fadeTime)
             time.sleep(sleepTime)
+
+    def gatherControllers(room):
+        controllerList = []
+        for l in room:
+            if l.system == 'Fadecandy':
+                if l.controller not in controllerList:
+                    controllerList.append(l.controller)
+        return controllerList
+
+    def gatherArbitration(controllerList):
+        if controllerList:
+            for c in controllerList:
+                if not requestArbitration(c):
+                    return False
+            return True
+        else:
+            return True
 
 
 ################################################################################
@@ -222,7 +246,7 @@ def lights_from_image(image, room):                                             
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
-                sendCommand(room[l].indexrange, colorlist[it], 7 * 0.1 * random.randrange(6,14))
+                sendCommand(room[l], colorlist[it], 7 * 0.1 * random.randrange(6,14))
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':
@@ -250,9 +274,11 @@ def lights_from_image(image, room):                                             
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
     ex = 0
-    setArbitration(True)
+    controllerList = gatherControllers(room)
+    for c in controllerList:
+        setArbitration(c, True)
     while True:
-        if requestArbitration():
+        if gatherArbitration(controllerList):
             print('...')
             print('...')
             print('Iteration', ex)
@@ -267,14 +293,47 @@ def dynamic_image(image, room):
             print('Halting automated routine, overriden by user')
             break
 
+def image_cycle(directory, room):
+    cycleIterator = 0
+    chosenDir = os.path.join(pallettesDir, directory)
+    pallettes = os.listdir(chosenDir)
+    directoryIterator = random.randrange(0, len(pallettes))
+    controllerList = gatherControllers(room)
+    for c in controllerList:
+        setArbitration(c, True)
+    while True:
+        if gatherArbitration(controllerList):
+            print('...')
+            print('...')
+            print('Iteration', cycleIterator)
+            print('Sampling ', pallettes[directoryIterator])
+            image = os.path.join(chosenDir, pallettes[directoryIterator])
+            lights_from_image(image, room)
+            time.sleep(17)
+            cycleIterator += 1
+            if cycleIterator % 3 == 0:
+                random.shuffle(room)
+                print('\n')
+                print('Shuffling fixture order')
+            if cycleIterator % 23 == 0:
+                directoryIterator += 1
+                if directoryIterator > len(pallettes):
+                    directoryIterator = 0
+        else:
+            print('Halting automated routine, overriden by user')
+            break
+
+
 if hasMusicbee:
     def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
         '''This samples colors off the currently playing album cover'''
         ex = 0
         Album = 'dicks'
-        setArbitration(True)
+        controllerList = gatherControllers(room)
+        for c in controllerList:
+            setArbitration(c, True)
         while True:
-            if requestArbitration():
+            if gatherArbitration(controllerList):
                 print('...')
                 print('...')
                 print('Iteration', ex)
@@ -310,7 +369,7 @@ def off(room):
     for l in room:
         if hasFadecandy:
             if l.system == "Fadecandy":
-                sendCommand(l.indexrange, [0,0,0])
+                sendCommand(l, [0,0,0])
         if hasHue:
             if l.system == 'Hue':
                 bridge.set_light(l.id, 'on', False)

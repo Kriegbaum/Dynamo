@@ -13,11 +13,13 @@ hasMusicbee = configs['hasMusicbee']
 pallettesDir = configs['pallettesDir']
 
 hueIP = configs['hueIP']
-fadecandyIP = configs['fadecandyIP']
+fadecandyIPs = configs['fadecandyIPs']
 
 allFixtures = []
 
 def testDict(dictionary, key, default):
+    '''See if the patch dictionary has specified a value. If it hasn't, return
+    a specificed default'''
     try:
         result = dictionary[key]
         return result
@@ -36,6 +38,7 @@ class Fixture:
         if self.system == 'Fadecandy':
             self.indexrange = testDict(patchDict, 'indexrange', [0,0])
             self.grb = testDict(patchDict, 'grb', True)
+            self.controller = patchDict['controller']
         self.room = testDict(patchDict, 'room', 'UNUSED')
         allFixtures.append(self)
     def __repr__(self):

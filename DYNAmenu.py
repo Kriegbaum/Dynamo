@@ -37,5 +37,8 @@ if subroutine == 'off':
     group = rooms[input().lower()]
     off(group)
 
+if subroutine == 'image cycle':
+    image_cycle('sky', rooms['bedroom'])
+
 else:
     print('Yeah right!')

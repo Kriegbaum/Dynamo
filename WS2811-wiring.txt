@@ -1,4 +1,7 @@
 1. Data +, White
+
 2. Data GND, Green
+
 3. DC +, Red
+
 4. DC GND, Black
