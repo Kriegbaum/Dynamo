@@ -20,7 +20,7 @@ ipSock.connect(('8.8.8.8', 80))
 localIP = ipSock.getsockname()[0]
 ipSock.close()
 
-socket.setdefaulttimeout(15)
+socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
