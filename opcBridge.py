@@ -6,6 +6,7 @@ import json
 import threading
 import queue
 import datetime
+import atexit
 
 #typical command
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
@@ -52,7 +53,8 @@ def bridgeValues(totalSteps, start, end):
         yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
     yield end
 
-
+def socketKill(socket):
+    socket.shutdown(socket.SHUT_RDWR)
 #############################SERVER LOOPS#######################################
 
 
@@ -85,6 +87,7 @@ def fetchLoop():
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
     sock.listen(128)
+    atexit.register(socketKill, sock)
     while True:
         connection, client_address = sock.accept()
         command = ''
@@ -109,7 +112,13 @@ def commandParse(command):
     elif command['type'] == 'pixelRequest':
         pass
     elif command['type'] == 'requestArbitration':
-        getArbitration(command['ip'])
+        arbitrationSuccess = False
+        while not arbitrationSuccess:
+            try:
+                getArbitration(command['ip'])
+                arbitrationSuccess = True
+            except socket.timeout:
+                print('Returning arbitration timed out, attempting again')
     elif command['type'] == 'setArbitration':
         setArbitration(command['setting'])
     else:

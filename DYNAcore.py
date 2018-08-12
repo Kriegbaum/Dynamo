@@ -10,6 +10,7 @@ import random
 import shutil
 import socket
 import json
+import atexit
 
 ################################################################################
 #                       Control Objects
@@ -55,6 +56,7 @@ def transmit(command, controller):
             print('Sending ' + command['type'] + ' failed')
             print(e)
     finally:
+        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def recieve():
@@ -135,6 +137,10 @@ if hasFadecandy:
             return True
         else:
             return True
+
+    def exitReset(controllerList):
+        for c in controllerList:
+            setArbitration(c, False)
 
 
 ################################################################################
@@ -282,6 +288,7 @@ def dynamic_image(image, room):
     controllerList = gatherControllers(room)
     for c in controllerList:
         setArbitration(c, True)
+    atexit.register(exitReset, controllerList)
     while True:
         if gatherArbitration(controllerList):
             print('...')
@@ -306,6 +313,7 @@ def image_cycle(directory, room):
     controllerList = gatherControllers(room)
     for c in controllerList:
         setArbitration(c, True)
+    atexit.register(exitReset, controllerList)
     while True:
         if gatherArbitration(controllerList):
             print('...')
@@ -337,6 +345,7 @@ if hasMusicbee:
         controllerList = gatherControllers(room)
         for c in controllerList:
             setArbitration(c, True)
+        atexit.register(exitReset, controllerList)
         while True:
             if gatherArbitration(controllerList):
                 print('...')

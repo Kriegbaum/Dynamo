@@ -1,0 +1,4 @@
+Silver Cans: [.95294, 1, .63137]
+Low density Alitove tape: [1, .85098, .57647]
+Worklight: [1, .9647, .55294]
+High density tape: [1, .8627, .6705]
