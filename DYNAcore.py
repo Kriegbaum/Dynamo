@@ -22,8 +22,9 @@ ipSock.connect(('8.8.8.8', 80))
 localIP = ipSock.getsockname()[0]
 ipSock.close()
 
+socket.setdefaulttimeout(15)
 #Hue system control object
-print('Initializing hue bridge')
+print('Initializing Hue bridge')
 bridge = Bridge(hueIP)
 
 #This will let us see what musicbee is doing
@@ -47,8 +48,12 @@ def transmit(command, controller):
     message = json.dumps(command)
     try:
         sock.sendall(message.encode())
-    except:
-        print('Sending ' + command['type'] + ' failed')
+    except Exception as e:
+        if type(e) == socket.timeout:
+            print('Socket timed out, attempting connection again')
+        else:
+            print('Sending ' + command['type'] + ' failed')
+            print(e)
     finally:
         sock.close()
 

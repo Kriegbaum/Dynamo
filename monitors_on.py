@@ -1,3 +1,3 @@
-from phue import Bridge
-bridge = Bridge('192.168.1.31')
-bridge.set_light(24, 'on', True)
+from DYNAcore import *
+
+bridge.set_light(18, 'on', True)

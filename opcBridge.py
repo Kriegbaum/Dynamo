@@ -20,7 +20,7 @@ ipSock.connect(('8.8.8.8', 80))
 localIP = ipSock.getsockname()[0]
 ipSock.close()
 
-
+socket.setdefaulttimeout(15)
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
@@ -128,8 +128,8 @@ def getArbitration(ip):
     message = json.dumps(arbitration[0])
     try:
         sock.sendall(message.encode())
-    except:
-        print('Failed returning arbitration')
+    except Exception as e:
+        print('Failed returning arbitration, ' + e)
     finally:
         sock.close()
 
