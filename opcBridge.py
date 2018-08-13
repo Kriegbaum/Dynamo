@@ -83,7 +83,8 @@ def clockLoop():
 def fetchLoop():
     '''Fetches commands from the socket'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (localIP, 8000)
+    #server_address = (localIP, 8000)
+    server_address = ('', 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
     sock.listen(128)
@@ -112,13 +113,7 @@ def commandParse(command):
     elif command['type'] == 'pixelRequest':
         pass
     elif command['type'] == 'requestArbitration':
-        arbitrationSuccess = False
-        while not arbitrationSuccess:
-            try:
-                getArbitration(command['ip'])
-                arbitrationSuccess = True
-            except socket.timeout:
-                print('Returning arbitration timed out, attempting again')
+        getArbitration(command['ip'])
     elif command['type'] == 'setArbitration':
         setArbitration(command['setting'])
     else:

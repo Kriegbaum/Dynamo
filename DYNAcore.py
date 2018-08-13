@@ -141,6 +141,8 @@ if hasFadecandy:
     def exitReset(controllerList):
         for c in controllerList:
             setArbitration(c, False)
+        print('Killing Dynacore...')
+        print('Cleaning Sockets')
 
 
 ################################################################################
