@@ -53,9 +53,9 @@ def bridgeValues(totalSteps, start, end):
         yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
     yield end
 
-def socketKill(socket):
-    socket.shutdown(socket.SHUT_RDWR)
-    socket.close()
+def socketKill(sock):
+    sock.shutdown(socket.SHUT_RDWR)
+    sock.close()
 #############################SERVER LOOPS#######################################
 
 
@@ -89,6 +89,7 @@ def fetchLoop():
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
     sock.listen(90)
+    sock.settimeout(None)
     atexit.register(socketKill, sock)
     while True:
         print('Socket accepting connections...')
