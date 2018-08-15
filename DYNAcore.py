@@ -122,12 +122,21 @@ if hasFadecandy:
             sendCommand([index, index + 1], rgb, fixture.controller, fadeTime=fadeTime)
             time.sleep(sleepTime)
 
+    def exitReset(controllerList):
+        for c in controllerList:
+            setArbitration(c, False)
+        print('Killing Dynacore...')
+        print('Cleaning Sockets')
+
     def gatherControllers(room):
         controllerList = []
         for l in room:
             if l.system == 'Fadecandy':
                 if l.controller not in controllerList:
                     controllerList.append(l.controller)
+        for c in controllerList:
+            setArbitration(c, True)
+        atexit.register(exitReset, controllerList)
         return controllerList
 
     def gatherArbitration(controllerList):
@@ -138,12 +147,6 @@ if hasFadecandy:
             return True
         else:
             return True
-
-    def exitReset(controllerList):
-        for c in controllerList:
-            setArbitration(c, False)
-        print('Killing Dynacore...')
-        print('Cleaning Sockets')
 
 
 ################################################################################
@@ -289,9 +292,6 @@ def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
     ex = 0
     controllerList = gatherControllers(room)
-    for c in controllerList:
-        setArbitration(c, True)
-    atexit.register(exitReset, controllerList)
     while True:
         if gatherArbitration(controllerList):
             print('...')
@@ -314,9 +314,6 @@ def image_cycle(directory, room):
     pallettes = os.listdir(chosenDir)
     directoryIterator = random.randrange(0, len(pallettes))
     controllerList = gatherControllers(room)
-    for c in controllerList:
-        setArbitration(c, True)
-    atexit.register(exitReset, controllerList)
     while True:
         if gatherArbitration(controllerList):
             print('...')
@@ -346,9 +343,6 @@ if hasMusicbee:
         ex = 0
         Album = 'dicks'
         controllerList = gatherControllers(room)
-        for c in controllerList:
-            setArbitration(c, True)
-        atexit.register(exitReset, controllerList)
         while True:
             if gatherArbitration(controllerList):
                 print('...')

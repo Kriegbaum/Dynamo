@@ -55,6 +55,7 @@ def bridgeValues(totalSteps, start, end):
 
 def socketKill(socket):
     socket.shutdown(socket.SHUT_RDWR)
+    socket.close()
 #############################SERVER LOOPS#######################################
 
 
@@ -84,12 +85,13 @@ def fetchLoop():
     '''Fetches commands from the socket'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #server_address = (localIP, 8000)
-    server_address = ('', 8000)
+    server_address = (localIP, 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
-    sock.listen(128)
+    sock.listen(90)
     atexit.register(socketKill, sock)
     while True:
+        print('Socket accepting connections...')
         connection, client_address = sock.accept()
         command = ''
         while True:
@@ -101,6 +103,7 @@ def fetchLoop():
                 comDict = json.loads(command)
                 print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
                 commands.put(comDict)
+                print('Command placed in dictionary')
                 break
 
 ###################COMMAND TYPE HANDLING########################################
