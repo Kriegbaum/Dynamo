@@ -73,6 +73,7 @@ def recieve():
             pass
         else:
             return message
+            sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
 ################################################################################
