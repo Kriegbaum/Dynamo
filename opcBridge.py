@@ -92,7 +92,6 @@ def fetchLoop():
     sock.settimeout(None)
     atexit.register(socketKill, sock)
     while True:
-        print('Socket accepting connections...')
         connection, client_address = sock.accept()
         command = ''
         while True:
@@ -104,7 +103,6 @@ def fetchLoop():
                 comDict = json.loads(command)
                 print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
                 commands.put(comDict)
-                print('Command placed in dictionary')
                 break
 
 ###################COMMAND TYPE HANDLING########################################
