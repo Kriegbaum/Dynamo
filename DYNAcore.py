@@ -360,7 +360,10 @@ if hasMusicbee:
                     except:
                         print('SHIT SHIT SHIT....')
                         print('APIC tag failed, attempting to read Musicbee Temporary File')
-                        shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
+                        try:
+                            shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
+                        except:
+                            print('APIC tag and musicbee backup option have both failed. This is likely because the album lacks artwork')
                     try:
                         print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
                     except:

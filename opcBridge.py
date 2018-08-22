@@ -26,9 +26,9 @@ socket.setdefaulttimeout(60)
 pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
-frameRate = 24
+frameRate = 26
 FCclient = opc.Client('localhost:7890')
-queueLock = threading.Lock()
+queueLock = False
 arbitration = [False]
 
 ############################SUPPORT FUNCTIONS###################################
@@ -72,7 +72,7 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        if not queue.empty():
+        if not queue.empty() and not queueLock:
             now = time.time()
             alteration = queue.get()
             queue.task_done()
@@ -144,7 +144,7 @@ def absoluteFade(indexes, rgb, fadeTime):
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
     queueList = []
-    queueLock.acquire()
+    queueLock = True
     while not queue.empty():
         queueList.append(queue.get())
         queue.task_done()
@@ -168,7 +168,7 @@ def absoluteFade(indexes, rgb, fadeTime):
 
     while queueList:
         queue.put(queueList.pop(0))
-    queueLock.release()
+    queueLock = False
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
