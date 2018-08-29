@@ -28,6 +28,8 @@ saturated_iteration = 0
 natural_iteration = 0
 contrast_iteration = 0
 
+f1 =
+
 #Spidergod aint no fuckboi
 #Spidergod aint never been a fuckboi
 #Spidergod aint never even SEEn a fuckboi
@@ -37,190 +39,190 @@ contrast_iteration = 0
 Copper = {
             'Worklight'     : [114,108,113],
             'Fan'           : [120,68,15],
-            'Windows'       : [128,134,152],
-            'Floor Lamp'    : [44,26,21],
-            'Duct'          : [122,106,106],
-            'Skull'         : [170,117,56],
-            'Corner'        : [144,110,85],
+            'Office Closet' : [128,134,152],
+            'Iris'          : [44,26,21],
+            'Print'         : [122,106,106],
+            'Whiteboard'    : [170,117,56],
+            'Workbench'     : [144,110,85],
 	        'Desk Lamp'     : [120,87,27]
             }
 
 Burma = {
-            'Windows'       : [134,89,32],
-            'Skull'         : [209,193,169],
+            'Office Closet' : [134,89,32],
+            'Whiteboard'    : [209,193,169],
             'Worklight'     : [161,116,51],
             'Fan'           : [199,164,96],
-            'Corner'        : [177,137,75],
-            'Floor Lamp'    : [118,73,16],
-            'Duct'          : [168,127,65],
+            'Workbench'     : [177,137,75],
+            'Iris'          : [118,73,16],
+            'Print'         : [168,127,65],
             'Desk Lamp'     : [200,200,25]
             }
 
 Snowy = {
             'Fan'           : [152,150,151],
-            'Windows'       : [219,214,220],
-            'Duct'          : [120,114,116],
+            'Office Closet' : [219,214,220],
+            'Print'         : [120,114,116],
             'Worklight'     : [114,112,115],
-            'Floor Lamp'    : [84,87,94],
-            'Skull'         : [172,173,188],
-            'Corner'        : [106,90,93],
+            'Iris'          : [84,87,94],
+            'Whiteboard'    : [172,173,188],
+            'Workbench'     : [106,90,93],
     	    'Desk Lamp'     : [120,120,125]
             }
 
 Japanese = {
-            'Windows'       : [123,141,109],
+            'Office Closet' : [123,141,109],
             'Worklight'     : [198,152,68],
-            'Corner'        : [195,145,82],
-            'Floor Lamp'    : [216,208,189],
-            'Duct'          : [224,174,175],
+            'Workbench'     : [195,145,82],
+            'Iris'          : [216,208,189],
+            'Print'         : [224,174,175],
             'Fan'           : [196,171,119],
-            'Skull'         : [205,221,200],
+            'Whiteboard'    : [205,221,200],
 	        'Desk Lamp'     : [95,150,160]
             }
 
 Sacred = {
-            'Windows'       : [47,183,220],
-            'Corner'        : [100,49,25],
-            'Duct'          : [81,46,14],
+            'Office Closet' : [47,183,220],
+            'Workbench'     : [100,49,25],
+            'Print'         : [81,46,14],
             'Fan'           : [79,60,25],
-            'Floor Lamp'    : [85,49,15],
+            'Iris'          : [85,49,15],
             'Worklight'     : [97,50,12],
-            'Skull'         : [44,42,69],
+            'Whiteboard'    : [44,42,69],
             'Desk Lamp'     : [120,120,115]
             }
 
 Eternity = {
-            'Skull'         : [224,182,165],
+            'Whiteboard'    : [224,182,165],
             'Worklight'     : [225,205,162],
-            'Corner'        : [178,110,107],
-            'Windows'       : [223,120,101],
+            'Workbench'     : [178,110,107],
+            'Office Closet' : [223,120,101],
             'Fan'           : [174,112,101],
-            'Floor Lamp'    : [144,94,97],
-            'Duct'          : [128,85,92],
+            'Iris'          : [144,94,97],
+            'Print'         : [128,85,92],
             'Desk Lamp'     : [170,95,85]
             }
 
 Warm = {
-            'Skull'         : [255,197,143],
+            'Whiteboard'    : [255,197,143],
             'Worklight'     : [255,197,143],
-            'Corner'        : [255,197,143],
-            'Windows'       : [255,197,143],
+            'Workbench'     : [255,197,143],
+            'Office Closet' : [255,197,143],
             'Fan'           : [255,197,143],
-            'Floor Lamp'    : [255,197,143],
-            'Duct'          : [255,197,143],
+            'Iris'          : [255,197,143],
+            'Print'         : [255,197,143],
             'Desk Lamp'     : [255,197,143]
             }
 
 #Saturated looks
 
 Jelly = {
-            'Floor Lamp'    : [0,35,111],
-            'Duct'          : [239,30,0],
-            'Corner'        : [1,98,175],
-            'Windows'       : [254,138,1],
+            'Iris'          : [0,35,111],
+            'Print'         : [239,30,0],
+            'Workbench'     : [1,98,175],
+            'Office Closet' : [254,138,1],
             'Fan'           : [0,0,255],
-            'Skull'         : [95,45,0],
+            'Whiteboard'    : [95,45,0],
             'Worklight'     : [0,174,198],
             'Desk Lamp'     : [112,112,128]
             }
 
 
 Valtari = {
-            'Skull'         : [103,122,4],
-            'Floor Lamp'    : [16,61,12],
-            'Corner'        : [110,117,14],
-            'Windows'       : [101,55,0],
+            'Whiteboard'    : [103,122,4],
+            'Iris'          : [16,61,12],
+            'Workbench'     : [110,117,14],
+            'Office Closet' : [101,55,0],
             'Fan'           : [6,71,12],
             'Worklight'     : [110,117,14],
-            'Duct'          : [230,115,6],
+            'Print'         : [230,115,6],
             'Desk Lamp'     : [95,130,70]
             }
 
 Vaporwave = {
             'Worklight'     : [120,200,164],
-            'Windows'       : [188,110,241],
-            'Skull'         : [117,35,150],
+            'Office Closet' : [188,110,241],
+            'Whiteboard'    : [117,35,150],
             'Fan'           : [96,71,126],
-            'Corner'        : [70,200,135],
-            'Duct'          : [129,31,142],
-            'Floor Lamp'    : [120,168,146],
+            'Workbench'     : [70,200,135],
+            'Print'         : [129,31,142],
+            'Iris'          : [120,168,146],
             'Desk Lamp'     : [0,110,170]
             }
 
 Intersection = {
-            'Skull'         : [219,118,175],
-            'Floor Lamp'    : [135,88,202],
-            'Corner'        : [207,112,204],
-            'Windows'       : [208,89,153],
+            'Whiteboard'    : [219,118,175],
+            'Iris'          : [135,88,202],
+            'Workbench'     : [207,112,204],
+            'Office Closet' : [208,89,153],
             'Fan'           : [75,40,190],
-            'Duct'          : [80,47,150],
+            'Print'         : [80,47,150],
             'Worklight'     : [79,39,73],
             'Desk Lamp'     : [190,90,150]
             }
 
 Eiffel = {
             'Fan'           : [255,197,63],
-            'Skull'         : [99,52,11],
+            'Whiteboard'    : [99,52,11],
             'Worklight'     : [128,72,0],
-            'Corner'        : [123,50,0],
-            'Windows'       : [119,62,7],
-            'Duct'          : [112,64,0],
-            'Floor Lamp'    : [87,43,8],
+            'Workbench'     : [123,50,0],
+            'Office Closet' : [119,62,7],
+            'Print'         : [112,64,0],
+            'Iris'          : [87,43,8],
 	        'Desk Lamp'     : [255,170,10]
             }
 
 Umbrella = {
             'Worklight'     : [43,133,162],
-            'Skull'         : [24,100,144],
+            'Whiteboard'    : [24,100,144],
             'Fan'           : [255,255,255],
-            'Corner'        : [26,120,144],
-            'Floor Lamp'    : [165,64,107],
-            'Duct'          : [7,75,138],
-            'Windows'       : [165,64,107],
+            'Workbench'     : [26,120,144],
+            'Iris'          : [165,64,107],
+            'Print'         : [7,75,138],
+            'Office Closet' : [165,64,107],
             'Desk Lamp'     : [50,50,128]
             }
 
 Toplight = {
             'Worklight'     : [0,0,0],
-            'Skull'         : [0,0,0],
+            'Whiteboard'    : [0,0,0],
             'Fan'           : [70,150,220],
-            'Corner'        : [0,0,0],
-            'Floor Lamp'    : [0,0,0],
-            'Duct'          : [0,0,0],
-            'Windows'       : [0,0,0],
+            'Workbench'     : [0,0,0],
+            'Iris'          : [0,0,0],
+            'Print'         : [0,0,0],
+            'Office Closet' : [0,0,0],
             'Desk Lamp'     : [0,0,0]
             }
 
 Blinds = {
             'Worklight'     : [0,0,0],
-            'Skull'         : [0,0,0],
+            'Whiteboard'    : [0,0,0],
             'Fan'           : [0,0,0],
-            'Corner'        : [0,0,0],
-            'Floor Lamp'    : [0,0,0],
-            'Duct'          : [0,0,0],
-            'Windows'       : [255,197,110],
+            'Workbench'     : [0,0,0],
+            'Iris'          : [0,0,0],
+            'Print'         : [0,0,0],
+            'Office Closet' : [255,197,110],
             'Desk Lamp'     : [40,40,20]
             }
 
 Cabinet = {
             'Worklight'      : [0,0,0],
-	        'Skull'	         : [0,0,0],
+	        'Whiteboard'	 : [0,0,0],
 	        'Fan'            : [0,0,0],
-	        'Corner'         : [90,40,25],
-	        'Floor Lamp'     : [0,0,0],
-	        'Duct'           : [0,0,0],
-	        'Windows'        : [0,0,0],
+	        'Workbench'      : [90,40,25],
+	        'Iris'           : [0,0,0],
+	        'Print'          : [0,0,0],
+	        'Office Closet'  : [0,0,0],
             'Desk Lamp'      : [0,0,0]
 	   }
 
 Void = {
             'Worklight'      : [183,176,218],
-	        'Skull'	         : [200,72,159],
+	        'Whiteboard'	 : [200,72,159],
 	        'Fan'            : [74,11,203],
-	        'Corner'         : [28,0,28],
-	        'Floor Lamp'     : [39,2,20],
-	        'Duct'           : [144,0,171],
-	        'Windows'        : [218,211,218],
+	        'Workbench'      : [28,0,28],
+	        'Iris'           : [39,2,20],
+	        'Print'          : [144,0,171],
+	        'Office Closet'  : [218,211,218],
             'Desk Lamp'      : [5,0,6]
 	   }
 

@@ -28,7 +28,7 @@ commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
 frameRate = 26
 FCclient = opc.Client('localhost:7890')
-queueLock = False
+queueLock = threading.Lock()
 arbitration = [False]
 
 ############################SUPPORT FUNCTIONS###################################
@@ -72,8 +72,7 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        if not queue.empty() and not queueLock:
-            now = time.time()
+        if not queue.empty():
             alteration = queue.get()
             queue.task_done()
             for alt in alteration:
@@ -144,7 +143,7 @@ def absoluteFade(indexes, rgb, fadeTime):
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
     queueList = []
-    queueLock = True
+    queueLock.acquire()
     while not queue.empty():
         queueList.append(queue.get())
         queue.task_done()
@@ -168,7 +167,7 @@ def absoluteFade(indexes, rgb, fadeTime):
 
     while queueList:
         queue.put(queueList.pop(0))
-    queueLock = False
+    queueLock.release()
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
