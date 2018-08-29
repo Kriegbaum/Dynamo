@@ -234,7 +234,7 @@ def makeLight(look):
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
-            sendCommand(l.indexrange, color, .5)
+            sendCommand(l, color, .5)
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
@@ -254,7 +254,7 @@ def off():
         if l.system == 'Hue':
             bridge.set_light(l.id, 'on', False)
         if l.system == 'Fadecandy':
-            sendCommand(l.indexrange, [0,0,0], 0.5)
+            sendCommand(l, [0,0,0], 0.5)
         bridge.set_light(24, 'on', False)
 
 
@@ -280,7 +280,6 @@ while True:
 
 
     if button1 and not button1last:
-        sendCommand([320,340], [220,228,245])
         makeLight(naturalLooks[natural_iteration])
         print(datetime.datetime.now())
         print('Button 1 pressed')
@@ -292,7 +291,6 @@ while True:
         button1last = True
 
     elif button2 and not button2last:
-        sendCommand([320,340], [220,228,245])
         makeLight(saturatedLooks[saturated_iteration])
         print(datetime.datetime.now())
         print('Button 2 pressed')
@@ -305,14 +303,12 @@ while True:
 
     elif button3 and not button3last:
         off()
-        sendCommand([320,340], [0,0,0])
         print(datetime.datetime.now())
         print('Button 3 pressed')
         print('Turning off lights')
         button3last = True
 
     elif button4 and not button4last:
-        sendCommand([320,340], [245,50,0])
         makeLight(contrastLooks[contrast_iteration])
         print(datetime.datetime.now())
         print('Button 4 pressed')
