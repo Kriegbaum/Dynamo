@@ -90,16 +90,17 @@ if hasFadecandy:
     def setArbitration(controller, setting):
         transmit({'type': 'setArbitration', 'setting': setting}, controller)
 
-    def sendCommand(fixture, rgb, fadetime=5, type='absoluteFade'):
+    def sendCommand(fixture, rgb, fadetime=5, type='absoluteFade', controller=False):
         #This function can accept an index range directly instead of reading it off the fixture
         if isinstance(fixture, Fixture):
             indexrange = fixture.indexrange
+            controller = fixture.controller
         elif isinstance(fixture, list):
             indexrange = fixture
         else:
             print('Failed to send command, %s should either be a fixture or a list', fixture)
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
-        transmit(command, fixture.controller)
+        transmit(command, controller)
 
     def rippleFade(fixture, rgb, fadetime=5, type='wipe'):
         sleepTime = fadetime / (fixture.indexrange[1] - fixture.indexrange[0])

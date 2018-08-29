@@ -259,13 +259,13 @@ def off():
 
 
 
-sendCommand([0,128], [255,255,255], 1)
+sendCommand([0,128], [255,255,255], 1, controller=fadecandyIPs['officeFC'])
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 1)
+sendCommand([0,128], [0,0,0], 1, controller=fadecandyIPs['officeFC'])
 time.sleep(1)
-sendCommand([0,128], [255,255,255], 1)
+sendCommand([0,128], [255,255,255], 1, controller=fadecandyIPs['officeFC'])
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 2)
+sendCommand([0,128], [0,0,0], 2, controller=fadecandyIPs['officeFC'])
 
 button1last = False
 button2last = False
