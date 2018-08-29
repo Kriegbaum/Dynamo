@@ -22,7 +22,7 @@ GPIO.setup(23, GPIO.OUT)
 GPIO.setup(24, GPIO.OUT)
 
 ###### Lighting Control Objects
-room = rooms['bedroom']
+room = rooms['office']
 #Function Objects
 saturated_iteration = 0
 natural_iteration = 0
