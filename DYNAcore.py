@@ -95,7 +95,7 @@ if hasFadecandy:
         if isinstance(fixture, Fixture):
             indexrange = fixture.indexrange
         elif isinstance(fixture, list):
-            pass
+            indexrange = fixture
         else:
             print('Failed to send command, %s should either be a fixture or a list', fixture)
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
