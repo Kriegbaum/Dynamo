@@ -27,6 +27,7 @@ room = rooms['bedroom']
 saturated_iteration = 0
 natural_iteration = 0
 contrast_iteration = 0
+roomController = 'officeFC'
 
 #Spidergod aint no fuckboi
 #Spidergod aint never been a fuckboi
@@ -230,7 +231,7 @@ contrastLooks = [Toplight, Blinds, Cabinet]
 
 
 def makeLight(look):
-    setArbitration(False)
+    setArbitration(roomController, False)
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
@@ -259,13 +260,13 @@ def off():
 
 
 
-sendCommand([0,128], [255,255,255], 1, controller='officeFC')
+sendCommand([0,128], [255,255,255], 1, controller=roomController)
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 1, controller='officeFC')
+sendCommand([0,128], [0,0,0], 1, controller=roomController)
 time.sleep(1)
-sendCommand([0,128], [255,255,255], 1, controller='officeFC')
+sendCommand([0,128], [255,255,255], 1, controller=roomController)
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 2, controller='officeFC')
+sendCommand([0,128], [0,0,0], 2, controller=roomController)
 
 button1last = False
 button2last = False
