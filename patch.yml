@@ -1,6 +1,8 @@
+#Office
+
 Whiteboard:
   system: Fadecandy
-  indexrange: [0,24]
+  indexrange: [0,25]
   colorCorrection: [1,.85098,.57647]
   room: office
   controller: officeFC
@@ -8,7 +10,7 @@ Whiteboard:
 Worklight:
   system: Fadecandy
   indexrange: [448, 449]
-  colorCorrection: [1, .9647, 0.55294]
+  colorCorrection: [.97, 1, 0.58294]
   room: office
   controller: officeFC
 
@@ -16,7 +18,6 @@ Spidergod:
   system: Fadecandy
   indexrange: [256, 276]
   colorCorrection: [1, .8627, .6705]
-  room: office
   controller: officeFC
 
 Fan:
@@ -33,7 +34,7 @@ Desk Lamp:
 
 Workbench:
   system: Hue
-  id: 2
+  id: 14
   room: office
 
 Office Closet:
@@ -53,3 +54,57 @@ Iris:
   id: 27
   colorCorrection: [.80, .86, 1]
   room: office
+
+#Living Room
+NW Corner:
+  system: Hue
+  id: 7
+  room: living room
+
+NE Corner:
+  system: Hue
+  id: 4
+  room: living room
+
+SW Corner:
+  system: Hue
+  id: 9
+  room: living room
+
+SE Corner:
+  system: Hue
+  id: 6
+  room: living room
+
+#Kitchen
+Refridgerator:
+  system: Hue
+  id: 3
+  room: kitchen
+
+Cabinet Top:
+  system: Hue
+  id: 25
+  room: kitchen
+
+Cabinet Bottom:
+  system: Hue
+  id: 26
+  room: kitchen
+
+Corner:
+  system: Hue
+  id: 8
+  room: kitchen
+
+Oven:
+  system: Hue
+  id: 2
+  room: kitchen
+
+#Bedroom
+
+Bedroom Closet:
+  system: Hue
+  id: 10
+  room: bedroom
