@@ -256,7 +256,7 @@ def off():
             bridge.set_light(l.id, 'on', False)
         if l.system == 'Fadecandy':
             sendCommand(l, [0,0,0], 0.5)
-        bridge.set_light(24, 'on', False)
+        bridge.set_light(18, 'on', False)
 
 
 

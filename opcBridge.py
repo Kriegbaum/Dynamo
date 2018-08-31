@@ -1,5 +1,6 @@
 import opc
 import time
+import os
 import socket
 import sys
 import json
@@ -7,6 +8,9 @@ import threading
 import queue
 import datetime
 import atexit
+
+#This will log EVERYTHING, disable when you've ceased being confused about your socket issues
+sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
 
 #typical command
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
@@ -136,6 +140,7 @@ def getArbitration(ip):
     except Exception as e:
         print('Failed returning arbitration, ' + e)
     finally:
+        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def absoluteFade(indexes, rgb, fadeTime):
