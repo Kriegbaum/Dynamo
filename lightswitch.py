@@ -59,9 +59,9 @@ Burma = {
 
 Snowy = {
             'Fan'           : [152,150,151],
-            'Office Closet' : [219,214,220],
+            'Office Closet' : [114,112,115],
             'Print'         : [120,114,116],
-            'Worklight'     : [114,112,115],
+            'Worklight'     : [219,214,220],
             'Iris'          : [84,87,94],
             'Whiteboard'    : [172,173,188],
             'Workbench'     : [106,90,93],
