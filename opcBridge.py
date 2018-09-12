@@ -191,7 +191,7 @@ def multiCommand(commands):
             queueList.append({})
     for c in commands:
         commandAlterations = c[2] * frameRate
-        for i in c[0]:
+        for i in range(c[0][0], c[0][1]):
             start = pixels[i]
             bridgeGenerator = bridgeValues(commandAlterations, start, c[1])
             for m in range(commandAlterations):
