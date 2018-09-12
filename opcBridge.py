@@ -126,6 +126,7 @@ def commandParse(command):
         multiCommand(command['commands'])
     else:
         print('Invalid command type recieved')
+        print(command['type'] + 'is not a valid command')
 
 def setArbitration(setting):
     if type(setting) != bool:
