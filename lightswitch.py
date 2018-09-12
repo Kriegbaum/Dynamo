@@ -251,6 +251,7 @@ def makeLight(look):
             print(l.system)
 
 def off():
+    setArbitration(roomController, False)
     for l in room:
         if l.system == 'Hue':
             bridge.set_light(l.id, 'on', False)

@@ -16,6 +16,7 @@ sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcB
 #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
 #{'type': 'pixelRequest'}
 #{'type': 'relativeFade', 'index range': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fade time': 8-bit integer}
+#('type': 'multiCommand', [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
 
 #typical queue item
 #[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
@@ -121,6 +122,8 @@ def commandParse(command):
         getArbitration(command['ip'])
     elif command['type'] == 'setArbitration':
         setArbitration(command['setting'])
+    elif command['type'] == 'multiCommand':
+        multiCommand(command['commands'])
     else:
         print('Invalid command type recieved')
 
@@ -160,6 +163,7 @@ def absoluteFade(indexes, rgb, fadeTime):
             queueList.append({})
     #Iterate down indexes, figure out what items in queue need to be altered
     for i in indexes:
+        #INVESTIGATE: THIS MIGHT BE THE SOURCE OF FLASHING ISSUES AT THE START OF A COMMAND
         start = pixels[i]
         bridgeGenerator = bridgeValues(alterations, start, rgb)
         for m in range(alterations):
@@ -169,10 +173,36 @@ def absoluteFade(indexes, rgb, fadeTime):
             for r in range(abs(appends)):
                 if i in queueList[alterations + r]:
                     del queueList[alterations + r][i]
-
     while queueList:
         queue.put(queueList.pop(0))
     queueLock.release()
+
+def multiCommand(commands):
+    maxAlterations = int(max([i[2] for i in commands]) * frameRate)
+    queueList = []
+    queueLock.acquire()
+    while not queue.empty():
+        queueList.append(queue.get())
+        queue.task_done()
+    appends = maxAlterations - len(queueList)
+    if appends > 0:
+        for i in range(abs(appends)):
+            queueList.append({})
+    for c in commands:
+        commandAlterations = c[2] * frameRate
+        for i in c[0]:
+            start = pixels[i]
+            bridgeGenerator = bridgeValues(commandAlterations, start, c[1])
+            for m in range(commandAlterations):
+                queueList[m][i] = next(bridgeGenerator)
+        if appends < 0:
+            for r in range(abs(appends)):
+                if i in queueList[commandAlterations + r]:
+                    del queueList[commandAlterations + r][i]
+    while queueList:
+        queue.put(queueList.pop(0))
+    queueLock.release()
+
 
 
 def relativeFade(indexes, positive, magnitude, fadeTime):

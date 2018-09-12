@@ -87,11 +87,32 @@ if hasFadecandy:
         arbitration = json.loads(arbitration)
         return arbitration
 
-    def setArbitration(controller, setting):
+    def setArbitration(setting, controller):
         transmit({'type': 'setArbitration', 'setting': setting}, controller)
+
+    def sendMultiCommand(commands, controller):
+        '''Sends a command that issues an absoluteFade to multiple fixtures at once
+        This should be used every time more than one command is supposed to happen simultaneously
+        it is more efficent for opcBridge, faster, and less error prone'''
+        #('type': 'multiCommand', 'commands': [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
+        #Index 0 in each command can be fixture or index, but should be index by the time it reaches opcBridge
+        for c in commands:
+            if isinstance(c[0], Fixture):
+                print(c[0])
+                if c[0].controller != controller:
+                    print('You just tried to send one command to multiple controllers, get your lazy ass in gear and make that possible')
+                    return False
+                c[0] = c[0].indexrange
+            elif not isinstance(c[0], list):
+                print('Failed to send command, %s should either be a fixture or a list', c[0])
+                return False
+        command = {'type':'multiCommand', 'commands':commands}
+        transmit(command, controller)
 
     def sendCommand(fixture, rgb, fadetime=5, type='absoluteFade', controller=False):
         #This function can accept an index range directly instead of reading it off the fixture
+        #typical command
+        #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
         if isinstance(fixture, Fixture):
             indexrange = fixture.indexrange
             controller = fixture.controller
@@ -99,6 +120,7 @@ if hasFadecandy:
             indexrange = fixture
         else:
             print('Failed to send command, %s should either be a fixture or a list', fixture)
+            return False
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
         transmit(command, controller)
 
@@ -125,7 +147,7 @@ if hasFadecandy:
 
     def exitReset(controllerList):
         for c in controllerList:
-            setArbitration(c, False)
+            setArbitration(False, c)
         print('Killing Dynacore...')
         print('Cleaning Sockets')
 
@@ -136,7 +158,7 @@ if hasFadecandy:
                 if l.controller not in controllerList:
                     controllerList.append(l.controller)
         for c in controllerList:
-            setArbitration(c, True)
+            setArbitration(True, c)
         atexit.register(exitReset, controllerList)
         return controllerList
 

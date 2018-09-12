@@ -16,6 +16,7 @@ hueIP = configs['hueIP']
 fadecandyIPs = configs['fadecandyIPs']
 
 allFixtures = []
+fixtureDict = {}
 
 def testDict(dictionary, key, default):
     '''See if the patch dictionary has specified a value. If it hasn't, return
@@ -41,6 +42,7 @@ class Fixture:
             self.controller = patchDict['controller']
         self.room = testDict(patchDict, 'room', 'UNUSED')
         allFixtures.append(self)
+        fixtureDict[self.name] = self
     def __repr__(self):
         return('%s: %s' % (self.name, self.system))
 
