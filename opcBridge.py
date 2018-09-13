@@ -31,7 +31,7 @@ socket.setdefaulttimeout(60)
 pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
-frameRate = 26
+frameRate = 20
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
 arbitration = [False]
