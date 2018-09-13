@@ -232,10 +232,11 @@ contrastLooks = [Toplight, Blinds, Cabinet]
 
 def makeLight(look):
     setArbitration(roomController, False)
+    multiCommandList = []
     for l in room:
         if l.system == 'Fadecandy':
             color = colorCorrect(l, look[l.name])
-            sendCommand(l, color, .5)
+            multiCommandList.append([l, color, .5])
 
         elif l.system == 'Hue':
             if look[l.name] == [0,0,0]:
@@ -249,16 +250,18 @@ def makeLight(look):
             print('You fucked up and now there is an improperly classed Fixture in your room!')
             print(l.name)
             print(l.system)
+    sendMultiCommand(multiCommandList)
 
 def off():
     setArbitration(roomController, False)
+    multiCommandList = []
     for l in room:
         if l.system == 'Hue':
             bridge.set_light(l.id, 'on', False)
         if l.system == 'Fadecandy':
-            sendCommand(l, [0,0,0], 0.5)
+            multiCommandList.append([l, [0,0,0], 0.5])
         bridge.set_light(18, 'on', False)
-
+    sendMultiCommand(multiCommandList)
 
 
 sendCommand([0,128], [255,255,255], 1, controller=roomController)

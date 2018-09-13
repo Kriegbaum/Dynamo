@@ -90,7 +90,7 @@ if hasFadecandy:
     def setArbitration(setting, controller):
         transmit({'type': 'setArbitration', 'setting': setting}, controller)
 
-    def sendMultiCommand(commands, controller):
+    def sendMultiCommand(commands, controller=False):
         '''Sends a command that issues an absoluteFade to multiple fixtures at once
         This should be used every time more than one command is supposed to happen simultaneously
         it is more efficent for opcBridge, faster, and less error prone'''
@@ -98,10 +98,10 @@ if hasFadecandy:
         #Index 0 in each command can be fixture or index, but should be index by the time it reaches opcBridge
         for c in commands:
             if isinstance(c[0], Fixture):
-                print(c[0])
-                if c[0].controller != controller:
-                    print('You just tried to send one command to multiple controllers, get your lazy ass in gear and make that possible')
-                    return False
+                controller = c[0].controller
+                #if c[0].controller != controller:
+                #    print('You just tried to send one command to multiple controllers, get your lazy ass in gear and make that possible')
+                #    return False
                 c[0] = c[0].indexrange
             elif not isinstance(c[0], list):
                 print('Failed to send command, %s should either be a fixture or a list', c[0])
@@ -276,6 +276,8 @@ def sample_sectors(image, room):                                                
 def lights_from_image(image, room):                                             #Function takes color list and applies to lights with 10s fade
     it = 0
     colorlist = sample_sectors(image, room)
+    if hasFadecandy:
+        multiCommandList = []
     for l in range(len(room)):
         print('%s: %s' % (room[l].name, colorlist[it]))
         if hasFadecandy:
@@ -286,7 +288,7 @@ def lights_from_image(image, room):                                             
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
-                sendCommand(room[l], colorlist[it], 7 * 0.1 * random.randrange(6,14))
+                multiCommandList.append([room[l], colorlist[it], 7 * 0.1 * random.randrange(6,14)])
                 it += 1
         if hasHue:
             if room[l].system == 'Hue':
@@ -310,6 +312,8 @@ def lights_from_image(image, room):                                             
         else:
             print('You fucked up and now there is an improperly classed Fixture in your room!')
             print(l.name, l.system)
+    if hasFadecandy:
+        sendMultiCommand(multiCommandList)
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
