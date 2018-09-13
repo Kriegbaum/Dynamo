@@ -231,7 +231,7 @@ contrastLooks = [Toplight, Blinds, Cabinet]
 
 
 def makeLight(look):
-    setArbitration(roomController, False)
+    setArbitration(False, roomController)
     multiCommandList = []
     for l in room:
         if l.system == 'Fadecandy':
@@ -253,7 +253,7 @@ def makeLight(look):
     sendMultiCommand(multiCommandList)
 
 def off():
-    setArbitration(roomController, False)
+    setArbitration(False, roomController)
     multiCommandList = []
     for l in room:
         if l.system == 'Hue':
