@@ -29,11 +29,15 @@ print('Initializing Hue bridge')
 bridge = Bridge(hueIP)
 
 #This will let us see what musicbee is doing
-if hasMusicbee:
+try:
     print('Initializing Musicbee support')
     from musicbeeipc import *
     from mutagen import File
     mbIPC = MusicBeeIPC()
+except:
+    print('...')
+    print('Musicbee support not found, disabling music features')
+    hasMusicbee = False
 
 global_sat = 1
 global_bri = 1
@@ -276,6 +280,10 @@ def sample_sectors(image, room):                                                
 def lights_from_image(image, room):                                             #Function takes color list and applies to lights with 10s fade
     it = 0
     colorlist = sample_sectors(image, room)
+    hasFadecandy = False
+    for f in room:
+        if f.system == 'Fadecandy':
+            hasFadecandy = True
     if hasFadecandy:
         multiCommandList = []
     for l in range(len(room)):
