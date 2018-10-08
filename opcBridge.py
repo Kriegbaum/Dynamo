@@ -42,10 +42,21 @@ def brightnessChange(rgb, magnitude, positive):
     '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
     majorColor = rgb.index(max(rgb))
 
+    rgbOut = [rgb[0] + magnitude, rgb[1] + magnitude, rgb[2] + magnitude]
+
     if positive:
-        pass
+        if max(rgbOut) > 255:
+            decrease = max(rgbOut) - 255
+            for value in rgbOut:
+                value -= decrease
+
     else:
-        pass
+        if min(rgbOut) < 0:
+            increase = abs(min(rgbOut))
+            for value in rgbOut:
+                value += increase
+
+    return rgbOut
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
