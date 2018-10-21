@@ -43,7 +43,8 @@ Copper = {
             'Print'         : [122,106,106],
             'Whiteboard'    : [170,117,56],
             'Workbench'     : [144,110,85],
-	        'Desk Lamp'     : [120,87,27]
+	        'Desk Lamp'     : [120,87,27],
+            'Spidergod'     : [255,255,255]
             }
 
 Burma = {
@@ -54,7 +55,8 @@ Burma = {
             'Workbench'     : [177,137,75],
             'Iris'          : [118,73,16],
             'Print'         : [168,127,65],
-            'Desk Lamp'     : [200,200,25]
+            'Desk Lamp'     : [200,200,25],
+            'Spidergod'     : [255,255,255]
             }
 
 Snowy = {
@@ -65,7 +67,8 @@ Snowy = {
             'Iris'          : [84,87,94],
             'Whiteboard'    : [172,173,188],
             'Workbench'     : [106,90,93],
-    	    'Desk Lamp'     : [120,120,125]
+    	    'Desk Lamp'     : [120,120,125],
+            'Spidergod'     : [255,255,255]
             }
 
 Japanese = {
@@ -76,7 +79,8 @@ Japanese = {
             'Print'         : [224,174,175],
             'Fan'           : [196,171,119],
             'Whiteboard'    : [205,221,200],
-	        'Desk Lamp'     : [95,150,160]
+	        'Desk Lamp'     : [95,150,160],
+            'Spidergod'     : [255,255,255]
             }
 
 Sacred = {
@@ -87,7 +91,8 @@ Sacred = {
             'Iris'          : [85,49,15],
             'Worklight'     : [97,50,12],
             'Whiteboard'    : [44,42,69],
-            'Desk Lamp'     : [120,120,115]
+            'Desk Lamp'     : [120,120,115],
+            'Spidergod'     : [255,255,255]
             }
 
 Eternity = {
@@ -98,7 +103,8 @@ Eternity = {
             'Fan'           : [174,112,101],
             'Iris'          : [144,94,97],
             'Print'         : [128,85,92],
-            'Desk Lamp'     : [170,95,85]
+            'Desk Lamp'     : [170,95,85],
+            'Spidergod'     : [255,255,255]
             }
 
 Warm = {
@@ -109,7 +115,8 @@ Warm = {
             'Fan'           : [255,197,143],
             'Iris'          : [255,197,143],
             'Print'         : [255,197,143],
-            'Desk Lamp'     : [255,197,143]
+            'Desk Lamp'     : [255,197,143],
+            'Spidergod'     : [255,255,255]
             }
 
 #Saturated looks
@@ -122,7 +129,8 @@ Jelly = {
             'Fan'           : [0,0,255],
             'Whiteboard'    : [95,45,0],
             'Worklight'     : [0,174,198],
-            'Desk Lamp'     : [112,112,128]
+            'Desk Lamp'     : [112,112,128],
+            'Spidergod'     : [255,255,255]
             }
 
 
@@ -134,7 +142,8 @@ Valtari = {
             'Fan'           : [6,71,12],
             'Worklight'     : [110,117,14],
             'Print'         : [230,115,6],
-            'Desk Lamp'     : [95,130,70]
+            'Desk Lamp'     : [95,130,70],
+            'Spidergod'     : [255,255,255]
             }
 
 Vaporwave = {
@@ -145,7 +154,8 @@ Vaporwave = {
             'Workbench'     : [70,200,135],
             'Print'         : [129,31,142],
             'Iris'          : [120,168,146],
-            'Desk Lamp'     : [0,110,170]
+            'Desk Lamp'     : [0,110,170],
+            'Spidergod'     : [255,255,255]
             }
 
 Intersection = {
@@ -156,7 +166,8 @@ Intersection = {
             'Fan'           : [75,40,190],
             'Print'         : [80,47,150],
             'Worklight'     : [79,39,73],
-            'Desk Lamp'     : [190,90,150]
+            'Desk Lamp'     : [190,90,150],
+            'Spidergod'     : [255,255,255]
             }
 
 Eiffel = {
@@ -167,7 +178,8 @@ Eiffel = {
             'Office Closet' : [119,62,7],
             'Print'         : [112,64,0],
             'Iris'          : [87,43,8],
-	        'Desk Lamp'     : [255,170,10]
+	        'Desk Lamp'     : [255,170,10],
+            'Spidergod'     : [255,255,255]
             }
 
 Umbrella = {
@@ -178,7 +190,8 @@ Umbrella = {
             'Iris'          : [165,64,107],
             'Print'         : [7,75,138],
             'Office Closet' : [165,64,107],
-            'Desk Lamp'     : [50,50,128]
+            'Desk Lamp'     : [50,50,128],
+            'Spidergod'     : [255,255,255]
             }
 
 Toplight = {
@@ -189,7 +202,8 @@ Toplight = {
             'Iris'          : [0,0,0],
             'Print'         : [0,0,0],
             'Office Closet' : [0,0,0],
-            'Desk Lamp'     : [0,0,0]
+            'Desk Lamp'     : [0,0,0],
+            'Spidergod'     : [255,255,255]
             }
 
 Blinds = {
@@ -200,7 +214,8 @@ Blinds = {
             'Iris'          : [0,0,0],
             'Print'         : [0,0,0],
             'Office Closet' : [255,197,110],
-            'Desk Lamp'     : [40,40,20]
+            'Desk Lamp'     : [40,40,20],
+            'Spidergod'     : [255,255,255]
             }
 
 Cabinet = {
@@ -211,7 +226,8 @@ Cabinet = {
 	        'Iris'           : [0,0,0],
 	        'Print'          : [0,0,0],
 	        'Office Closet'  : [0,0,0],
-            'Desk Lamp'      : [0,0,0]
+            'Desk Lamp'      : [0,0,0],
+            'Spidergod'      : [255,255,255]
 	   }
 
 Void = {
@@ -222,7 +238,8 @@ Void = {
 	        'Iris'           : [39,2,20],
 	        'Print'          : [144,0,171],
 	        'Office Closet'  : [218,211,218],
-            'Desk Lamp'      : [5,0,6]
+            'Desk Lamp'      : [5,0,6],
+            'Spidergod'      : [255,255,255]
 	   }
 
 naturalLooks = [Copper, Burma, Snowy, Japanese, Sacred, Eternity, Warm]
