@@ -64,6 +64,7 @@ for i in allFixtures:
         rooms[i.room].append(i)
     else:
         rooms[i.room] = [i]
-    rooms['all'].append(i)
+    if i not in rooms['nonDim']:
+        rooms['all'].append(i)
 
 groups = {}

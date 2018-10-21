@@ -18,6 +18,7 @@ Spidergod:
   system: Fadecandy
   indexrange: [256, 276]
   colorCorrection: [1, .8627, .6705]
+  room: office
   controller: officeFC
 
 Fan:
@@ -76,6 +77,13 @@ SE Corner:
   id: 6
   room: living room
 
+Living Room Fan:
+  system: Hue
+  id: 23
+  colorCorrection: [1, .96, .76]
+  #HSI: 7228, 148, 255
+  room: living room
+
 #Kitchen
 Refridgerator:
   system: Hue
@@ -91,6 +99,7 @@ Cabinet Bottom:
   system: Hue
   id: 26
   room: kitchen
+  color: False
 
 Corner:
   system: Hue
