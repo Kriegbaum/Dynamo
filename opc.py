@@ -152,7 +152,7 @@ class Client(object):
 
         header = struct.pack("BBBB", channel, command, len_hi_byte, len_lo_byte)
 
-        pieces = [ struct.pack( "BBB", r, g, b) for r, g, b in pixels ]
+        pieces = [ struct.pack( "BBB", int(r), int(g), int(b)) for r, g, b in pixels ]
 
         if sys.version_info[0] == 3:
             # bytes!
