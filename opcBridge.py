@@ -37,6 +37,8 @@ queueLock = threading.Lock()
 arbitration = [False]
 
 ############################SUPPORT FUNCTIONS###################################
+def makeEightBit(value):
+    return min(255, max(0, int(value)))
 
 def brightnessChange(rgb, magnitude, positive):
     '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
@@ -91,10 +93,8 @@ def clockLoop():
         if not queue.empty():
             alteration = queue.get()
             queue.task_done()
-            #Not sure why this was done, commenting out for the moment
-            '''for alt in alteration:
-                pixels[alt] = alteration[alt]'''
-            pixels = alteration
+            for alt in alteration:
+                pixels[alt] = alteration[alt]
             FCclient.put_pixels(pixels)
             time.sleep(1 / frameRate)
 
@@ -162,6 +162,8 @@ def getArbitration(ip):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
+    for c in rgb:
+        c = makeEightBit(c)
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
     queueList = []
