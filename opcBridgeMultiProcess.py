@@ -82,7 +82,6 @@ def queueLoop():
     while True:
         if not commands.empty():
             newCommand = commands.get()
-            commands.task_done()
             commandParse(newCommand)
 
 def clockLoop():
@@ -91,7 +90,6 @@ def clockLoop():
     while True:
         if not queue.empty():
             alteration = queue.get()
-            queue.task_done()
             for alt in alteration:
                 pixels[alt] = alteration[alt]
             FCclient.put_pixels(pixels)
@@ -169,7 +167,6 @@ def absoluteFade(indexes, rgb, fadeTime):
     queueLock.acquire()
     while not queue.empty():
         queueList.append(queue.get())
-        queue.task_done()
     #Amount of frames that need to be added to queue
     appends = alterations - len(queueList)
     #fill out the queue with blank dictionaries to populate
@@ -198,7 +195,6 @@ def multiCommand(commands):
     queueLock.acquire()
     while not queue.empty():
         queueList.append(queue.get())
-        queue.task_done()
     appends = maxAlterations - len(queueList)
     if appends > 0:
         for i in range(abs(appends)):
