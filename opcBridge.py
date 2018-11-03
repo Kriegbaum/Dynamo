@@ -91,8 +91,10 @@ def clockLoop():
         if not queue.empty():
             alteration = queue.get()
             queue.task_done()
-            for alt in alteration:
-                pixels[alt] = alteration[alt]
+            #Not sure why this was done, commenting out for the moment
+            '''for alt in alteration:
+                pixels[alt] = alteration[alt]'''
+            pixels = alteration
             FCclient.put_pixels(pixels)
             time.sleep(1 / frameRate)
 

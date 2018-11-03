@@ -124,7 +124,7 @@ class Client(object):
             0 is a special value which means "all channels".
 
         pixels: A list of 3-tuples representing rgb colors.
-            Each value in the tuple should be in the range 0-255 inclusive. 
+            Each value in the tuple should be in the range 0-255 inclusive.
             For example: [(255, 255, 255), (0, 0, 0), (127, 0, 0)]
             Floats will be rounded down to integers.
             Values outside the legal range will be clamped.
@@ -152,10 +152,7 @@ class Client(object):
 
         header = struct.pack("BBBB", channel, command, len_hi_byte, len_lo_byte)
 
-        pieces = [ struct.pack( "BBB",
-                     min(255, max(0, int(r))),
-                     min(255, max(0, int(g))),
-                     min(255, max(0, int(b)))) for r, g, b in pixels ]
+        pieces = [ struct.pack( "BBB", r, g, b) for r, g, b in pixels ]
 
         if sys.version_info[0] == 3:
             # bytes!
@@ -177,5 +174,3 @@ class Client(object):
             self.disconnect()
 
         return True
-
-

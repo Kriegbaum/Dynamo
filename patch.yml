@@ -84,6 +84,11 @@ Living Room Fan:
   #HSI: 7228, 148, 255
   room: living room
 
+Downlight:
+  system: Hue
+  id: 16
+  room: living room
+
 #Kitchen
 Refridgerator:
   system: Hue
