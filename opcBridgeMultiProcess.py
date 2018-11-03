@@ -5,7 +5,6 @@ import socket
 import sys
 import json
 import multiprocessing
-import queue
 import datetime
 import atexit
 
@@ -29,8 +28,8 @@ ipSock.close()
 socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = [ [255,0,0] ] * 512
-commands = queue.Queue(maxsize=100)
-queue = queue.Queue(maxsize=4500)
+commands = multiprocessing.Queue(maxsize=100)
+queue = multiprocessing.Queue(maxsize=4500)
 frameRate = 20
 FCclient = opc.Client('localhost:7890')
 queueLock = multiprocessing.Lock()
