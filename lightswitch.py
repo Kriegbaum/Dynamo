@@ -84,14 +84,14 @@ Japanese = {
             }
 
 Sacred = {
-            'Office Closet' : [47,183,220],
-            'Workbench'     : [100,49,25],
+            'Office Closet' : [44,68,42],
+            'Workbench'     : [144, 199, 167],
             'Print'         : [81,46,14],
-            'Fan'           : [79,60,25],
-            'Iris'          : [85,49,15],
-            'Worklight'     : [97,50,12],
-            'Whiteboard'    : [44,42,69],
-            'Desk Lamp'     : [120,120,115],
+            'Fan'           : [74, 108, 81],
+            'Iris'          : [107, 120, 77],
+            'Worklight'     : [87, 82, 27],
+            'Whiteboard'    : [139, 193, 157],
+            'Desk Lamp'     : [53, 89, 63],
             'Spidergod'     : [255,255,255]
             }
 
