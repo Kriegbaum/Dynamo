@@ -81,22 +81,20 @@ def queueLoop():
     '''Grabs new commands and populates the queue'''
     print('Initiating queuer')
     while True:
-        if not commands.empty():
-            newCommand = commands.get()
-            commands.task_done()
-            commandParse(newCommand)
+        newCommand = commands.get(True, None)
+        commands.task_done()
+        commandParse(newCommand)
 
 def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        if not queue.empty():
-            alteration = queue.get()
-            queue.task_done()
-            for alt in alteration:
-                pixels[alt] = alteration[alt]
-            FCclient.put_pixels(pixels)
-            time.sleep(1 / frameRate)
+        alteration = queue.get(True, None)
+        queue.task_done()
+        for alt in alteration:
+            pixels[alt] = alteration[alt]
+        FCclient.put_pixels(pixels)
+        time.sleep(1 / frameRate)
 
 def fetchLoop():
     '''Fetches commands from the socket'''
