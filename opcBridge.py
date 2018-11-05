@@ -90,11 +90,13 @@ def clockLoop():
     print('Initiating Clocker')
     while True:
         alteration = queue.get(True, None)
+        queueLock.acquire()
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
         FCclient.put_pixels(pixels)
         time.sleep(1 / frameRate)
+        queueLock.release()
 
 def fetchLoop():
     '''Fetches commands from the socket'''
