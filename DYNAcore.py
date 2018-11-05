@@ -128,13 +128,13 @@ if hasFadecandy:
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
         transmit(command, controller)
 
-    def rippleFade(fixture, rgb, fadetime=5, type='wipe'):
-        sleepTime = fadetime / (fixture.indexrange[1] - fixture.indexrange[0])
+    def rippleFade(fixture, rgb, rippleTime=5, type='wipe'):
+        sleepTime = rippleTime / (fixture.indexrange[1] - fixture.indexrange[0])
         #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
         #if sleepTime < .06:
         #    sleepTime = .06
         for index in range(fixture.indexrange[0], fixture.indexrange[1]):
-            sendCommand([index, index + 1], rgb, fixture.controller, fadetime=.9)
+            sendCommand([index, index + 1], rgb, fadetime=.9, controller=fixture.controller)
             time.sleep(sleepTime)
 
     def dappleFade(fixture, rgb, fadetime=5):
@@ -146,7 +146,7 @@ if hasFadecandy:
         while indexes:
             index = indexes.pop(random.randrange(0, len(indexes)))
             fadeTime = 1.5 * random.randrange(8, 15) * .1
-            sendCommand([index, index + 1], rgb, fixture.controller, fadeTime=fadeTime)
+            sendCommand([index, index + 1], rgb, fadetime=fadetime, controller=fixture.controller)
             time.sleep(sleepTime)
 
     def exitReset(controllerList):
