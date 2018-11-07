@@ -65,7 +65,7 @@ def transmit(command, controller):
 
 def recieve():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (localIP, 8000)
+    server_address = (localIP, 8800)
     sock.bind(server_address)
     sock.listen(1)
     connection, client_address = sock.accept()

@@ -149,7 +149,7 @@ def setArbitration(setting):
 
 def getArbitration(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (ip, 8000)
+    server_address = (ip, 8800)
     sock.connect(server_address)
     message = json.dumps(arbitration[0])
     try:
