@@ -1,5 +1,6 @@
 import os
 import yaml
+import sys
 
 ###########################RIG PROPERTIES#####################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yml')) as f:
@@ -10,7 +11,11 @@ hasFadecandy = configs['hasFadecandy']
 hasHue = configs['hasHue']
 hasMusicbee = configs['hasMusicbee']
 
-pallettesDir = configs['pallettesDir']
+print(sys.platform)
+if sys.platform == 'linux':
+    pallettesDir = configs['pallettesDirLinux']
+else:
+    pallettesDir = configs['pallettesDirWin']
 
 hueIP = configs['hueIP']
 fadecandyIPs = configs['fadecandyIPs']
