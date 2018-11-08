@@ -19,8 +19,11 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 #Oour local IP address, tells server where to send data back to
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-ipSock.connect(('8.8.8.8', 80))
-localIP = ipSock.getsockname()[0]
+try:
+    ipSock.connect(('10.255.255.255', 1))
+    localIP = ipSock.getsockname()[0]
+except:
+    localIP = '127.0.0.1'
 ipSock.close()
 
 socket.setdefaulttimeout(15)
