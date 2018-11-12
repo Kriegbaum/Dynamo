@@ -1,7 +1,7 @@
 from DYNAcore import *
 
 room = rooms['bedroom']
-setArbitration(False, fadecandyIPs['bedroomFC'])
+setArbitration(False, 'bedroomFC')
 multiCommandList = []
 
 for l in room:
