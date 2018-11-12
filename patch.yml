@@ -122,3 +122,38 @@ Bedroom Closet:
   system: Hue
   id: 10
   room: bedroom
+
+Strand 1:
+  system: Fadecandy
+  indexrange: [128, 178]
+  grb: False
+  room: bedroom
+  controller: bedroomFC
+
+Strand 2:
+  system: Fadecandy
+  indexrange: [192, 242]
+  grb: False
+  room: bedroom
+  controller: bedroomFC
+
+Strand 3:
+  system: Fadecandy
+  indexrange: [256, 306]
+  grb: False
+  room: bedroom
+  controller: bedroomFC
+
+Strand 4:
+  system: Fadecandy
+  indexrange: [320, 370]
+  grb: False
+  room: bedroom
+  controller: bedroomFC
+
+Strand 5:
+  system: Fadecandy
+  indexrange: [384, 448]
+  grb: False
+  room: bedroom
+  controller: bedroomFC
