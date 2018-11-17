@@ -110,6 +110,8 @@ if hasFadecandy:
                 #    print('You just tried to send one command to multiple controllers, get your lazy ass in gear and make that possible')
                 #    return False
                 c[0] = c[0].indexrange
+            elif isinstance(c[0], int):
+                c[0] = [c[0], c[0] + 1]
             elif not isinstance(c[0], list):
                 print('Failed to send command, %s should either be a fixture or a list', c[0])
                 return False
@@ -125,8 +127,10 @@ if hasFadecandy:
             controller = fixture.controller
         elif isinstance(fixture, list):
             indexrange = fixture
+        elif isinstance(fixture, int):
+            indexrange = [fixture, fixture + 1]
         else:
-            print('Failed to send command, %s should either be a fixture or a list', fixture)
+            print('Failed to send command, %s should either be a fixture, list, or integer', fixture)
             return False
         command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
         transmit(command, controller)

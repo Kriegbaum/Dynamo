@@ -10,6 +10,7 @@ import random
 encoderVal = 0
 locationMap = []
 intersections = []
+allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,448))
 
 #SUPPORT FUNCTIONS
 def getNextPixel(currentPixel):
@@ -56,8 +57,44 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
 
 
 
-def fireflies(density, frequency, speed, colorPrimary, colorSecondary):
+def fireflies(density, frequency, speed, colorPrimary, colorSecondary, colorBackground):
     '''Dots randomly appear on the array, and fade out into a different color'''
+    #Establish the background layer
+    backgroundLayer = []
+    for f in rooms['bedroom']:
+        if f.system == 'Fadecandy':
+            color = colorCorrect(f, colorBackground)
+            backgroundLayer.append([f, color, .5])
+        if f.system == 'Hue':
+            color = convert(colorCorrect(f, colorBackground))
+            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 5}
+            bridge.set_light(f.id, command)
+    sendMultiCommand(backgroundLayer, controller='bedroomFC')
+    #Effect loop
+    while True:
+    #Grab pixels to put fireflies on
+        flyLocations = []
+        for i in range(0, density + 1):
+            flyLocations.append(random.choice(allMap))
+        #All flies appear
+        for l in flyLocations:
+            sendCommand(l, colorPrimary, fadetime=(.5 * speed), controller='bedroomFC')
+            time.sleep(.1 * speed)
+        #All flies fade down
+        time.sleep(1.3)
+        flyCommands = []
+        for l in flyLocations:
+            flyCommands.append([l, colorSecondary, 4 * speed])
+        sendMultiCommand(flyCommands, controller='bedroomFC')
+        random.shuffle(flyLocations)
+        time.sleep(5 * speed)
+        #All Flies go out
+        for l in flyLocations:
+            sendCommand(l, colorBackground, fadetime=.5, controller='bedroomFC')
+            time.sleep(.1 * speed)
+        time.sleep(frequency)
+
+fireflies(9, 7, 1, [85,117,0], [17,42,0], [0,12,22])
 
 def pallette(imagePath, fadeTime, waitTime, density):
     '''Samples a set of colors off an image, and applies them to random pixels'''
