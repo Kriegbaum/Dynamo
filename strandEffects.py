@@ -57,7 +57,7 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
 
 
 
-def fireflies(density, frequency, speed, colorPrimary, colorSecondary, colorBackground):
+def fireflies(density=25, frequency=6, speed=1, colorPrimary=[85,117,0], colorSecondary=[8,21,0], colorBackground=[0,12,22]):
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []
@@ -67,7 +67,7 @@ def fireflies(density, frequency, speed, colorPrimary, colorSecondary, colorBack
             backgroundLayer.append([f, color, .5])
         if f.system == 'Hue':
             color = convert(colorCorrect(f, colorBackground))
-            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': True, 'transitiontime': 5}
+            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': False, 'transitiontime': 5}
             bridge.set_light(f.id, command)
     sendMultiCommand(backgroundLayer, controller='bedroomFC')
     #Effect loop
@@ -84,7 +84,7 @@ def fireflies(density, frequency, speed, colorPrimary, colorSecondary, colorBack
         time.sleep(1.3)
         flyCommands = []
         for l in flyLocations:
-            flyCommands.append([l, colorSecondary, 4 * speed])
+            flyCommands.append([l, colorSecondary, 3.7 * speed])
         sendMultiCommand(flyCommands, controller='bedroomFC')
         random.shuffle(flyLocations)
         time.sleep(5 * speed)
@@ -93,8 +93,8 @@ def fireflies(density, frequency, speed, colorPrimary, colorSecondary, colorBack
             sendCommand(l, colorBackground, fadetime=.5, controller='bedroomFC')
             time.sleep(.1 * speed)
         time.sleep(frequency)
-
-fireflies(9, 7, 1, [85,117,0], [17,42,0], [0,12,22])
+fireflies(density=40, speed=.8)
+#fireflies(25, 7, 1, [85,117,0], [8,21,0], [0,12,22])
 
 def pallette(imagePath, fadeTime, waitTime, density):
     '''Samples a set of colors off an image, and applies them to random pixels'''
