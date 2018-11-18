@@ -39,6 +39,17 @@ def gradientBuilder(stepList):
 
     return gradientOut
 
+def randomPercent(lower, upper):
+    '''Returns a decimal percent given integer percentages'''
+    return .01 * random.randrange(lower, upper)
+
+def randomPixels(number):
+    '''Returns a list [number] items long of random pixels picked from allMap'''
+    pixelList = []
+    for i in range(0, number + 1):
+        pixelList.append(random.choice(allMap))
+    return pixelList
+
 
 
 #EFFECT LOOP
@@ -54,6 +65,34 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
         capturedPixels.insert(0, leadingEdge)
         if len(capturedPixels) > size:
             trailingEdge = capturedPixels.pop(-1)
+
+def imageSample(density, frequency, speed, stagger, imagedir, imagefile):
+    #Render array with beautiful colors
+    fullImagePath = os.path.join(imagedir, imagefile)
+    colorList = sample_sectors(fullImagePath, allMap)
+    megaCommand = []
+    iterate = 0
+    for p in allMap:
+        color = grbFix(colorList[iterate])
+        megaCommand.append([p, color, .5 * speed])
+        iterate += 1
+    sendMultiCommand(megaCommand, controller='bedroomFC')
+
+    while True:
+        #Grab some number of pixels
+        sampledPix = randomPixels(density)
+        colorList = sample_sectors(fullImagePath, sampledPix)
+        iterate = 0
+        for pix in sampledPix:
+            color = grbFix(colorList[iterate])
+            sendCommand(pix, color, fadetime=(.5 * speed), controller='bedroomFC')
+            if stagger:
+                time.sleep(.2 / speed)
+            iterate += 1
+        if frequency:
+            time.sleep(frequency)
+
+imageSample(40,0,1,1,'E:\\Spidergod\\Images\\Color pallettes','goldfish.png')
 
 
 
@@ -72,14 +111,12 @@ def fireflies(density=25, frequency=6, speed=1, colorPrimary=[85,117,0], colorSe
     sendMultiCommand(backgroundLayer, controller='bedroomFC')
     #Effect loop
     while True:
-    #Grab pixels to put fireflies on
-        flyLocations = []
-        for i in range(0, density + 1):
-            flyLocations.append(random.choice(allMap))
+        #Grab pixels to put fireflies on
+        flyLocations = randomPixels(density)
         #All flies appear
         for l in flyLocations:
             sendCommand(l, colorPrimary, fadetime=(.5 * speed), controller='bedroomFC')
-            time.sleep(.1 * speed)
+            time.sleep(.1 / speed)
         #All flies fade down
         time.sleep(1.3)
         flyCommands = []
@@ -87,14 +124,13 @@ def fireflies(density=25, frequency=6, speed=1, colorPrimary=[85,117,0], colorSe
             flyCommands.append([l, colorSecondary, 3.7 * speed])
         sendMultiCommand(flyCommands, controller='bedroomFC')
         random.shuffle(flyLocations)
-        time.sleep(5 * speed)
+        time.sleep(5.0 / speed)
         #All Flies go out
         for l in flyLocations:
             sendCommand(l, colorBackground, fadetime=.5, controller='bedroomFC')
-            time.sleep(.1 * speed)
+            time.sleep(.1 / speed)
         time.sleep(frequency)
-fireflies(density=40, speed=.8)
-#fireflies(25, 7, 1, [85,117,0], [8,21,0], [0,12,22])
+
 
 def pallette(imagePath, fadeTime, waitTime, density):
     '''Samples a set of colors off an image, and applies them to random pixels'''
