@@ -66,7 +66,7 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
         if len(capturedPixels) > size:
             trailingEdge = capturedPixels.pop(-1)
 
-def imageSample(density, frequency, speed, stagger, imagedir, imagefile):
+def imageSample(imagedir, imagefile, density=60, frequency=15, speed=1, stagger=False):
     #Render array with beautiful colors
     fullImagePath = os.path.join(imagedir, imagefile)
     colorList = sample_sectors(fullImagePath, allMap)
@@ -83,16 +83,23 @@ def imageSample(density, frequency, speed, stagger, imagedir, imagefile):
         sampledPix = randomPixels(density)
         colorList = sample_sectors(fullImagePath, sampledPix)
         iterate = 0
-        for pix in sampledPix:
-            color = grbFix(colorList[iterate])
-            sendCommand(pix, color, fadetime=(.5 * speed), controller='bedroomFC')
-            if stagger:
+        if stagger:
+            for pix in sampledPix:
+                color = grbFix(colorList[iterate])
+                sendCommand(pix, color, fadetime=(.5 * speed), controller='bedroomFC')
                 time.sleep(.2 / speed)
-            iterate += 1
+                iterate += 1
+        else:
+            multiCommand = []
+            for pix in sampledPix:
+                color = grbFix(colorList[iterate])
+                multiCommand.append([pix, color, 3 * speed * randomPercent(60, 160)])
+                iterate += 1
+            sendMultiCommand(multiCommand, controller='bedroomFC')
         if frequency:
             time.sleep(frequency)
 
-imageSample(40,0,1,1,'E:\\Spidergod\\Images\\Color pallettes','goldfish.png')
+imageSample('E:\\Spidergod\\Images\\Color pallettes','transistor.jpg')
 
 
 

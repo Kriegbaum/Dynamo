@@ -11,7 +11,6 @@ hasFadecandy = configs['hasFadecandy']
 hasHue = configs['hasHue']
 hasMusicbee = configs['hasMusicbee']
 
-print(sys.platform)
 if sys.platform == 'linux':
     pallettesDir = configs['pallettesDirLinux']
 else:

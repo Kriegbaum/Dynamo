@@ -217,6 +217,10 @@ def randomcolor(image, n):                                                      
         colorlist.append(color)
     return colorlist
 
+def grbFix(grb):
+    '''returns a grb list as an rgb list'''
+    return [grb[1], grb[0], grb[2]]
+
 def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
     R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
     G = RGB[1] / 255
