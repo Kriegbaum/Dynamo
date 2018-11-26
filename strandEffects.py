@@ -6,6 +6,7 @@ import PIL
 from DYNAcore import *
 import yaml
 import random
+import threading
 
 encoderVal = 0
 locationMap = []
@@ -99,11 +100,22 @@ def imageSample(imagedir, imagefile, density=60, frequency=15, speed=1, stagger=
         if frequency:
             time.sleep(frequency)
 
-imageSample('E:\\Spidergod\\Images\\Color pallettes','transistor.jpg')
+#imageSample('E:\\Spidergod\\Images\\Color pallettes','transistor.jpg')
 
+def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
+    '''Used by fireflies() function. A single pixel fades up, fades down to a different color, and then recedes to background'''
+    #Fly fades up to primary color
+    upTime = (.5 * randomPercent(80, 160)) / speed
+    sendCommand(index, colorPrimary, fadetime=upTime, controller='bedroomFC')
+    time.sleep((1.3 / speed) * randomPercent(80, 160))
+    #Fly fades down to secondary color
+    downTime = (3.7 * randomPercent(75, 110)) / speed
+    sendCommand(index, colorSecondary, fadetime=downTime, controller='bedroomFC')
+    time.sleep((5.0 / speed) * randomPercent(80, 120))
+    #Fly recedes into background
+    sendCommand(index, colorBackground, fadetime=.5, controller='bedroomFC')
 
-
-def fireflies(density=25, frequency=6, speed=1, colorPrimary=[85,117,0], colorSecondary=[8,21,0], colorBackground=[0,12,22]):
+def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSecondary=[8,21,0], colorBackground=[0,12,22]):
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []
@@ -117,30 +129,25 @@ def fireflies(density=25, frequency=6, speed=1, colorPrimary=[85,117,0], colorSe
             bridge.set_light(f.id, command)
     sendMultiCommand(backgroundLayer, controller='bedroomFC')
     #Effect loop
+    iteration = 0
+    nextChoice = random.randrange(4, 8)
     while True:
         #Grab pixels to put fireflies on
-        flyLocations = randomPixels(density)
+        flyLocations = randomPixels(int(density * randomPercent(25, 150)))
         #All flies appear
         for l in flyLocations:
-            sendCommand(l, colorPrimary, fadetime=(.5 * speed), controller='bedroomFC')
-            time.sleep(.1 / speed)
-        #All flies fade down
-        time.sleep(1.3)
-        flyCommands = []
-        for l in flyLocations:
-            flyCommands.append([l, colorSecondary, 3.7 * speed])
-        sendMultiCommand(flyCommands, controller='bedroomFC')
-        random.shuffle(flyLocations)
-        time.sleep(5.0 / speed)
-        #All Flies go out
-        for l in flyLocations:
-            sendCommand(l, colorBackground, fadetime=.5, controller='bedroomFC')
-            time.sleep(.1 / speed)
-        time.sleep(frequency)
+            flyThread = threading.Thread(target=firefly, args=[l, colorPrimary, colorSecondary, colorBackground, speed])
+            flyThread.start()
+            time.sleep((.1 / speed) * randomPercent(100, 250))
+        if iteration % nextChoice == 0:
+            iteration = 0
+            nextChoice = random.randrange(5, 10)
+            time.sleep(frequency * randomPercent(50, 110))
+        else:
+            iteration += 1
+            time.sleep((.5 / speed) * randomPercent(90, 190))
 
-
-def pallette(imagePath, fadeTime, waitTime, density):
-    '''Samples a set of colors off an image, and applies them to random pixels'''
+fireflies(speed=.75)
 
 def static(staticMap, fadeTime, globalBrightness):
     '''User definied fixed look for the room'''
