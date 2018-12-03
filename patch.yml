@@ -220,3 +220,9 @@ Strand 5-3:
   grb: False
   room: bedroom
   controller: bedroomFC
+
+Window:
+  system: Fadecandy
+  indexrange: [64, 129]
+  room: bedroom
+  controller: bedroomFC
