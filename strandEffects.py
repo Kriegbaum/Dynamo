@@ -67,7 +67,7 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
         if len(capturedPixels) > size:
             trailingEdge = capturedPixels.pop(-1)
 
-def imageSample(imagedir, imagefile, density=60, frequency=15, speed=1, stagger=False):
+def imageSample(imagedir, imagefile, density=60, frequency=7, speed=1, stagger=True):
     #Render array with beautiful colors
     fullImagePath = os.path.join(imagedir, imagefile)
     colorList = sample_sectors(fullImagePath, allMap)
@@ -88,19 +88,19 @@ def imageSample(imagedir, imagefile, density=60, frequency=15, speed=1, stagger=
             for pix in sampledPix:
                 color = grbFix(colorList[iterate])
                 sendCommand(pix, color, fadetime=(.5 * speed), controller='bedroomFC')
-                time.sleep(.2 / speed)
+                time.sleep(.1 / speed)
                 iterate += 1
         else:
             multiCommand = []
             for pix in sampledPix:
                 color = grbFix(colorList[iterate])
-                multiCommand.append([pix, color, 3 * speed * randomPercent(60, 160)])
+                multiCommand.append([pix, color, 4 * speed * randomPercent(60, 160)])
                 iterate += 1
             sendMultiCommand(multiCommand, controller='bedroomFC')
         if frequency:
             time.sleep(frequency)
 
-#imageSample('E:\\Spidergod\\Images\\Color pallettes','transistor.jpg')
+#imageSample('E:\\Spidergod\\Images\\Color pallettes','perply.png')
 
 def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
     '''Used by fireflies() function. A single pixel fades up, fades down to a different color, and then recedes to background'''
@@ -115,7 +115,7 @@ def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
     #Fly recedes into background
     sendCommand(index, colorBackground, fadetime=.5, controller='bedroomFC')
 
-def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSecondary=[8,21,0], colorBackground=[0,12,22]):
+def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []

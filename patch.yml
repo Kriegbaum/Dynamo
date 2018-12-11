@@ -92,7 +92,7 @@ Downlight:
 #Kitchen
 Refridgerator:
   system: Hue
-  id: 3
+  id: 13
   room: kitchen
 
 Cabinet Top:
@@ -223,6 +223,6 @@ Strand 5-3:
 
 Window:
   system: Fadecandy
-  indexrange: [64, 129]
+  indexrange: [448, 512]
   room: bedroom
   controller: bedroomFC

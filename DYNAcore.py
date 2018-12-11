@@ -217,9 +217,35 @@ def randomcolor(image, n):                                                      
         colorlist.append(color)
     return colorlist
 
+def clamp(value, lower, upper):
+    #Returns lower if value is below bounds, returns upper if above, returns value if inside
+    return min((max(value, lower), upper))
+
 def grbFix(grb):
     '''returns a grb list as an rgb list'''
     return [grb[1], grb[0], grb[2]]
+
+def cctRGB(kelvin):
+    outR, outG, outB = 0, 0, 0
+    temp = kelvin / 100.0
+    if temp <= 66:
+        outR = 255
+        outG = 99.4708025861 * math.log(temp - 10) - 161.1195681661
+        if temp <= 19:
+            outB = 0
+        else:
+            outB = 138.5177312231 * math.log(temp - 10) - 305.0447927307
+    else:
+        outR = 329.698727446 * math.pow(temp - 60, -0.1332047592)
+        outG = 288.1221695283 * math.pow(temp - 60, -0.0755148492)
+        outB = 255
+
+    outR = clamp(outR, 0, 255)
+    outG = clamp(outG, 0, 255)
+    outB = clamp(outB, 0, 255)
+
+    return [outR, outG, outB]
+
 
 def convert(RGB):                                                               #Takes RGB value and delivers the flavor of HSV that the hue api uses
     R = RGB[0] / 255                                                            #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
@@ -302,8 +328,7 @@ def lights_from_image(image, room):                                             
         if hasFadecandy:
             if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
                 if not room[l].grb:
-                    templist = [colorlist[it][1], colorlist[it][0], colorlist[it][2]]   #Useful for swapping RGB to GBR
-                    colorlist[it] = templist
+                    colorlist[it] = grbFix(colorlist[it])
                 colorlist[it] = colorCorrect(room[l], colorlist[it])
                 if sum(colorlist[it]) < 15:
                     colorlist[it] = [0,0,0]
