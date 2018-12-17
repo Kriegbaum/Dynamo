@@ -1,7 +1,7 @@
 from DYNAcore import *
 from datetime import datetime
 
-def rgbRoom(room, color, time):                                             #Function takes color list and applies to lights with 10s fade
+def rgbRoom(room, color, time):
 
     hasFadecandy = False
     for f in room:
@@ -11,9 +11,8 @@ def rgbRoom(room, color, time):                                             #Fun
         multiCommandList = []
     for l in range(len(room)):
         rgb = color
-        print('%s: %s' % (room[l].name, rgb))
         if hasFadecandy:
-            if room[l].system == 'Fadecandy':                                       #See if this is a neopixel strip
+            if room[l].system == 'Fadecandy':
                 if not room[l].grb:
                     rgb = grbFix(rgb)
                 rgb = colorCorrect(room[l], rgb)
@@ -37,15 +36,26 @@ def rgbRoom(room, color, time):                                             #Fun
 
 def circadianLookup(city):
     '''retuns a color temperature value given an astral city object'''
+    '''Data points:
+    (-36, 2700)
+    (-18, 15000)
+    (0, 7000)
+    (18, 10000)
+    (90, 7000)
+    (0, 2000)
+    (-18, 10000)
+    (-36, 2700)
+    '''
     sun = city.sun()
     timezone = sun['sunrise'].tzinfo
     now = datetime.now(tz=timezone)
     elevation = city.solar_elevation()
+    print('Sun elevation: ' + str(elevation))
     #Are we after sunset or before sunrise?
     if elevation < 0:
         #In the darkest part of the night, lights go to natural tungsten lamp, but a little warmer
         if elevation <= -36:
-            return 2500
+            return 2700
         #Just before sunrise, lights get very cool to help wake you up
         if now <= sun['sunrise']:
             if elevation <= -18:
@@ -88,12 +98,16 @@ def circadian(room):
             print('Based on sun elevation, setting lights to: %s Kelvin' % kelvin)
             rgb = cctRGB(kelvin)
             print('Kelvin parsed to ' + str(rgb))
-            rgbRoom(room, rgb, 60)
-            time.sleep(90)
+            rgbRoom(room, rgb, 40)
+            print('...')
+            print('')
+            time.sleep(120)
         else:
             print('Circadian routine interrupted by manual override')
 
-cct = 2000
-for i in range(16):
-    rgbRoom(rooms['kitchen'], cctRGB(2000 + (i*1000)), 1)
-    time.sleep(2)
+#circadian(rooms['office'])
+
+
+while True:
+    kelvin = int(input())
+    rgbRoom(rooms['office'], cctRGB(kelvin), 1)

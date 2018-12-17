@@ -90,9 +90,9 @@ Downlight:
   room: living room
 
 #Kitchen
-Refridgerator:
+Table:
   system: Hue
-  id: 13
+  id: 15
   room: kitchen
 
 Cabinet Top:

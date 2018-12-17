@@ -67,7 +67,7 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
         if len(capturedPixels) > size:
             trailingEdge = capturedPixels.pop(-1)
 
-def imageSample(imagedir, imagefile, density=60, frequency=7, speed=1, stagger=True):
+def imageSample(imagedir, imagefile, density=60, frequency=5, speed=1):
     #Render array with beautiful colors
     fullImagePath = os.path.join(imagedir, imagefile)
     colorList = sample_sectors(fullImagePath, allMap)
@@ -78,29 +78,24 @@ def imageSample(imagedir, imagefile, density=60, frequency=7, speed=1, stagger=T
         megaCommand.append([p, color, .5 * speed])
         iterate += 1
     sendMultiCommand(megaCommand, controller='bedroomFC')
-
+    grouping = density // 20
     while True:
         #Grab some number of pixels
         sampledPix = randomPixels(density)
         colorList = sample_sectors(fullImagePath, sampledPix)
         iterate = 0
-        if stagger:
-            for pix in sampledPix:
-                color = grbFix(colorList[iterate])
-                sendCommand(pix, color, fadetime=(.5 * speed), controller='bedroomFC')
+        multiCommand = []
+        for pix in sampledPix:
+            color = grbFix(colorList[iterate])
+            multiCommand.append([pix, color, 1 / speed])
+            if iterate % grouping == 0:
+                sendMultiCommand(multiCommand, controller='bedroomFC')
+                multiCommand = []
                 time.sleep(.1 / speed)
-                iterate += 1
-        else:
-            multiCommand = []
-            for pix in sampledPix:
-                color = grbFix(colorList[iterate])
-                multiCommand.append([pix, color, 4 * speed * randomPercent(60, 160)])
-                iterate += 1
-            sendMultiCommand(multiCommand, controller='bedroomFC')
+            iterate += 1
         if frequency:
             time.sleep(frequency)
 
-#imageSample('E:\\Spidergod\\Images\\Color pallettes','perply.png')
 
 def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
     '''Used by fireflies() function. A single pixel fades up, fades down to a different color, and then recedes to background'''
@@ -146,8 +141,6 @@ def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSec
         else:
             iteration += 1
             time.sleep((.5 / speed) * randomPercent(90, 190))
-
-fireflies(speed=.75)
 
 def static(staticMap, fadeTime, globalBrightness):
     '''User definied fixed look for the room'''
