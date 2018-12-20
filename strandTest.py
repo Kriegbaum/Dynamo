@@ -1,4 +1,4 @@
 from strandEffects import *
 
-imageSample('E:\\Spidergod\\Images\\Color pallettes','vapor_city.jpg', density=80, frequency=3)
+imageSample('E:\\Spidergod\\Images\\Color pallettes','valtari2.jpg')
 #fireflies(speed=.75)

@@ -67,7 +67,7 @@ def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
         if len(capturedPixels) > size:
             trailingEdge = capturedPixels.pop(-1)
 
-def imageSample(imagedir, imagefile, density=60, frequency=5, speed=1):
+def imageSample(imagedir, imagefile, density=80, frequency=3, speed=1):
     #Render array with beautiful colors
     fullImagePath = os.path.join(imagedir, imagefile)
     colorList = sample_sectors(fullImagePath, allMap)
@@ -81,7 +81,7 @@ def imageSample(imagedir, imagefile, density=60, frequency=5, speed=1):
     grouping = density // 20
     while True:
         #Grab some number of pixels
-        sampledPix = randomPixels(density)
+        sampledPix = randomPixels(int(density * randomPercent(50, 150)))
         colorList = sample_sectors(fullImagePath, sampledPix)
         iterate = 0
         multiCommand = []
@@ -91,10 +91,10 @@ def imageSample(imagedir, imagefile, density=60, frequency=5, speed=1):
             if iterate % grouping == 0:
                 sendMultiCommand(multiCommand, controller='bedroomFC')
                 multiCommand = []
-                time.sleep(.1 / speed)
+                time.sleep((.1 / speed) * randomPercent(75, 125))
             iterate += 1
         if frequency:
-            time.sleep(frequency)
+            time.sleep(frequency * randomPercent(20, 120))
 
 
 def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
