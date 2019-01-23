@@ -226,3 +226,23 @@ Window:
   indexrange: [448, 512]
   room: bedroom
   controller: bedroomFC
+
+
+#Bedroom with easier control points
+Full Array:
+  system: Fadecandy
+  indexrange: [0, 448]
+  grb: False
+  room: bedroom grouped
+  controller: bedroomFC
+
+Window:
+  system: Fadecandy
+  indexrange: [448, 512]
+  room: bedroom grouped
+  controller: bedroomFC
+
+Bedroom Closet:
+  system: Hue
+  id: 10
+  room: bedroom grouped
