@@ -68,7 +68,6 @@ def off():
             bridge.set_light(l.id, 'on', False)
         if l.system == 'Fadecandy':
             multiCommandList.append([l, [0,0,0], 0.5])
-        bridge.set_light(18, 'on', False)
     sendMultiCommand(multiCommandList)
 
 
