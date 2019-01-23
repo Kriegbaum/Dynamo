@@ -1,19 +1,20 @@
 from DYNAcore import *
 import gpiozero as GPIO
+from signal import pause
 
-button1 = GPIO.Button(25)
-button2 = GPIO.Button(28)
-button3 = GPIO.Button(24)
-button4 = GPIO.Button(29)
+button1 = GPIO.Button(26)
+button2 = GPIO.Button(20)
+button3 = GPIO.Button(19)
+button4 = GPIO.Button(21)
 
 
 room = rooms['bedroom grouped']
 roomController = 'bedroomFC'
 
 LowLight = {
-            'Full Array'      : grbFix([10, 0, 50]),
-	        'Bedroom Closet'  : [10, 10, 10],
-	        'Window'          : grbFix([255, 165, 120])
+             'Full Array'      : grbFix([10, 0, 50]),
+	        'Bedroom Closet'  : [10, 10, 0],
+	        'Window'          : [255, 150, 100]
 	   }
 
 Standard = {
@@ -23,8 +24,8 @@ Standard = {
 
 StreetLight = {
             'Full Array'      : [0,0,0],
-	        'Bedroom Closet'  : [10, 10, 10],
-	        'Window'          : grbFix([255, 185, 140])
+	        'Bedroom Closet'  : [0, 0, 0],
+	        'Window'          : [255, 185, 140]
 	   }
 
 
@@ -70,14 +71,6 @@ def off():
         bridge.set_light(18, 'on', False)
     sendMultiCommand(multiCommandList)
 
-
-sendCommand([0,128], [255,255,255], 1, controller=roomController)
-time.sleep(1)
-sendCommand([0,128], [0,0,0], 1, controller=roomController)
-time.sleep(1)
-sendCommand([0,128], [255,255,255], 1, controller=roomController)
-time.sleep(1)
-sendCommand([0,128], [0,0,0], 2, controller=roomController)
 
 button1.when_pressed = run1
 button2.when_pressed = run2
