@@ -225,6 +225,32 @@ def grbFix(grb):
     '''returns a grb list as an rgb list'''
     return [grb[1], grb[0], grb[2]]
 
+def rgbRGBW(rgb):
+    max = max(rgb)
+    rgbwOut = [0,0,0,0]
+    if not max:
+        return rgbwOut
+
+    multiplier = 255 / max
+    hR = rgb[0] * multiplier
+    hG = rgb[1] * multiplier
+    hB = rgb[3] * multiplier
+
+    M = max(hR, max(hG, hB))
+    m = min(hR, min(hG, hB))
+    luminance = ((M + m) / 2.0 - 127.5) * (255 / 127.5) / multiplier
+
+    rgbwOut[0] = rgb[0] - luminance
+    rgbwOut[1] = rgb[1] - luminance
+    rgbwOut[2] = rgb[2] - luminance
+    rgbwOut[3] = luminance
+
+    for i in rgbwOut:
+        i = clamp(i, 0, 255)
+    return rgbwOut
+
+
+
 def cctRGB(kelvin):
     outR, outG, outB = 0, 0, 0
     temp = kelvin / 100.0
