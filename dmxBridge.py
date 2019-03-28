@@ -11,7 +11,7 @@ import datetime
 import atexit
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
-sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dmxBridge-log.txt'), 'w')
+#sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dmxBridge-log.txt'), 'w')
 
 #typical command
 #{'type': 'absoluteFade', 'target values', [[address 1, value 1], [address 2, value 2]], 'fade time': 8-bit integer}
@@ -37,7 +37,7 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 44
 pixels = [0] * 512
 #TODO: Figure out how to detect which serial port the EntTech driver is on)
-dmx = DmxPy()
+dmx = DmxPy('/dev/ttyUSB0')
 queueLock = threading.Lock()
 arbitration = [False]
 
@@ -75,7 +75,7 @@ def bridgeValues(totalSteps, start, end):
     new = start
     diff = (end - start) / float(totalSteps)
     for i in range(totalSteps - 1):
-        new = [new + diff]
+        new = new + diff
         yield new
     yield end
 
@@ -98,15 +98,16 @@ def clockLoop():
     print('Initiating Clocker')
     while True:
         #This was one line further down, probably a mistake
-        queueLock.acquire()
         alteration = queue.get(True, None)
+        queueLock.acquire()
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
             dmx.setChannel(alt, alteration[alt])
         dmx.render()
+#        print(pixels[0])
         queueLock.release()
-        time.sleep(1 / frameRate)
+        time.sleep((1 / frameRate) * .75)
 
 def fetchLoop():
     '''Fetches commands from the socket'''
@@ -174,9 +175,11 @@ def getArbitration(ip):
 
 def absoluteFade(targetValues, fadeTime, sixteenBit):
     '''Is given a dictionary of indexes and their target values, and a fade time'''
+    print('Fading now')
+    targetValues = {int(k): int(v) for k, v in targetValues.items()}
     if not fadeTime:
         fadeTime = 1 / frameRate
-    indexes = [x[0] for x in targetValues]
+    print(targetValues)
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
     queueList = []
@@ -191,14 +194,17 @@ def absoluteFade(targetValues, fadeTime, sixteenBit):
         for i in range(abs(appends)):
             queueList.append({})
     #Iterate down indexes, figure out what items in queue need to be altered
-    for i in indexes:
+    for i in targetValues:
         #INVESTIGATE: THIS MIGHT BE THE SOURCE OF FLASHING ISSUES AT THE START OF A COMMAND
         start = pixels[i]
-        end = pixels[targetValues[i]]
+        end = targetValues[i]
         bridgeGenerator = bridgeValues(alterations, start, end)
+        print('Index %d' % i)
+        print('Start fade at %d' % start)
+        print('End fade at %d' % end)
         for m in range(alterations):
             if sixteenBit:
-                value = int(next(bridgeValues))
+                value = int(next(bridgeGenerator))
                 highLow = sixteenToEight(value)
                 queueList[m][i] = highLow[0]
                 queueList[m][i + 1] = highLow[1]
@@ -261,18 +267,6 @@ clocker = threading.Thread(target=clockLoop)
 fetcher = threading.Thread(target=fetchLoop)
 queuer =  threading.Thread(target=queueLoop)
 
-
-#Test pattern to indicate server is up and running
-FCclient.put_pixels(pixels)
-time.sleep(1)
-pixels = [ [0,0,0] ] * 512
-FCclient.put_pixels(pixels)
-time.sleep(1)
-pixels = [ [255,0,0] ] * 512
-FCclient.put_pixels(pixels)
-time.sleep(1)
-pixels = [ [0,0,0] ] * 512
-FCclient.put_pixels(pixels)
 
 #Initiate server
 fetcher.start()
