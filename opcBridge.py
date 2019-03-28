@@ -34,7 +34,7 @@ socket.setdefaulttimeout(60)
 pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
-frameRate = 20
+frameRate = 15
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
 arbitration = [False]
@@ -92,14 +92,14 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        queueLock.acquire()
         alteration = queue.get(True, None)
+        queueLock.acquire()
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
         FCclient.put_pixels(pixels)
-        queueLock.release()
         time.sleep(1 / frameRate)
+        queueLock.release()
 
 def fetchLoop():
     '''Fetches commands from the socket'''
