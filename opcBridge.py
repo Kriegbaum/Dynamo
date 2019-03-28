@@ -92,14 +92,14 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        alteration = queue.get(True, None)
         queueLock.acquire()
+        alteration = queue.get(True, None)
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
         FCclient.put_pixels(pixels)
-        time.sleep(1 / frameRate)
         queueLock.release()
+        time.sleep(1 / frameRate)
 
 def fetchLoop():
     '''Fetches commands from the socket'''
