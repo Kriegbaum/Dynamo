@@ -198,12 +198,12 @@ def absoluteFade(targetValues, fadeTime, sixteenBit):
         bridgeGenerator = bridgeValues(alterations, start, end)
         for m in range(alterations):
             if sixteenBit:
-                value = next(bridgeValues)
+                value = int(next(bridgeValues))
                 highLow = sixteenToEight(value)
                 queueList[m][i] = highLow[0]
                 queueList[m][i + 1] = highLow[1]
             else:
-                queueList[m][i] = next(bridgeGenerator)
+                queueList[m][i] = int(next(bridgeGenerator))
     #If this command overrides a previous command to the pixel, it should wipe any commands remaining
         if appends < 0:
             for r in range(abs(appends)):
