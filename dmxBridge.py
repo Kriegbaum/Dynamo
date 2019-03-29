@@ -1,5 +1,4 @@
 #Located at github trevordavies095/DmxPy <- Python 3 port
-from DmxPy import DmxPy
 import time
 import os
 import socket
@@ -9,6 +8,17 @@ import threading
 import queue
 import datetime
 import atexit
+
+#Are we using the nice DMX box or not? The pro box doesnt need OLA, the openDMX box does
+OLA = True
+if OLA:
+    import array
+    from ola.ClientWrapper import ClientWrapper
+    wrapper = ClientWrapper()
+    dmxClient = wrapper.Client()
+else:
+    from DmxPy import DmxPy
+    dmx = DmxPy('/dev/ttyUSB0')
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
 #sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dmxBridge-log.txt'), 'w')
@@ -37,7 +47,6 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 44
 pixels = [0] * 512
 #TODO: Figure out how to detect which serial port the EntTech driver is on)
-dmx = DmxPy('/dev/ttyUSB0')
 queueLock = threading.Lock()
 arbitration = [False]
 
@@ -103,9 +112,15 @@ def clockLoop():
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
-            dmx.setChannel(alt, alteration[alt])
-        dmx.render()
-#        print(pixels[0])
+        if OLA:
+            data = array.array('B')
+            for i in pixels:
+                data.append(i)
+            dmxClient.SendDmx(1, data)
+        else:
+            for alt in alteration:
+                dmx.setChannel(alt, alteration[alt])
+            dmx.render()
         queueLock.release()
         time.sleep((1 / frameRate) * .75)
 
