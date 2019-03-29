@@ -112,7 +112,7 @@ def clockLoop():
             pixels[alt] = alteration[alt]
         if OLA:
             listStr = str(pixels)[1:-1]
-            requests.post(url, data={'u':1, 'd':listStr})
+            requests.post(olaUrl, data={'u':1, 'd':listStr})
         else:
             for alt in alteration:
                 dmx.setChannel(alt, alteration[alt])
