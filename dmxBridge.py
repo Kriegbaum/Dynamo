@@ -12,10 +12,8 @@ import atexit
 #Are we using the nice DMX box or not? The pro box doesnt need OLA, the openDMX box does
 OLA = True
 if OLA:
-    import array
-    from ola.ClientWrapper import ClientWrapper
-    wrapper = ClientWrapper()
-    dmxClient = wrapper.Client()
+    import requests
+    olaUrl = 'http://localhost:9090/set_dmx'
 else:
     from DmxPy import DmxPy
     dmx = DmxPy('/dev/ttyUSB0')
@@ -113,10 +111,8 @@ def clockLoop():
         for alt in alteration:
             pixels[alt] = alteration[alt]
         if OLA:
-            data = array.array('B')
-            for i in pixels:
-                data.append(i)
-            dmxClient.SendDmx(1, data)
+            listStr = str(pixels)[1:-1]
+            requests.post(url, data={'u':1, 'd':listStr})
         else:
             for alt in alteration:
                 dmx.setChannel(alt, alteration[alt])
