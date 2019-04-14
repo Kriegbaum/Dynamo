@@ -1,4 +1,4 @@
-''' This is a restructuring of the Dynammo system, fixture functions will now be
+''' This is a restructuring of the Dynamo system, fixture functions will now be
 class-based because I'm trying to be a civilized person'''
 
 import os
@@ -8,6 +8,15 @@ import colorsys
 import socket
 import json
 import atexit
+from phue import Bridge
+
+##########################Load Config###########################################
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yml')) as f:
+    configFile = f.read()
+configs = yaml.load(configFile)
+
+
+
 
 ########################Basic Socket Functions##################################
 
@@ -22,9 +31,9 @@ ipSock.close()
 
 socket.setdefaulttimeout(15)
 
-def transmit(command, controller):
+def transmit(command, destination):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (fadecandyIPs[controller], 8000)
+    server_address = (destination, 8000)
     sock.connect(server_address)
     message = json.dumps(command)
     try:
@@ -57,6 +66,8 @@ def recieve():
             sock.close()
 
 #####################opcBridge Companion Functions##############################
+
+fadecandyIPs = configs['fadecandyIPs']
 
 def requestArbitration(controller):
     transmit({'type': 'requestArbitration', 'ip': localIP}, controller)
@@ -142,6 +153,7 @@ def gatherArbitration(controllerList):
 
 ############################Hue Control Object##################################
 
+hueIP = configs['hueIP']
 hueBridge = Bridge(hueIP)
 
 def rgbToHue(RGB):
@@ -224,9 +236,17 @@ def cctRGB(kelvin):
 
 ##################Begin Fixture Patching Process################################
 
-roomDict = {'all': [], 'relays': []}
-fixtureDict = []
+roomDict = {'all': {'fixtures': [], 'relays': []}}
+fixtureDict = {}
 
+def testDict(dictionary, key, default):
+    '''See if the patch dictionary has specified a value. If it hasn't, return
+    a specificed default'''
+    try:
+        result = dictionary[key]
+        return result
+    except KeyError:
+        return default
 
 class Fixture:
     '''Basic lighting object, can easily push colors to it, get status, and
@@ -242,9 +262,11 @@ class Fixture:
 
         #Get us a directory of fixutres by room
         if self.room in roomDict:
-            roomDict[self.room].append(self)
+            roomDict[self.room]['fixtures'].append(self)
         else:
-            roomDict[self.room] = [self]
+            roomDict[self.room] = {}
+            roomDict[self.room]['fixtures'] = [self]
+        roomDict['all']['fixtures'].append(self)
 
     def colorCorrect(self, rgb):
         '''Returns a corrected value for the specific fixture to use'''
@@ -261,14 +283,14 @@ class Fadecandy(Fixture):
         Fixture.__init__(self, patchDict)
         self.indexRange = testDict(patchDict, 'indexrange', [0,0])
         self.grb = testDict(patchDict, 'grb', True)
-        self.controller = patchDict['controller']
+        self.controller = fadecandyIPs[patchDict['controller']]
 
     def __repr__(self):
         stringOut = ''
         stringOut += self.name
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
-        stringOut += '\nIndexes: %s' % self.indexrange
+        stringOut += '\nIndexes: %s' % self.indexRange
         stringOut += '\nController: %s' % self.controller
         return(stringOut)
 
@@ -393,4 +415,82 @@ class HueRelay(Relay):
 
 class Room:
     '''Basic control groups, makes controlling a number of fixtures easy'''
-    pass
+    def __init__(self, name, fixtureList, relayList):
+        self.name = name
+        self.fixtureList = fixtureList
+        self.relayList = relayList
+        self.controllerList = []
+        for f in fixtureList:
+            if f.system == 'Fadecandy':
+                if f.controller not in self.controllerList:
+                    self.controllerList.append(f.controller)
+        for r in relayList:
+            if r.system == 'CustomRelay':
+                if r.controller not in self.controllerList:
+                    self.controllerList.append(r.controller)
+
+    def __repr__(self):
+        stringOut = 'Name: %s' % self.name
+        stringOut += '\nFixtures:'
+        if not self.fixtureList:
+            stringOut += '\n  NONE'
+        else:
+            for f in self.fixtureList:
+                stringOut += '\n  %s' % f.name
+        stringOut += '\nRelays:'
+        if not self.relayList:
+            stringOut += '\n  NONE'
+        else:
+            for r in self.relayList:
+                stringOut += '\n  %s' % r.name
+        stringOut += '\nControllers:'
+        if not self.controllerList:
+            stringOut += '\n  NONE'
+        else:
+            for c in self.controllerList:
+                stringOut += '\n  %s' % c
+        stringOut += '\n'
+        return(stringOut)
+
+    def setColor(self, rgb):
+        pass
+
+    def off(self):
+        pass
+
+    def on(self):
+        pass
+
+    def fadeUp(self, amount):
+        pass
+
+    def fadeDown(self, amount):
+        pass
+
+
+###########################Load Patch###########################################
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'patch.yml')) as f:
+    patchFile = f.read()
+patch = yaml.load(patchFile)
+
+for f in patch:
+    if patch[f]['system'] == 'Fadecandy':
+        new = Fadecandy(patch[f])
+    elif patch[f]['system'] == 'Hue':
+        new = Hue(patch[f])
+    elif patch[f]['system'] == 'DMX':
+        new = DMX(patch[f])
+
+roomList = []
+
+for r in roomDict:
+    if 'fixtures' in roomDict[r]:
+        fixtureList = roomDict[r]['fixtures']
+    if 'relays' in roomDict[r]:
+        relayList = roomDict[r]['relays']
+    new = Room(r, fixtureList, relayList)
+    roomList.append(new)
+
+roomDict = {}
+for r in roomList:
+    roomDict[r.name] = r

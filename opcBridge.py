@@ -145,10 +145,7 @@ def commandParse(command):
         print(command['type'] + 'is not a valid command')
 
 def setArbitration(setting):
-    if type(setting) != bool:
-        print('Invalid arbitration setting, must be bool')
-    else:
-        arbitration[0] = setting
+    arbitration[0] = setting
 
 def getArbitration(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
