@@ -235,12 +235,15 @@ def multiCommand(commands):
 
 def relativeFade(indexes, positive, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness'''
+    commandList = []
     for i in indexes:
         start = pixels[i]
         if start == [0,0,0]:
             start = [1,1,1]
         endVal = brightnessChange(pixels[i], magnitude, positive)
-        absoluteFade(range(i), endVal, fadeTime)
+        command = {'type': 'absoluteFade', 'index range': [i, i + 1], 'color': endVal, 'fade time': fadeTime}
+        commandList.append(command)
+    multiCommand(commandList)
 
 
 def pixelRequest():
