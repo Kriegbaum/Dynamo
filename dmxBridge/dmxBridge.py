@@ -10,6 +10,7 @@ import datetime
 import atexit
 
 #Are we using the nice DMX box or not? The pro box doesnt need OLA, the openDMX box does
+CHANNEL_CAP = 50
 OLA = True
 if OLA:
     import requests
@@ -43,7 +44,7 @@ socket.setdefaulttimeout(60)
 commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
 frameRate = 44
-pixels = [0] * 512
+pixels = [0] * CHANNEL_CAP
 #TODO: Figure out how to detect which serial port the EntTech driver is on)
 queueLock = threading.Lock()
 arbitration = [False]

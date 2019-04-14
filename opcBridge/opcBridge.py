@@ -37,7 +37,7 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 15
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
-arbitration = [False]
+arbitration = [False, '127.0.0.1', datetime.now()]
 
 ############################SUPPORT FUNCTIONS###################################
 def makeEightBit(value):
@@ -122,6 +122,7 @@ def fetchLoop():
             else:
                 comDict = json.loads(command)
                 print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
+                comDict['ip'] = client_address[0]
                 commands.put(comDict)
                 break
 
@@ -135,23 +136,32 @@ def commandParse(command):
     elif command['type'] == 'pixelRequest':
         pass
     elif command['type'] == 'requestArbitration':
-        getArbitration(command['ip'])
+        getArbitration(command['id'], command['ip'])
     elif command['type'] == 'setArbitration':
-        setArbitration(command['setting'])
+        setArbitration(command['id'], command['ip'], datetime.now())
     elif command['type'] == 'multiCommand':
         multiCommand(command['commands'])
     else:
         print('Invalid command type recieved')
         print(command['type'] + 'is not a valid command')
 
-def setArbitration(setting):
-    arbitration[0] = setting
+def setArbitration(id, ip, time):
+    arbitration[0] = id
+    arbitration[1] = ip
+    arbitration[2] = time
 
-def getArbitration(ip):
+def getArbitration(id ,ip):
+    if id != arbitration[0]:
+        response = False
+    elif ip != arbitration[1]:
+        response = False
+    else:
+        response = True
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
     sock.connect(server_address)
-    message = json.dumps(arbitration[0])
+    message = json.dumps(response)
     try:
         sock.sendall(message.encode())
     except Exception as e:

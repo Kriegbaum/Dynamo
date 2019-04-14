@@ -15,9 +15,6 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yml')
     configFile = f.read()
 configs = yaml.load(configFile)
 
-
-
-
 ########################Basic Socket Functions##################################
 
 #Oour local IP address, tells server where to send data back to
