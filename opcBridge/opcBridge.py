@@ -173,7 +173,7 @@ def getArbitration(id ,ip):
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
     if not fadeTime:
-        fadeTime = 1 / frameRate
+        fadeTime = 2 / frameRate
     for c in rgb:
         c = makeEightBit(c)
     #Calculates how many individual fade frames are needed
