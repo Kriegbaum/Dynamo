@@ -125,7 +125,7 @@ def fetchLoop():
     '''Fetches commands from the socket'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #server_address = (localIP, 8000)
-    server_address = (localIP, 8000)
+    server_address = (localIP, 8002)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
     sock.listen(90)
@@ -174,7 +174,7 @@ def setArbitration(setting):
 
 def getArbitration(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (ip, 8800)
+    server_address = (ip, 8802)
     sock.connect(server_address)
     message = json.dumps(arbitration[0])
     try:

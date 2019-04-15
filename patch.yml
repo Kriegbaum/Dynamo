@@ -5,6 +5,7 @@ Whiteboard:
   system: Fadecandy
   indexrange: [0,25]
   colorCorrection: [1,.85098,.57647]
+  grb: False
   room: office
   controller: officeFC
 

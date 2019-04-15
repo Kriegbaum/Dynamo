@@ -28,9 +28,9 @@ ipSock.close()
 
 socket.setdefaulttimeout(15)
 
-def transmit(command, destination):
+def transmit(command, controller):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (destination, 8000)
+    server_address = (controller.ip, controller.txPort)
     sock.connect(server_address)
     message = json.dumps(command)
     try:
@@ -45,9 +45,9 @@ def transmit(command, destination):
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
-def recieve():
+def recieve(controller):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (localIP, 8800)
+    server_address = (localIP, controller.rxPort)
     sock.bind(server_address)
     sock.listen(1)
     connection, client_address = sock.accept()
@@ -64,16 +64,14 @@ def recieve():
 
 #####################opcBridge Companion Functions##############################
 
-fadecandyIPs = configs['fadecandyIPs']
-
 def requestArbitration(controller):
-    transmit({'type': 'requestArbitration', 'ip': localIP}, controller)
-    arbitration = recieve()
+    transmit({'type': 'requestArbitration'}, controller)
+    arbitration = recieve(controller)
     arbitration = json.loads(arbitration)
     return arbitration
 
-def setArbitration(setting, controller):
-    transmit({'type': 'setArbitration', 'setting': setting}, controller)
+def setArbitration(id, controller):
+    transmit({'type': 'setArbitration', 'id': id}, controller)
 
 def sendMultiCommand(commands, controller=False):
     '''Sends a command that issues an absoluteFade to multiple fixtures at once
@@ -245,6 +243,48 @@ def testDict(dictionary, key, default):
     except KeyError:
         return default
 
+class Controller:
+    '''Contains addressing information for various types of room controllers'''
+    def __init__(self, patchDict):
+        self.name = patchDict['name']
+        self.room = patchDict['room']
+        self.ip = patchDict['ip']
+        self.system = patchDict['system']
+        if self.system == 'Fadecandy':
+            self.txPort = testDict(patchDict, 'txPort', 8000)
+            self.rxPort = testDict(patchDict, 'rxPort', 8800)
+        elif self.system == 'CustomRelay':
+            self.txPort = testDict(patchDict, 'txPort', 8001)
+            self.rxPort = testDict(patchDict, 'rxPort', 8801)
+        elif self.system == 'DMX':
+            self.txPort = testDict(patchDict, 'txPort', 8002)
+            self.rxPort = testDict(patchDict, 'rxPort', 8802)
+
+    def __repr__(self):
+        stringOut = self.name
+        stringOut += '\nRoom: %s' % self.room
+        stringOut += '\nIP: %s' % self.ip
+        stringOut += '\nSystem: %s' % self.system
+        stringOut += '\nTx Port: %s' % self.txPort
+        stringOut += '\nRx Port: %s\n' % self.rxPort
+        return stringOut
+
+    def requestArbitration():
+        transmit({'type': 'requestArbitration'}, self)
+        arbitration = recieve()
+        arbitration = json.loads(arbitration)
+        return arbitration
+
+    def setArbitration(id, controller):
+        transmit({'type': 'setArbitration', 'id': id}, self)
+
+controllerDict = {}
+for c in configs['controllers']:
+    new = Controller(configs['controllers'][c])
+    controllerDict[new.name] = new
+
+
+
 class Fixture:
     '''Basic lighting object, can easily push colors to it, get status, and
     other control functions'''
@@ -279,16 +319,15 @@ class Fadecandy(Fixture):
     def __init__(self, patchDict):
         Fixture.__init__(self, patchDict)
         self.indexRange = testDict(patchDict, 'indexrange', [0,0])
-        self.grb = testDict(patchDict, 'grb', True)
-        self.controller = fadecandyIPs[patchDict['controller']]
+        self.grb = testDict(patchDict, 'grb', False)
+        self.controller = controllerDict[patchDict['controller']]
 
     def __repr__(self):
-        stringOut = ''
-        stringOut += self.name
+        stringOut = self.name
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
         stringOut += '\nIndexes: %s' % self.indexRange
-        stringOut += '\nController: %s' % self.controller
+        stringOut += '\nController: %s' % self.controller.name
         return(stringOut)
 
     def setColor(self, rgb, fadeTime):
@@ -307,11 +346,11 @@ class Fadecandy(Fixture):
         command = {'type': 'absoluteFade', 'color': rgb, 'fade time': fadeTime, 'index range': self.indexRange}
         return command
 
-    def off(self, fadeTime):
+    def off(self, fadeTime=0):
         '''Turns the fixture off in specified time'''
         self.setColor([0, 0, 0], fadeTime)
 
-    def on(self, fadeTime):
+    def on(self, fadeTime=0):
         '''Turns fixture on to default value in specified time'''
         #TODO: handle default values for fadecandy fixtures
         pass
@@ -324,10 +363,6 @@ class Fadecandy(Fixture):
 
     def fadeDown(self, decreaseAmount):
         pass
-
-
-
-
 
 class Hue(Fixture):
     '''Expensive phillips hue fixtures. Can be color or just white, all of these
@@ -351,11 +386,13 @@ class Hue(Fixture):
         command = {'hue': rgb[0], 'sat': rgb[1], 'bri': rgb[2], 'transitiontime': fadeTime * 10, 'on': True}
         hueBridge.set_light(self.id, command)
 
-    def off(self, fadeTime):
+    def off(self, fadeTime=0):
         command = {'on': False, 'transitiontime': fadeTime * 10}
+        hueBridge.set_light(self.id, command)
 
-    def on(self, fadeTime):
+    def on(self, fadeTime=0):
         command = {'on': True, 'transitiontime': fadeTime * 10}
+        hueBridge.set_light(self.id, command)
 
     def getValue():
         if not hueBridge.get_light(self.id, 'on'):
@@ -375,7 +412,7 @@ class Hue(Fixture):
         currentBri += increaseAmount
         currentBri = clamp(currentBri, 0, 255)
         command = {'bri': currentBri}
-        hueBridge.set_light(command)
+        hueBridge.set_light(self.id, command)
 
     def fadeDown(self, decreaseAmount):
         if not hueBridge.get_light(self.id, 'on'):
@@ -384,7 +421,7 @@ class Hue(Fixture):
         currentBri -= decreaseAmount
         currentBri = clamp(currentBri, 0, 255)
         command = {'bri': currentBri}
-        hueBridge.set_light(command)
+        hueBridge.set_light(self.id, command)
 
 
 class DMX(Fixture):
@@ -407,7 +444,6 @@ class HueRelay(Relay):
     '''Hue system relay, uses different communication method, but functionally
     the same'''
     pass
-
 
 
 class Room:
@@ -445,7 +481,7 @@ class Room:
             stringOut += '\n  NONE'
         else:
             for c in self.controllerList:
-                stringOut += '\n  %s' % c
+                stringOut += '\n  %s' % c.name
         stringOut += '\n'
         return(stringOut)
 
