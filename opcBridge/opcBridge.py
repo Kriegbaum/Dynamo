@@ -43,24 +43,24 @@ arbitration = [False, '127.0.0.1', datetime.now()]
 def makeEightBit(value):
     return min(255, max(0, int(value)))
 
-def brightnessChange(rgb, magnitude, positive):
+def rgbLuminosity(rgb):
+    lum = (0.2126 * rgb[0]) + (0.7152 * rgb[1]) + (0.0722 * rgb[2])
+    return lum
+
+def brightnessChange(rgb, magnitude):
     '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
     majorColor = rgb.index(max(rgb))
-
     rgbOut = [rgb[0] + magnitude, rgb[1] + magnitude, rgb[2] + magnitude]
-
     if positive:
         if max(rgbOut) > 255:
             decrease = max(rgbOut) - 255
             for value in rgbOut:
                 value -= decrease
-
     else:
         if min(rgbOut) < 0:
             increase = abs(min(rgbOut))
             for value in rgbOut:
                 value += increase
-
     return rgbOut
 
 def bridgeValues(totalSteps, start, end):
@@ -132,9 +132,9 @@ def commandParse(command):
     if command['type'] == 'absoluteFade':
         absoluteFade(range(command['index range'][0], command['index range'][1]), command['color'], command['fade time'])
     elif command['type'] == 'relativeFade':
-        pass
+        relativeFade(command['index range'], command['magnitude'], command['fade time'])
     elif command['type'] == 'pixelRequest':
-        pass
+        getPixels(command['ip'])
     elif command['type'] == 'requestArbitration':
         getArbitration(command['id'], command['ip'])
     elif command['type'] == 'setArbitration':
@@ -144,6 +144,20 @@ def commandParse(command):
     else:
         print('Invalid command type recieved')
         print(command['type'] + 'is not a valid command')
+
+def getPixels(ip):
+    '''Gives the entire pixel array back to the client as a 512 * 3 array'''
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (ip, 8800)
+    sock.connect(server_address)
+    message = json.dumps(pixels)
+    try:
+        sock.sendall(message.encode())
+    except Exception as e:
+        print('Failed returning pixels, ' + e)
+    finally:
+        sock.shutdown(socket.SHUT_RDWR)
+        sock.close()
 
 def setArbitration(id, ip, time):
     arbitration[0] = id
@@ -233,15 +247,13 @@ def multiCommand(commands):
 
 
 
-def relativeFade(indexes, positive, magnitude, fadeTime):
+def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness'''
     commandList = []
     for i in indexes:
         start = pixels[i]
-        if start == [0,0,0]:
-            start = [1,1,1]
-        endVal = brightnessChange(pixels[i], magnitude, positive)
-        command = {'type': 'absoluteFade', 'index range': [i, i + 1], 'color': endVal, 'fade time': fadeTime}
+        endVal = brightnessChange(pixels[i], magnitude)
+        command = [[i, i + 1], endVal, fadeTime]
         commandList.append(command)
     multiCommand(commandList)
 

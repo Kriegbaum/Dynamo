@@ -58,11 +58,14 @@ def recieve(controller):
         if data:
             pass
         else:
-            return message
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
+            return message
 
 #####################opcBridge Companion Functions##############################
+'''The following functions allow direct access to opcBridge or dmxBridge. These
+should stay classless to allow finer control for things like effects engines
+fixutre class member functions may depend on some of these functions'''
 
 def requestArbitration(controller):
     transmit({'type': 'requestArbitration'}, controller)
@@ -73,24 +76,12 @@ def requestArbitration(controller):
 def setArbitration(id, controller):
     transmit({'type': 'setArbitration', 'id': id}, controller)
 
-def sendMultiCommand(commands, controller=False):
+def sendMultiCommand(commands, controller):
     '''Sends a command that issues an absoluteFade to multiple fixtures at once
     This should be used every time more than one command is supposed to happen simultaneously
     it is more efficent for opcBridge, faster, and less error prone'''
     #('type': 'multiCommand', 'commands': [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
     #Index 0 in each command can be fixture or index, but should be index by the time it reaches opcBridge
-    for c in commands:
-        if isinstance(c[0], Fixture):
-            controller = c[0].controller
-            #if c[0].controller != controller:
-            #    print('You just tried to send one command to multiple controllers, get your lazy ass in gear and make that possible')
-            #    return False
-            c[0] = c[0].indexrange
-        elif isinstance(c[0], int):
-            c[0] = [c[0], c[0] + 1]
-        elif not isinstance(c[0], list):
-            print('Failed to send command, %s should either be a fixture or a list', c[0])
-            return False
     command = {'type':'multiCommand', 'commands':commands}
     transmit(command, controller)
 
@@ -356,12 +347,17 @@ class Fadecandy(Fixture):
         pass
 
     def getValue():
+        '''This will tell you the value of the first index of the fixutre, this
+        will not always accurately reflect the state of the whole fixture'''
+        command = {'type': 'pixelRequest'}
+        transmit(command, f.controller)
+        pixels = recieve(f.controller)
+        return pixels[f.indexRange[0]]
+
+    def fadeUp(self, amount):
         pass
 
-    def fadeUp(self, increaseAmount):
-        pass
-
-    def fadeDown(self, decreaseAmount):
+    def fadeDown(self, amount):
         pass
 
 class Hue(Fixture):
@@ -405,20 +401,20 @@ class Hue(Fixture):
 
         return rgb
 
-    def fadeUp(self, increaseAmount):
+    def fadeUp(self, amount):
         if not hueBridge.get_light(self.id, 'on'):
             return False
         currentBri = hueBridge.get_light(self.id, 'bri')
-        currentBri += increaseAmount
+        currentBri += amount
         currentBri = clamp(currentBri, 0, 255)
         command = {'bri': currentBri}
         hueBridge.set_light(self.id, command)
 
-    def fadeDown(self, decreaseAmount):
+    def fadeDown(self, amount):
         if not hueBridge.get_light(self.id, 'on'):
             return False
         currentBri = hueBridge.get_light(self.id, 'bri')
-        currentBri -= decreaseAmount
+        currentBri -= amount
         currentBri = clamp(currentBri, 0, 255)
         command = {'bri': currentBri}
         hueBridge.set_light(self.id, command)
@@ -485,20 +481,34 @@ class Room:
         stringOut += '\n'
         return(stringOut)
 
-    def setColor(self, rgb):
-        pass
+    def setColor(self, rgb, fadeTime):
+        multiDict = {}
+        for f in fixtureList:
+            if hasattr(f, 'controller'):
+                if not controller in multiDict:
+                    multiDict[controller] = [[f.indexRange, rgb, fadeTime]]
+                else:
+                    multiDict[controller].append([f.indexRange, rgb, fadeTime])
+            else:
+                f.setColor(rgb, fadeTime)
+        for c in multiDict:
+            sendMultiCommand(multiDict[c], c)
 
-    def off(self):
-        pass
+    def off(self, fadeTime=0):
+        for f in fixtureList:
+            f.off()
 
-    def on(self):
-        pass
+    def on(self, fadeTime=0):
+        for f in fixtureList:
+            f.on()
 
     def fadeUp(self, amount):
-        pass
+        for f in fixtureList:
+            f.fadeUp(amount)
 
     def fadeDown(self, amount):
-        pass
+        for f in fixtureList:
+            f.fadeDown(amount)
 
 
 ###########################Load Patch###########################################

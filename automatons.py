@@ -1,39 +1,6 @@
 from DYNAcore import *
 from datetime import datetime
 
-def rgbRoom(room, color, time):
-
-    hasFadecandy = False
-    for f in room:
-        if f.system == 'Fadecandy':
-            hasFadecandy = True
-    if hasFadecandy:
-        multiCommandList = []
-    for l in range(len(room)):
-        rgb = color
-        if hasFadecandy:
-            if room[l].system == 'Fadecandy':
-                if not room[l].grb:
-                    rgb = grbFix(rgb)
-                rgb = colorCorrect(room[l], rgb)
-                if sum(rgb) < 15:
-                    rgb = [0,0,0]
-                multiCommandList.append([room[l], rgb, time])
-        if hasHue:
-            if room[l].system == 'Hue':
-                rgb = colorCorrect(room[l], rgb)
-                rgb = convert(rgb)
-                com_on = True
-                if rgb[2] < 7:
-                    com_on = False
-                command = {'hue': rgb[0], 'sat': rgb[1] , 'bri': rgb[2] , 'transitiontime': time * 10, 'on' : com_on}
-                bridge.set_light(room[l].id, command)
-        else:
-            print('You fucked up and now there is an improperly classed Fixture in your room!')
-            print(l.name, l.system)
-    if hasFadecandy:
-        sendMultiCommand(multiCommandList)
-
 def circadianLookup(city):
     '''retuns a color temperature value given an astral city object'''
     '''Data points:
@@ -104,10 +71,3 @@ def circadian(room):
             time.sleep(120)
         else:
             print('Circadian routine interrupted by manual override')
-
-#circadian(rooms['office'])
-
-
-while True:
-    kelvin = int(input())
-    rgbRoom(rooms['office'], cctRGB(kelvin), 1)
