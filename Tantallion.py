@@ -346,19 +346,21 @@ class Fadecandy(Fixture):
         #TODO: handle default values for fadecandy fixtures
         pass
 
-    def getValue():
+    def getValue(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
         command = {'type': 'pixelRequest'}
-        transmit(command, f.controller)
-        pixels = recieve(f.controller)
-        return pixels[f.indexRange[0]]
+        transmit(command, self.controller)
+        pixels = recieve(self.controller)
+        return pixels[self.indexRange[0]]
 
-    def fadeUp(self, amount):
-        pass
+    def fadeUp(self, amount, fadeTime=0.5):
+        command = {'type': 'relativeFade', 'index range': self.indexRange, 'magnitude': amount, 'fade time': fadeTime}
+        transmit()
 
     def fadeDown(self, amount):
-        pass
+        command = {'type': 'relativeFade', 'index range': self.indexRange, 'magnitude': amount * -1, 'fade time': fadeTime}
+        transmit()
 
 class Hue(Fixture):
     '''Expensive phillips hue fixtures. Can be color or just white, all of these
