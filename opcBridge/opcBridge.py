@@ -257,11 +257,6 @@ def relativeFade(indexes, magnitude, fadeTime):
         commandList.append(command)
     multiCommand(commandList)
 
-
-def pixelRequest():
-    '''informs the client of current pixel values'''
-    return pixels
-
 clocker = threading.Thread(target=clockLoop)
 fetcher = threading.Thread(target=fetchLoop)
 queuer =  threading.Thread(target=queueLoop)

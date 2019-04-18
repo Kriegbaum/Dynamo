@@ -9,6 +9,7 @@ import socket
 import json
 import atexit
 from phue import Bridge
+import random
 
 ##########################Load Config###########################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yml')) as f:
@@ -91,7 +92,7 @@ def sendMultiCommand(commands, controller):
     command = {'type':'multiCommand', 'commands':commands}
     transmit(command, controller)
 
-def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade', controller):
+def sendCommand(indexrange, rgb, controller, fadetime=5, type='absoluteFade'):
     '''Sends a dictionary to specified controller'''
     #typical command
     #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
@@ -180,6 +181,17 @@ def hueToRGB(hsvHue):
     return rgbTMP
 
 #####################Color manipulation functions###############################
+
+def randomRGB():
+    '''Generates a random color, good for doing tests on the system'''
+    r = random.randrange(0,255)
+    g = random.randrange(0,255)
+    b = random.randrange(0,255)
+    rgb = [r, g, b]
+    print('Generated a random color:')
+    print(rgb)
+    print()
+    return rgb
 
 def clamp(value, lower, upper):
     '''Returns lower if value is below bounds, returns upper if above, returns value if inside'''
@@ -283,7 +295,7 @@ class Controller:
         arbitration = json.loads(arbitration)
         return arbitration
 
-    def setArbitration(id, controller):
+    def setArbitration(self, id):
         transmit({'type': 'setArbitration', 'id': id}, self)
 
 #We roll all controllers declared in config.yml into a dictionary so we can address them by name
@@ -339,7 +351,7 @@ class Fadecandy(Fixture):
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
         stringOut += '\nIndexes: %s' % self.indexRange
-        stringOut += '\nController: %s' % self.controller.name
+        stringOut += '\nController: %s\n' % self.controller.name
         return(stringOut)
 
     def setColor(self, rgb, fadeTime):
@@ -396,13 +408,13 @@ class Hue(Fixture):
         stringOut += self.name
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
-        stringOut += '\nID: %s' % self.id
+        stringOut += '\nID: %s\n' % self.id
         return(stringOut)
 
     def setColor(self, rgb, fadeTime):
         rgb = self.colorCorrect(rgb)
         rgb = rgbToHue(rgb)
-        command = {'hue': rgb[0], 'sat': rgb[1], 'bri': rgb[2], 'transitiontime': fadeTime * 10, 'on': True}
+        command = {'hue': rgb[0], 'sat': rgb[1], 'bri': rgb[2], 'transitiontime': int(fadeTime * 10), 'on': True}
         hueBridge.set_light(self.id, command)
 
     def off(self, fadeTime=0):
@@ -473,7 +485,7 @@ class Room:
         self.relayList = relayList
         self.controllerList = []
         for f in fixtureList:
-            if f.system == 'Fadecandy':
+            if f.system == 'Fadecandy' or f.system == 'DMX':
                 if f.controller not in self.controllerList:
                     self.controllerList.append(f.controller)
         for r in relayList:
@@ -505,17 +517,8 @@ class Room:
         return(stringOut)
 
     def setColor(self, rgb, fadeTime):
-        multiDict = {}
-        for f in fixtureList:
-            if hasattr(f, 'controller'):
-                if not controller in multiDict:
-                    multiDict[controller] = [[f.indexRange, rgb, fadeTime]]
-                else:
-                    multiDict[controller].append([f.indexRange, rgb, fadeTime])
-            else:
-                f.setColor(rgb, fadeTime)
-        for c in multiDict:
-            sendMultiCommand(multiDict[c], c)
+        for f in self.fixtureList:
+            f.setColor(rgb, fadeTime)
 
     def off(self, fadeTime=0):
         for f in fixtureList:
@@ -533,6 +536,20 @@ class Room:
         for f in fixtureList:
             f.fadeDown(amount)
 
+    def scene(self, sceneDict, fadeTime=2):
+        '''A scene can be defined in two ways, keys are fixture names, and values
+        are either an rgb list, or an rgb list and a specified fadetime for that fixture'''
+        for f in sceneDict:
+            if len(sceneDict[f]) == 2:
+                fixtureDict[f].setColor(sceneDict[f][0], sceneDict[f][1])
+            else:
+                fixtureDict[f].setColor(sceneDict[f], fadeTime)
+
+    def setArbitration(id):
+        pass
+
+    def getArbitration():
+        pass
 
 ###########################Load Patch###########################################
 #Initiate object conaining our patch
@@ -552,8 +569,12 @@ roomList = []
 for r in roomDict:
     if 'fixtures' in roomDict[r]:
         fixtureList = roomDict[r]['fixtures']
+    else:
+        fixtureList = []
     if 'relays' in roomDict[r]:
         relayList = roomDict[r]['relays']
+    else:
+        relayList = []
     new = Room(r, fixtureList, relayList)
     roomList.append(new)
 #Roll rooms into a dictionary so we can reference them by name

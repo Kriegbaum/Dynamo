@@ -11,12 +11,13 @@ import atexit
 
 #Are we using the nice DMX box or not? The pro box doesnt need OLA, the openDMX box does
 CHANNEL_CAP = 50
-OLA = True
+OLA = False
 if OLA:
     import requests
     olaUrl = 'http://localhost:9090/set_dmx'
 else:
     from DmxPy import DmxPy
+    #TODO: find a way to locate DMX interface amongst other USB devices
     dmx = DmxPy('/dev/ttyUSB0')
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
