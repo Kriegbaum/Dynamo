@@ -29,6 +29,7 @@ ipSock.close()
 socket.setdefaulttimeout(15)
 
 def transmit(command, controller):
+    '''Takes a command dictionary and a controller, and sockets that command out'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (controller.ip, controller.txPort)
     sock.connect(server_address)
@@ -46,6 +47,7 @@ def transmit(command, controller):
         sock.close()
 
 def recieve(controller):
+    '''Waits for a response fom a controller that we've sent a request to'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (localIP, controller.rxPort)
     sock.bind(server_address)
@@ -67,13 +69,17 @@ def recieve(controller):
 should stay classless to allow finer control for things like effects engines
 fixutre class member functions may depend on some of these functions'''
 
-def requestArbitration(controller):
-    transmit({'type': 'requestArbitration'}, controller)
+def requestArbitration(id, controller):
+    '''Asks for arbitration from the controller, currently the server makes the
+    dcecisions about whether or not you should be in control, returns a bool'''
+    transmit({'type': 'requestArbitration', 'id': id}, controller)
     arbitration = recieve(controller)
     arbitration = json.loads(arbitration)
     return arbitration
 
 def setArbitration(id, controller):
+    '''Takes arbitration for your own process. An id should be established for
+    the routine that calls this function, id should be descriptive of process'''
     transmit({'type': 'setArbitration', 'id': id}, controller)
 
 def sendMultiCommand(commands, controller):
@@ -85,11 +91,16 @@ def sendMultiCommand(commands, controller):
     command = {'type':'multiCommand', 'commands':commands}
     transmit(command, controller)
 
-def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade', controller=False):
+def sendCommand(indexrange, rgb, fadetime=5, type='absoluteFade', controller):
+    '''Sends a dictionary to specified controller'''
     #typical command
     #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
     command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
     transmit(command, controller)
+
+'''The following functions need to be reworked in order to function in the new
+structure of this system. They should probably eventually end up as fixture
+member functions for fadecandy fixtures, they work well for pixel tape
 
 def rippleFade(fixture, rgb, rippleTime=5, type='wipe'):
     sleepTime = rippleTime / (fixture.indexrange[1] - fixture.indexrange[0])
@@ -111,11 +122,12 @@ def dappleFade(fixture, rgb, fadetime=5):
         fadeTime = 1.5 * random.randrange(8, 15) * .1
         sendCommand([index, index + 1], rgb, fadetime=fadetime, controller=fixture.controller)
         time.sleep(sleepTime)
+'''
 
 def exitReset(controllerList):
     for c in controllerList:
         setArbitration(False, c)
-    print('Cleaning Sockets')
+    print('Releasing arbitration')
 
 def gatherControllers(room):
     controllerList = []
@@ -139,6 +151,7 @@ def gatherArbitration(controllerList):
 
 ############################Hue Control Object##################################
 
+#Establish our hue bridge as an object
 hueIP = configs['hueIP']
 hueBridge = Bridge(hueIP)
 
@@ -150,56 +163,60 @@ def rgbToHue(RGB):
     B = RGB[2] / 255
     #Makes standard HSV
     hsv = colorsys.rgb_to_hsv(R, G, B)
-    #Converts to Hue api HSV
+    #Hue api expresses hue in 16 bit value, thus strange numbers on index 0
     hsv_p = [int(hsv[0] * 360 * 181.33), int(hsv[1] * 255), int(hsv[2] * 255)]
     return hsv_p
 
 def hueToRGB(hsvHue):
+    '''Converts values from Philips Hue API to standard RGB'''
+    #Phillips Hue lights use a 16 bit value for its hue, thus weird number for index 0 of HSV
     hue = hsvHue[0] / 65278.8
     sat = hsvHue[1] / 255
     val = hsvHue[2] / 255
-
     rgbTMP = colorsys.hsv_to_rgb(hue, sat, val)
+    #Colorsys uses a 0-1 value range, we want 0-255
+    rgbTMP = [rgbTMP[0] * 255, rgbTMP[1] * 255, rgbTMP[2] * 255]
 
-    rgbOut = [rgbTMP[0] * 255, rgbTMP[1] * 255, rgbTMP[2] * 255]
-
-    return rgbOut
+    return rgbTMP
 
 #####################Color manipulation functions###############################
 
 def clamp(value, lower, upper):
-    #Returns lower if value is below bounds, returns upper if above, returns value if inside
+    '''Returns lower if value is below bounds, returns upper if above, returns value if inside'''
     return min((max(value, lower), upper))
 
 def grbFix(grb):
-    '''returns a grb list as an rgb list'''
+    '''returns a grb list as an rgb list, used often with WS2811 bullshit'''
     return [grb[1], grb[0], grb[2]]
 
 def rgbRGBW(rgb):
+    '''3 channel color expression to 4 color. Requires testing, maybe not accurate'''
     max = max(rgb)
     rgbwOut = [0,0,0,0]
+    #If our light is off, skip the rest of the processing
     if not max:
         return rgbwOut
-
+    #We get luminance here, basically a greyscale representation of the brightness of this color
     multiplier = 255 / max
     hR = rgb[0] * multiplier
     hG = rgb[1] * multiplier
     hB = rgb[3] * multiplier
-
     M = max(hR, max(hG, hB))
     m = min(hR, min(hG, hB))
     luminance = ((M + m) / 2.0 - 127.5) * (255 / 127.5) / multiplier
-
+    #Our white channel is pure luminance, and can replace some RGB output
     rgbwOut[0] = rgb[0] - luminance
     rgbwOut[1] = rgb[1] - luminance
     rgbwOut[2] = rgb[2] - luminance
     rgbwOut[3] = luminance
-
+    #Make sure we havent created an invalid color
     for i in rgbwOut:
         i = clamp(i, 0, 255)
     return rgbwOut
 
 def cctRGB(kelvin):
+    '''Takes a color temperature value and makes it RGB, currently doesnt feel accurate
+    This algorithm was found on the internet, additional testing required'''
     outR, outG, outB = 0, 0, 0
     temp = kelvin / 100.0
     if temp <= 66:
@@ -226,7 +243,7 @@ roomDict = {'all': {'fixtures': [], 'relays': []}}
 fixtureDict = {}
 
 def testDict(dictionary, key, default):
-    '''See if the patch dictionary has specified a value. If it hasn't, return
+    '''See if the patch dictionary has specified a value. If it doesn't, return
     a specificed default'''
     try:
         result = dictionary[key]
@@ -269,6 +286,7 @@ class Controller:
     def setArbitration(id, controller):
         transmit({'type': 'setArbitration', 'id': id}, self)
 
+#We roll all controllers declared in config.yml into a dictionary so we can address them by name
 controllerDict = {}
 for c in configs['controllers']:
     new = Controller(configs['controllers'][c])
@@ -297,7 +315,10 @@ class Fixture:
         roomDict['all']['fixtures'].append(self)
 
     def colorCorrect(self, rgb):
-        '''Returns a corrected value for the specific fixture to use'''
+        '''Returns a corrected value for the specific fixture to use, currently
+        clamps color output in a linear fashion, but you should investigate a
+        solution that involves luminance, because this gets inaccurate at the
+        bottom end of the dimming curve'''
         tempList =  [self.colorCorrection[0] * rgb[0],
                     self.colorCorrection[1] * rgb[1],
                     self.colorCorrection[2] * rgb[2]]
@@ -514,10 +535,11 @@ class Room:
 
 
 ###########################Load Patch###########################################
+#Initiate object conaining our patch
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'patch.yml')) as f:
     patchFile = f.read()
 patch = yaml.load(patchFile)
-
+#Initialize an object for every fixture declared in patch, place in dictionary so we can reference by name
 for f in patch:
     if patch[f]['system'] == 'Fadecandy':
         new = Fadecandy(patch[f])
@@ -525,9 +547,8 @@ for f in patch:
         new = Hue(patch[f])
     elif patch[f]['system'] == 'DMX':
         new = DMX(patch[f])
-
+#We are going to repurpose roomDict, but roomList is a temporary holding pen for the follwing info
 roomList = []
-
 for r in roomDict:
     if 'fixtures' in roomDict[r]:
         fixtureList = roomDict[r]['fixtures']
@@ -535,7 +556,7 @@ for r in roomDict:
         relayList = roomDict[r]['relays']
     new = Room(r, fixtureList, relayList)
     roomList.append(new)
-
+#Roll rooms into a dictionary so we can reference them by name
 roomDict = {}
 for r in roomList:
     roomDict[r.name] = r
