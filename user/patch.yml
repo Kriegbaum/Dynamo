@@ -271,7 +271,7 @@ Full Array:
   name: Full Array
   system: Fadecandy
   indexrange: [0, 448]
-  grb: False
+  grb: True
   room: bedroom grouped
   controller: bedroomFC
 

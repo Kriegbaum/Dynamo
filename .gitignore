@@ -98,11 +98,8 @@ ENV/
 .png
 .jpeg
 
-#settings file
-.yml
 
 artwork\.jpg
 
-*.yml
 
-*.jpg
+.jpg

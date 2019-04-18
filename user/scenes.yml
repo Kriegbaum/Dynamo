@@ -1,0 +1,21 @@
+Night:
+  #Bedroom
+  Full Array: [35, 35, 35]
+  Bedroom Closet: [10, 10, 0]
+  Window: [240, 162, 81]
+  #Kitchen
+  Oven: [30, 37, 8]
+  Corner: [32, 39, 8]
+  Table: [84, 75, 41]
+  Cabinet Top: [39, 27, 7]
+  Cabinet Bottom: [38, 38, 38]
+  #Office
+  Worklight: [0, 0, 0]
+  Whiteboard: [0, 0, 0]
+  Fan: [0, 0, 0]
+  Workbench: [0, 0, 0]
+  Iris: [0, 0, 0]
+  Office Closet: [255, 197, 110]
+  Desk Lamp: [40, 40, 20]
+  Spidergod: [255, 255, 255]
+  
