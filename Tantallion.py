@@ -12,7 +12,7 @@ from phue import Bridge
 import random
 
 ##########################Load Config###########################################
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yml')) as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')) as f:
     configFile = f.read()
 configs = yaml.load(configFile)
 
@@ -415,6 +415,8 @@ class Hue(Fixture):
         rgb = self.colorCorrect(rgb)
         rgb = rgbToHue(rgb)
         command = {'hue': rgb[0], 'sat': rgb[1], 'bri': rgb[2], 'transitiontime': int(fadeTime * 10), 'on': True}
+        if rgb == [0, 0, 0]:
+            command['on'] = False
         hueBridge.set_light(self.id, command)
 
     def off(self, fadeTime=0):
@@ -425,7 +427,7 @@ class Hue(Fixture):
         command = {'on': True, 'transitiontime': fadeTime * 10}
         hueBridge.set_light(self.id, command)
 
-    def getValue():
+    def getColor(self):
         if not hueBridge.get_light(self.id, 'on'):
             return False
         hue = hueBridge.get_light(self.id, 'hue')
@@ -521,19 +523,19 @@ class Room:
             f.setColor(rgb, fadeTime)
 
     def off(self, fadeTime=0):
-        for f in fixtureList:
+        for f in self.fixtureList:
             f.off()
 
     def on(self, fadeTime=0):
-        for f in fixtureList:
+        for f in self.fixtureList:
             f.on()
 
     def fadeUp(self, amount):
-        for f in fixtureList:
+        for f in self.fixtureList:
             f.fadeUp(amount)
 
     def fadeDown(self, amount):
-        for f in fixtureList:
+        for f in self.fixtureList:
             f.fadeDown(amount)
 
     def scene(self, sceneDict, fadeTime=2):
@@ -553,7 +555,7 @@ class Room:
 
 ###########################Load Patch###########################################
 #Initiate object conaining our patch
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'patch.yml')) as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
     patchFile = f.read()
 patch = yaml.load(patchFile)
 #Initialize an object for every fixture declared in patch, place in dictionary so we can reference by name
@@ -581,3 +583,8 @@ for r in roomDict:
 roomDict = {}
 for r in roomList:
     roomDict[r.name] = r
+
+#Initiate scene dictionary for later use
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')) as f:
+    sceneFile = f.read()
+scenes = yaml.load(sceneFile)
