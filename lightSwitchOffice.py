@@ -14,7 +14,7 @@ naturalLooks = ['Copper', 'Burma', 'Snowy', 'Japanese', 'Sacred', 'Eternity']
 saturatedLooks = ['Jelly', 'Vaporwave', 'Intersection', 'Eiffel', 'Valtari', 'Umbrella', 'Void']
 contrastLooks = ['Toplight', 'Night', 'Cabinet']
 
-natualLooks = [scenes[x] for x in naturalLooks]
+natrualLooks = [scenes[x] for x in naturalLooks]
 saturatedLooks = [scenes[x] for x in saturatedLooks]
 contrastLooks = [scenes[x] for x in contrastLooks]
 
