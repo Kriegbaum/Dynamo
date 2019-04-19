@@ -1,15 +1,14 @@
 from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
+import time
 
 button1 = GPIO.Button(19)
 button2 = GPIO.Button(16)
 button3 = GPIO.Button(26)
 button4 = GPIO.Button(20)
 
-saturatedIteration = 0
-naturalIteration = 0
-contrastIteration = 0
+iterList = [0,0,0]
 
 naturalLooks = ['Copper', 'Burma', 'Snowy', 'Japanese', 'Sacred', 'Eternity']
 saturatedLooks = ['Jelly', 'Vaporwave', 'Intersection', 'Eiffel', 'Valtari', 'Umbrella', 'Void']
@@ -21,19 +20,22 @@ contrastLooks = [scenes[x] for x in contrastLooks]
 
 def run1():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(naturalLooks[naturalIteration])
-    if naturalIteration > len(naturalLooks) - 1:
-        naturalIteration = 0
+    roomDict['office'].scene(naturalLooks[iterList[0]])
+    iterList[0] += 1
+    if iterList[0] > len(naturalLooks) - 1:
+        iterList[0] = 0
 def run2():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(saturatedLooks[saturatedIteration])
-    if saturatedIteration > len(saturatedLooks) - 1:
-        saturatedIteration = 0
+    roomDict['office'].scene(saturatedLooks[iterList[1]])
+    iterList[1] += 1
+    if iterList[1] > len(saturatedLooks) - 1:
+        iterList[1] = 0
 def run3():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(contrastLooks[contrastIteration])
-    if contrastIteration > len(contrastLooks) - 1:
-        contrastIteration = 0
+    roomDict['office'].scene(contrastLooks[iterList[2]])
+    iterList[2] += 1
+    if iterList[2] > len(contrastLooks) - 1:
+        iterList[2] = 0
 def run4():
     controllerDict['officeFC'].setArbitration('ButtonPress')
     roomDict['office'].off()
