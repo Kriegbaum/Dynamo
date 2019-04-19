@@ -39,13 +39,13 @@ def run4():
     roomDict['office'].off()
 
 print('Initalizing...')
-sendCommand([0,128], [255,255,255], 1, controllerDict['officeFC'])
+fixtureDict['Whiteboard'].setColor([0,0,255], 1)
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 1, controllerDict['officeFC'])
+fixtureDict['Whiteboard'].off(1)
 time.sleep(1)
-sendCommand([0,128], [255,255,255], 1, controllerDict['officeFC'])
+fixtureDict['Whiteboard'].setColor([0,0,255], 1)
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 2, controllerDict['officeFC'])
+fixtureDict['Whiteboard'].off(1)
 
 button1.when_pressed = run1
 button2.when_pressed = run2
