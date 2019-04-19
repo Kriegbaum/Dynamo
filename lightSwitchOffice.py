@@ -2,10 +2,10 @@ from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
 
-button1 = GPIO.button(19)
-button2 = GPIO.button(16)
-button3 = GPIO.button(26)
-button4 = GPIO.button(20)
+button1 = GPIO.Button(19)
+button2 = GPIO.Button(16)
+button3 = GPIO.Button(26)
+button4 = GPIO.Button(20)
 
 saturatedIteration = 0
 naturalIteration = 0
@@ -38,13 +38,14 @@ def run4():
     controllerDict['officeFC'].setArbitration('ButtonPress')
     roomDict['office'].off()
 
-sendCommand([0,128], [255,255,255], 1, controller=roomController)
+print('Initalizing...')
+sendCommand([0,128], [255,255,255], 1, controllerDict['officeFC'])
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 1, controller=roomController)
+sendCommand([0,128], [0,0,0], 1, controllerDict['officeFC'])
 time.sleep(1)
-sendCommand([0,128], [255,255,255], 1, controller=roomController)
+sendCommand([0,128], [255,255,255], 1, controllerDict['officeFC'])
 time.sleep(1)
-sendCommand([0,128], [0,0,0], 2, controller=roomController)
+sendCommand([0,128], [0,0,0], 2, controllerDict['officeFC'])
 
 button1.when_pressed = run1
 button2.when_pressed = run2
