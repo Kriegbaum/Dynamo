@@ -61,9 +61,9 @@ def recieve(controller):
         if data:
             pass
         else:
+            return message
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
-            return message
 
 #####################opcBridge Companion Functions##############################
 '''The following functions allow direct access to opcBridge or dmxBridge. These
@@ -289,9 +289,9 @@ class Controller:
         stringOut += '\nRx Port: %s\n' % self.rxPort
         return stringOut
 
-    def requestArbitration():
-        transmit({'type': 'requestArbitration'}, self)
-        arbitration = recieve()
+    def requestArbitration(self, id):
+        transmit({'type': 'requestArbitration', 'id': id}, self)
+        arbitration = recieve(self)
         arbitration = json.loads(arbitration)
         return arbitration
 
@@ -379,21 +379,21 @@ class Fadecandy(Fixture):
         #TODO: handle default values for fadecandy fixtures
         pass
 
-    def getValue(self):
+    def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
         command = {'type': 'pixelRequest'}
         transmit(command, self.controller)
-        pixels = recieve(self.controller)
+        pixels = json.loads(recieve(self.controller))
         return pixels[self.indexRange[0]]
 
     def fadeUp(self, amount, fadeTime=0.5):
         command = {'type': 'relativeFade', 'index range': self.indexRange, 'magnitude': amount, 'fade time': fadeTime}
-        transmit()
+        transmit(command, self.controller)
 
-    def fadeDown(self, amount):
+    def fadeDown(self, amount, fadeTime=0.5):
         command = {'type': 'relativeFade', 'index range': self.indexRange, 'magnitude': amount * -1, 'fade time': fadeTime}
-        transmit()
+        transmit(command, self.controller)
 
 class Hue(Fixture):
     '''Expensive phillips hue fixtures. Can be color or just white, all of these

@@ -164,13 +164,17 @@ def setArbitration(id, ip, time):
     arbitration[1] = ip
     arbitration[2] = time
 
-def getArbitration(id ,ip):
-    if id != arbitration[0]:
+def getArbitration(id, ip):
+    try:
+        if id != arbitration[0]:
+            response = False
+        elif ip != arbitration[1]:
+            response = False
+        else:
+            response = True
+    except:
+        print('Arbitration request failed, returning False')
         response = False
-    elif ip != arbitration[1]:
-        response = False
-    else:
-        response = True
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)

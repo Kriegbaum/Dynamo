@@ -1,2 +1,2 @@
 -Sending a command with time 0-0.1s to a fadecandy device causes a long fade
-  -sending a single frame to Fadecandy will cause an interpolated fade, sending the same frame twice will not cause this behavior
+  -relativeFade on OPC bridge does not currently work
