@@ -133,7 +133,7 @@ def commandParse(command):
         absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
     elif command['type'] == 'relativeFade':
         relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
-    elif command['type'] == 'pixelRequest':
+    elif command['type'] == 'getPixels':
         getPixels(command['ip'])
     elif command['type'] == 'getArbitration':
         getArbitration(command['id'], command['ip'])
@@ -147,6 +147,7 @@ def commandParse(command):
 
 def getPixels(ip):
     '''Gives the entire pixel array back to the client as a 512 * 3 array'''
+    print('\nSending pixels to %\n' % ip)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
     sock.connect(server_address)
@@ -160,10 +161,12 @@ def getPixels(ip):
         sock.close()
 
 def setArbitration(id, ip):
+    print('\nGiving arbitration to %s from %s\n' % (id, ip))
     arbitration[0] = id
     arbitration[1] = ip
 
 def getArbitration(id, ip):
+    print('\nSending arbitration to %s for %s\n' % (ip, id))
     try:
         if id != arbitration[0]:
             response = False
@@ -189,6 +192,7 @@ def getArbitration(id, ip):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
+    print('\nInitiating Fade to %s\n' % rgb)
     if not fadeTime:
         fadeTime = 2 / frameRate
     for c in rgb:

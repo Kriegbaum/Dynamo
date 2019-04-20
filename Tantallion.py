@@ -382,7 +382,7 @@ class Fadecandy(Fixture):
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
-        command = {'type': 'pixelRequest'}
+        command = {'type': 'getPixels'}
         transmit(command, self.controller)
         pixels = json.loads(recieve(self.controller))
         return pixels[self.indexRange[0]]
