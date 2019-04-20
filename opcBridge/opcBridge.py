@@ -138,7 +138,7 @@ def commandParse(command):
     elif command['type'] == 'requestArbitration':
         getArbitration(command['id'], command['ip'])
     elif command['type'] == 'setArbitration':
-        setArbitration(command['id'], command['ip'], datetime.now())
+        setArbitration(command['id'], command['ip'], datetime.datetime.now())
     elif command['type'] == 'multiCommand':
         multiCommand(command['commands'])
     else:
