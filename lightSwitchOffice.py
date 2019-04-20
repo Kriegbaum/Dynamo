@@ -20,21 +20,21 @@ contrastLooks = [scenes[x] for x in contrastLooks]
 
 def run1():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(naturalLooks[iterList[0]])
+    roomDict['office'].scene(naturalLooks[iterList[0]], 1)
     iterList[0] += 1
-    if iterList[0] > len(naturalLooks) - 1:
+    if iterList[0] => len(naturalLooks):
         iterList[0] = 0
 def run2():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(saturatedLooks[iterList[1]])
+    roomDict['office'].scene(saturatedLooks[iterList[1]], 1)
     iterList[1] += 1
-    if iterList[1] > len(saturatedLooks) - 1:
+    if iterList[1] => len(saturatedLooks):
         iterList[1] = 0
 def run3():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(contrastLooks[iterList[2]])
+    roomDict['office'].scene(contrastLooks[iterList[2]], 1)
     iterList[2] += 1
-    if iterList[2] > len(contrastLooks) - 1:
+    if iterList[2] => len(contrastLooks) :
         iterList[2] = 0
 def run4():
     controllerDict['officeFC'].setArbitration('ButtonPress')

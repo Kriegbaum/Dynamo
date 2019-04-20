@@ -377,7 +377,7 @@ class Fadecandy(Fixture):
     def on(self, fadeTime=0):
         '''Turns fixture on to default value in specified time'''
         #TODO: handle default values for fadecandy fixtures
-        pass
+        self.setColor([255, 255, 255], fadeTime)
 
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
@@ -424,7 +424,7 @@ class Hue(Fixture):
         hueBridge.set_light(self.id, command)
 
     def on(self, fadeTime=0):
-        command = {'on': True, 'transitiontime': fadeTime * 10}
+        command = {'on': True, 'bri': 255, 'transitiontime': fadeTime * 10}
         hueBridge.set_light(self.id, command)
 
     def getColor(self):
