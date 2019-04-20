@@ -13,9 +13,9 @@ import atexit
 sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
 
 #typical command
-#{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
+#{'type': 'absoluteFade', 'indexRange': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
 #{'type': 'pixelRequest'}
-#{'type': 'relativeFade', 'index range': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fade time': 8-bit integer}
+#{'type': 'relativeFade', 'indexRange': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
 #('type': 'multiCommand', [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
 
 #typical queue item
@@ -130,9 +130,9 @@ def fetchLoop():
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
-        absoluteFade(range(command['index range'][0], command['index range'][1]), command['color'], command['fade time'])
+        absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
     elif command['type'] == 'relativeFade':
-        relativeFade(command['index range'], command['magnitude'], command['fade time'])
+        relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
     elif command['type'] == 'pixelRequest':
         getPixels(command['ip'])
     elif command['type'] == 'requestArbitration':

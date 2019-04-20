@@ -24,10 +24,10 @@ else:
 #sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dmxBridge-log.txt'), 'w')
 
 #typical command
-#{'type': 'absoluteFade', 'target values', [[address 1, value 1], [address 2, value 2]], 'fade time': 8-bit integer}
+#{'type': 'absoluteFade', 'targetValues', [[address 1, value 1], [address 2, value 2]], 'fadeTime': 8-bit integer}
 #{'type': 'pixelRequest'}
-#{'type': 'relativeFade', 'index range': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fade time': 8-bit integer}
-#('type': 'multiCommand', [[target values 1, fadeTime1], [target values 2, fadeTime2]])
+#{'type': 'relativeFade', 'index range': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
+#('type': 'multiCommand', [[targetValues 1, fadeTime1], [targetValues 2, fadeTime2]])
 
 #typical queue item
 #[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
@@ -150,9 +150,9 @@ def fetchLoop():
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
-        absoluteFade(command['target values'], command['fade time'], False)
+        absoluteFade(command['targetValues'], command['fadeTime'], False)
     elif command['type'] == 'absolute16bit':
-        absoluteFade(command['target values'], command['fade time'], True)
+        absoluteFade(command['targetValues'], command['fadeTime'], True)
     elif command['type'] == 'relativeFade':
         pass
     elif command['type'] == 'pixelRequest':
@@ -187,7 +187,7 @@ def getArbitration(ip):
         sock.close()
 
 def absoluteFade(targetValues, fadeTime, sixteenBit):
-    '''Is given a dictionary of indexes and their target values, and a fade time'''
+    '''Is given a dictionary of indexes and their targetValues, and a fadeTime'''
     print('Fading now')
     targetValues = {int(k): int(v) for k, v in targetValues.items()}
     if not fadeTime:

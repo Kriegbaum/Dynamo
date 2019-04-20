@@ -95,8 +95,8 @@ def sendMultiCommand(commands, controller):
 def sendCommand(indexrange, rgb, controller, fadetime=5, type='absoluteFade'):
     '''Sends a dictionary to specified controller'''
     #typical command
-    #{'type': 'absoluteFade', 'index range': [0,512], 'color': [r,g,b], 'fade time': 8-bit integer}
-    command = {'type':'absoluteFade', 'color':rgb, 'fade time': fadetime, 'index range': indexrange}
+    #{'type': 'absoluteFade', 'indexRange': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
+    command = {'type':'absoluteFade', 'color':rgb, 'fadeTime': fadetime, 'indexRange': indexrange}
     transmit(command, controller)
 
 '''The following functions need to be reworked in order to function in the new
@@ -358,7 +358,7 @@ class Fadecandy(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fade time': fadeTime, 'index range': self.indexRange}
+        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexRange': self.indexRange}
         transmit(command, self.controller)
 
     def returnCommand(self, rgb, fadeTime):
@@ -367,7 +367,7 @@ class Fadecandy(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fade time': fadeTime, 'index range': self.indexRange}
+        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexRange': self.indexRange}
         return command
 
     def off(self, fadeTime=0):
@@ -388,11 +388,11 @@ class Fadecandy(Fixture):
         return pixels[self.indexRange[0]]
 
     def fadeUp(self, amount, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'index range': self.indexRange, 'magnitude': amount, 'fade time': fadeTime}
+        command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
     def fadeDown(self, amount, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'index range': self.indexRange, 'magnitude': amount * -1, 'fade time': fadeTime}
+        command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount * -1, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
 class Hue(Fixture):
@@ -521,6 +521,7 @@ class Room:
     def setColor(self, rgb, fadeTime):
         for f in self.fixtureList:
             f.setColor(rgb, fadeTime)
+            time.sleep(.01)
 
     def off(self, fadeTime=0):
         for f in self.fixtureList:
