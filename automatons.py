@@ -1,4 +1,4 @@
-from DYNAcore import *
+from Tantallion import *
 from datetime import datetime
 import time
 from phue import Bridge
@@ -23,6 +23,7 @@ try:
     from musicbeeipc import *
     from mutagen import File
     mbIPC = MusicBeeIPC()
+    hasMusicbee = True
 except:
     print('...')
     print('Musicbee support not found, disabling music features')
@@ -117,7 +118,7 @@ def dynamic_image(image, room):
     ex = 0
     room.setArbitration('Dynamic Image')
     while True:
-        if room.getArbitration():
+        if room.getArbitration('Dynamic Image'):
             print('...')
             print('...')
             print('Iteration', ex)
@@ -132,6 +133,8 @@ def dynamic_image(image, room):
             print('Halting automated routine, overriden by user')
             break
 
+pallettesDir = configs['pallettesDirWin']
+
 def image_cycle(directory, room):
     cycleIterator = 0
     chosenDir = os.path.join(pallettesDir, directory)
@@ -139,7 +142,7 @@ def image_cycle(directory, room):
     directoryIterator = random.randrange(0, len(pallettes))
     room.setArbitration('Dynamic Image Cycle')
     while True:
-        if room.getArbitration():
+        if room.getArbitration('Dynamic Image Cycle'):
             print('...')
             print('...')
             print('Iteration', cycleIterator)
@@ -168,7 +171,7 @@ if hasMusicbee:
         Album = 'dicks'
         room.setArbitration('Dynamic Album Cover, Musicbee')
         while True:
-            if room.getArbitration()):
+            if room.getArbitration('Dynamic Album Cover, Musicbee'):
                 print('...')
                 print('...')
                 print('Iteration', ex)

@@ -289,7 +289,7 @@ class Controller:
         stringOut += '\nRx Port: %s\n' % self.rxPort
         return stringOut
 
-    def requestArbitration(self, id):
+    def getArbitration(self, id):
         transmit({'type': 'requestArbitration', 'id': id}, self)
         arbitration = recieve(self)
         arbitration = json.loads(arbitration)
@@ -547,11 +547,16 @@ class Room:
             else:
                 fixtureDict[f].setColor(sceneDict[f], fadeTime)
 
-    def setArbitration(id):
-        pass
+    def setArbitration(self, id):
+        for c in self.controllerList:
+            c.setArbitration(id)
 
-    def getArbitration():
-        pass
+    def getArbitration(self, id):
+        result = True
+        for c in self.controllerList:
+            if not c.getArbitration(id):
+                result = False
+        return result
 
 ###########################Load Patch###########################################
 #Initiate object conaining our patch

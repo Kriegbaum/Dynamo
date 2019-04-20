@@ -138,152 +138,24 @@ Oven:
   id: 2
   room: kitchen
 
-#Bedroom
-
-Bedroom Closet:
-  name: Bedroom Closet
-  system: Hue
-  id: 10
-  room: bedroom
-
-Strand 1-1:
-  name: Strand 1-1
-  system: Fadecandy
-  indexrange: [128, 155]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 1-2:
-  name: Strand 1-2
-  system: Fadecandy
-  indexrange: [155, 178]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 2-1:
-  name: Strand 2-1
-  system: Fadecandy
-  indexrange: [192, 211]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 2-2:
-  name: Strand 2-2
-  system: Fadecandy
-  indexrange: [211, 227]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 2-3:
-  name: Strand 2-3
-  system: Fadecandy
-  indexrange: [227, 242]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 3-1:
-  name: Strand 3-1
-  system: Fadecandy
-  indexrange: [256, 275]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 3-2:
-  name: Strand 3-2
-  system: Fadecandy
-  indexrange: [275, 290]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 3-3:
-  name: Strand 3-3
-  system: Fadecandy
-  indexrange: [290, 306]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 4-1:
-  name: Strand 4-1
-  system: Fadecandy
-  indexrange: [320, 332]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 4-2:
-  name: Strand 4-2
-  system: Fadecandy
-  indexrange: [332, 355]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 4-3:
-  name: Strand 4-3
-  system: Fadecandy
-  indexrange: [355, 370]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 5-1:
-  name: Strand 5-1
-  system: Fadecandy
-  indexrange: [384, 407]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 5-2:
-  name: Strand 5-2
-  system: Fadecandy
-  indexrange: [407, 427]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Strand 5-3:
-  name: Strand 5-3
-  system: Fadecandy
-  indexrange: [427, 448]
-  grb: False
-  room: bedroom
-  controller: bedroomFC
-
-Window:
-  name: Window
-  system: Fadecandy
-  indexrange: [448, 512]
-  room: bedroom
-  controller: bedroomFC
-
-
 #Bedroom with easier control points
 Full Array:
   name: Full Array
   system: Fadecandy
   indexrange: [0, 448]
   grb: True
-  room: bedroom grouped
+  room: bedroom
   controller: bedroomFC
 
 Window:
   name: Window
   system: Fadecandy
   indexrange: [448, 512]
-  room: bedroom grouped
+  room: bedroom
   controller: bedroomFC
 
 Bedroom Closet:
   name: Bedroom Closet
   system: Hue
   id: 10
-  room: bedroom grouped
+  room: bedroom
