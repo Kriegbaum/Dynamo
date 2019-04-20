@@ -54,11 +54,9 @@ Office Closet:
 
 Office Monitors:
   name: Office Monitors
-  system: Hue
+  system: HueRelay
   id: 18
   room: office
-  dimming: False
-  color: False
 
 Iris:
   name: Iris

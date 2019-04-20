@@ -3,10 +3,12 @@ import gpiozero as GPIO
 from signal import pause
 import time
 
-button1 = GPIO.Button(19)
-button2 = GPIO.Button(16)
-button3 = GPIO.Button(26)
-button4 = GPIO.Button(20)
+BOUNCE = 0.2
+
+button1 = GPIO.Button(19, bounce_time=BOUNCE)
+button2 = GPIO.Button(16, bounce_time=BOUNCE)
+button3 = GPIO.Button(26, bounce_time=BOUNCE)
+button4 = GPIO.Button(20, bounce_time=BOUNCE)
 
 iterList = [0,0,0]
 
@@ -20,19 +22,19 @@ contrastLooks = [scenes[x] for x in contrastLooks]
 
 def run1():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(naturalLooks[iterList[0]], .6)
+    roomDict['office'].scene(naturalLooks[iterList[0]], .3)
     iterList[0] += 1
     if iterList[0] >= len(naturalLooks):
         iterList[0] = 0
 def run2():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(saturatedLooks[iterList[1]], .6)
+    roomDict['office'].scene(saturatedLooks[iterList[1]], .3)
     iterList[1] += 1
     if iterList[1] >= len(saturatedLooks):
         iterList[1] = 0
 def run3():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(contrastLooks[iterList[2]], .6)
+    roomDict['office'].scene(contrastLooks[iterList[2]], .3)
     iterList[2] += 1
     if iterList[2] >= len(contrastLooks) :
         iterList[2] = 0

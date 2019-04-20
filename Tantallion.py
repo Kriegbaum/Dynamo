@@ -324,6 +324,7 @@ class Fixture:
         else:
             roomDict[self.room] = {}
             roomDict[self.room]['fixtures'] = [self]
+            roomDict[self.room]['relays'] = []
         roomDict['all']['fixtures'].append(self)
 
     def colorCorrect(self, rgb):
@@ -463,21 +464,82 @@ class DMX(Fixture):
     pass
 
 
-
+relayDict = {}
 
 class Relay:
     '''Simple on/off power control, used for stereo control or power saving'''
-    pass
+    def __init__(self, patchDict):
+        self.name = patchDict['name']
+        self.system = patchDict['system']
+        self.room = testDict(patchDict, 'room', 'UNUSED')
+        self.essential = testDict(patchDict, 'essential', True)
+
+        relayDict[self.name] = self
+
+        if self.room in roomDict:
+            roomDict[self.room]['relays'].append(self)
+        else:
+            roomDict[self.room] = {}
+            roomDict[self.room]['relays'] = [self]
+            roomDict[self.room]['fixtures'] = []
+        roomDict['all']['relays'].append(self)
 
 class CustomRelay(Relay):
     '''Custom built relay box, communicates with relayBridge.py for control'''
-    pass
+    def __init__(self, patchDict):
+        Relay.__init__(self, patchDict)
+        self.index = patchDict['index']
+        self.controller = controllerDict[patchDict['controller']]
+
+    def __repr__(self):
+        stringOut = self.name
+        stringOut += '\nType: %s' % self.system
+        stringOut += '\nRoom: %s' % self.room
+        stringOut += '\nIndex: %s' % self.index
+        stringOut += '\nController: %s\n' % self.controller.name
+        return(stringOut)
+
+    def getState(self):
+        pass
+
+    def on(self):
+        pass
+
+    def off(self):
+        pass
+
+    def toggle(self):
+        pass
 
 class HueRelay(Relay):
     '''Hue system relay, uses different communication method, but functionally
     the same'''
-    pass
+    def __init__(self, patchDict):
+        Relay.__init__(self, patchDict)
+        self.id = patchDict['id']
 
+    def __repr__(self):
+        stringOut = self.name
+        stringOut += '\nType: %s' % self.system
+        stringOut += '\nRoom: %s' % self.room
+        stringOut += '\nID: %s' % self.id
+        return(stringOut)
+
+    def getState(self):
+        return hueBridge.get_light(self.id, 'on')
+
+    def on(self):
+        hueBridge.set_light(self.id, {'on': True})
+
+    def off(self):
+        hueBridge.set_light(self.id, {'on': False})
+
+    def toggle(self):
+        state = self.getState()
+        if state:
+            self.off()
+        else:
+            self.on()
 
 class Room:
     '''Basic control groups, makes controlling a number of fixtures easy'''
@@ -539,6 +601,26 @@ class Room:
         for f in self.fixtureList:
             f.fadeDown(amount)
 
+    def relaysOn(self):
+        for r in self.relayList:
+            r.on()
+
+    def relaysOff(self):
+        for r in self.relayList:
+            r.off()
+
+    def relaysToggle(self):
+        roomState = True
+        for r in self.relayList:
+            if not r.getState():
+                roomState = False
+        if roomState:
+            for r in self.relayList:
+                r.off()
+        else:
+            for r in self.relayList:
+                r.on()
+
     def scene(self, sceneDict, fadeTime=2):
         '''A scene can be defined in two ways, keys are fixture names, and values
         are either an rgb list, or an rgb list and a specified fadetime for that fixture'''
@@ -572,6 +654,10 @@ for f in patch:
         new = Hue(patch[f])
     elif patch[f]['system'] == 'DMX':
         new = DMX(patch[f])
+    elif patch[f]['system'] == 'HueRelay':
+        new = HueRelay(patch[f])
+    elif patch[f]['system'] == 'CustomRelay':
+        new = CustomRelay(patch[f])
 #We are going to repurpose roomDict, but roomList is a temporary holding pen for the follwing info
 roomList = []
 for r in roomDict:
