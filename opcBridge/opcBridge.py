@@ -10,7 +10,7 @@ import datetime
 import atexit
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
-sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
+#sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
 
 #typical command
 #{'type': 'absoluteFade', 'indexRange': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
@@ -37,7 +37,7 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 15
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
-arbitration = [False, '127.0.0.1', datetime.datetime.now()]
+arbitration = [False, '127.0.0.1']
 
 ############################SUPPORT FUNCTIONS###################################
 def makeEightBit(value):
@@ -135,10 +135,10 @@ def commandParse(command):
         relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
     elif command['type'] == 'pixelRequest':
         getPixels(command['ip'])
-    elif command['type'] == 'requestArbitration':
+    elif command['type'] == 'getArbitration':
         getArbitration(command['id'], command['ip'])
     elif command['type'] == 'setArbitration':
-        setArbitration(command['id'], command['ip'], datetime.datetime.now())
+        setArbitration(command['id'], command['ip'])
     elif command['type'] == 'multiCommand':
         multiCommand(command['commands'])
     else:
@@ -159,10 +159,9 @@ def getPixels(ip):
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
-def setArbitration(id, ip, time):
+def setArbitration(id, ip):
     arbitration[0] = id
     arbitration[1] = ip
-    arbitration[2] = time
 
 def getArbitration(id, ip):
     try:
@@ -268,14 +267,18 @@ queuer =  threading.Thread(target=queueLoop)
 
 #Test pattern to indicate server is up and running
 FCclient.put_pixels(pixels)
-time.sleep(1)
+FCclient.put_pixels(pixels)
+time.sleep(.5)
 pixels = [ [0,0,0] ] * 512
 FCclient.put_pixels(pixels)
-time.sleep(1)
+FCclient.put_pixels(pixels)
+time.sleep(.5)
 pixels = [ [255,0,0] ] * 512
 FCclient.put_pixels(pixels)
-time.sleep(1)
+FCclient.put_pixels(pixels)
+time.sleep(.5)
 pixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(pixels)
 FCclient.put_pixels(pixels)
 
 #Initiate server

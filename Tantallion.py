@@ -290,7 +290,7 @@ class Controller:
         return stringOut
 
     def getArbitration(self, id):
-        transmit({'type': 'requestArbitration', 'id': id}, self)
+        transmit({'type': 'getArbitration', 'id': id}, self)
         arbitration = recieve(self)
         arbitration = json.loads(arbitration)
         return arbitration
