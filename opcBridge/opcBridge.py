@@ -37,7 +37,7 @@ queue = queue.Queue(maxsize=4500)
 frameRate = 15
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
-arbitration = [False, '127.0.0.1', datetime.now()]
+arbitration = [False, '127.0.0.1', datetime.datetime.now()]
 
 ############################SUPPORT FUNCTIONS###################################
 def makeEightBit(value):
