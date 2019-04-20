@@ -14,27 +14,27 @@ naturalLooks = ['Copper', 'Burma', 'Snowy', 'Japanese', 'Sacred', 'Eternity']
 saturatedLooks = ['Jelly', 'Vaporwave', 'Intersection', 'Eiffel', 'Valtari', 'Umbrella', 'Void']
 contrastLooks = ['Toplight', 'Night', 'Cabinet']
 
-natrualLooks = [scenes[x] for x in naturalLooks]
+naturalLooks = [scenes[x] for x in naturalLooks]
 saturatedLooks = [scenes[x] for x in saturatedLooks]
 contrastLooks = [scenes[x] for x in contrastLooks]
 
 def run1():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(naturalLooks[iterList[0]], 1)
+    roomDict['office'].scene(naturalLooks[iterList[0]], .6)
     iterList[0] += 1
-    if iterList[0] => len(naturalLooks):
+    if iterList[0] >= len(naturalLooks):
         iterList[0] = 0
 def run2():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(saturatedLooks[iterList[1]], 1)
+    roomDict['office'].scene(saturatedLooks[iterList[1]], .6)
     iterList[1] += 1
-    if iterList[1] => len(saturatedLooks):
+    if iterList[1] >= len(saturatedLooks):
         iterList[1] = 0
 def run3():
     controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(contrastLooks[iterList[2]], 1)
+    roomDict['office'].scene(contrastLooks[iterList[2]], .6)
     iterList[2] += 1
-    if iterList[2] => len(contrastLooks) :
+    if iterList[2] >= len(contrastLooks) :
         iterList[2] = 0
 def run4():
     controllerDict['officeFC'].setArbitration('ButtonPress')
