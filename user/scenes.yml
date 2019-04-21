@@ -142,6 +142,7 @@ Umbrella:
   Spidergod     : [255,255,255]
 
 Void:
+  #Office
   Worklight      : [183,176,218]
   Whiteboard     : [200,72,159]
   Fan            : [74,11,203]
@@ -150,8 +151,15 @@ Void:
   Office Closet  : [218,211,218]
   Desk Lamp      : [5,0,6]
   Spidergod      : [255,255,255]
+  #Bedroom
+  Full Array: [10, 0, 12]
+  Bedroom Closet: [39, 2, 20]
+  Window: [183, 166, 218]
 
-
+Natural Glow:
+  Full Array: [195, 150, 99]
+  Bedroom Closet: [0, 0, 0]
+  Window: [0, 0, 0]
 
 
 
