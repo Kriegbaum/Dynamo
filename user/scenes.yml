@@ -152,9 +152,9 @@ Void:
   Desk Lamp      : [5,0,6]
   Spidergod      : [255,255,255]
   #Bedroom
-  Full Array: [10, 0, 12]
+  Full Array: [36, 0, 43]
   Bedroom Closet: [39, 2, 20]
-  Window: [183, 166, 218]
+  Window: [109, 111, 136]
 
 Natural Glow:
   Full Array: [195, 150, 99]

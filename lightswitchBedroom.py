@@ -1,23 +1,22 @@
-from DYNAcore import *
+from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
 
-BOUNCE = 0.1
 
-button1 = GPIO.Button(26, bounce_time=BOUNCE)
-button2 = GPIO.Button(20, bounce_time=BOUNCE)
-button3 = GPIO.Button(19, bounce_time=BOUNCE)
-button4 = GPIO.Button(21, bounce_time=BOUNCE)
+button1 = GPIO.Button(26)
+button2 = GPIO.Button(20)
+button3 = GPIO.Button(19)
+button4 = GPIO.Button(21)
 
 
 def run1():
-    roomDict['bedroom'].scene(scenes['Natural Glow'], 0.3)
+    roomDict['bedroom'].scene(scenes['Natural Glow'], 1.1)
 
 def run2():
-    roomDict['bedroom'].scene(scenes['Night'], 0.3)
+    roomDict['bedroom'].scene(scenes['Night'], 1.1)
 
 def run3():
-    roomDict['bedroom'].scene(scenes['Void'], 0.3)
+    roomDict['bedroom'].scene(scenes['Void'], 1.1)
 
 def off():
     roomDict['bedroom'].off()

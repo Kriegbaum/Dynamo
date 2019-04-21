@@ -355,7 +355,7 @@ class Fadecandy(Fixture):
         stringOut += '\nController: %s\n' % self.controller.name
         return(stringOut)
 
-    def setColor(self, rgb, fadeTime):
+    def setColor(self, rgb, fadeTime=.5):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
@@ -412,7 +412,7 @@ class Hue(Fixture):
         stringOut += '\nID: %s\n' % self.id
         return(stringOut)
 
-    def setColor(self, rgb, fadeTime):
+    def setColor(self, rgb, fadeTime=.5):
         rgb = self.colorCorrect(rgb)
         rgb = rgbToHue(rgb)
         command = {'hue': rgb[0], 'sat': rgb[1], 'bri': rgb[2], 'transitiontime': int(fadeTime * 10), 'on': True}

@@ -3,12 +3,10 @@ import gpiozero as GPIO
 from signal import pause
 import time
 
-BOUNCE = 0.2
-
-button1 = GPIO.Button(19, bounce_time=BOUNCE)
-button2 = GPIO.Button(16, bounce_time=BOUNCE)
-button3 = GPIO.Button(26, bounce_time=BOUNCE)
-button4 = GPIO.Button(20, bounce_time=BOUNCE)
+button1 = GPIO.Button(19)
+button2 = GPIO.Button(16)
+button3 = GPIO.Button(26)
+button4 = GPIO.Button(20)
 
 iterList = [0,0,0]
 
