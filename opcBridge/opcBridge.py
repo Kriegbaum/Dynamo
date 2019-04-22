@@ -130,7 +130,10 @@ def fetchLoop():
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
-        absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
+        if 'indexRange' in command:
+            absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
+        else:
+            absoluteFade(command['indexes'], command['color'], command['fadeTime'])
     elif command['type'] == 'relativeFade':
         relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
     elif command['type'] == 'getPixels':
