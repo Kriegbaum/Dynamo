@@ -13,6 +13,8 @@ import socket
 import json
 import atexit
 ################################################################################
+patch = Patch()
+
 #                       Control Objects
 #This helps with images that were created stupid
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -133,7 +135,7 @@ def dynamic_image(image, room):
             print('Halting automated routine, overriden by user')
             break
 
-pallettesDir = configs['pallettesDirWin']
+pallettesDir = defaultConfigs['pallettesDirWin']
 
 def image_cycle(directory, room):
     cycleIterator = 0

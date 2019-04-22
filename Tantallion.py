@@ -11,11 +11,6 @@ import atexit
 from phue import Bridge
 import random
 
-##########################Load Config###########################################
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')) as f:
-    configFile = f.read()
-configs = yaml.load(configFile)
-
 ########################Basic Socket Functions##################################
 
 #Oour local IP address, tells server where to send data back to
@@ -152,10 +147,6 @@ def gatherArbitration(controllerList):
 
 ############################Hue Control Object##################################
 
-#Establish our hue bridge as an object
-hueIP = configs['hueIP']
-hueBridge = Bridge(hueIP)
-
 def rgbToHue(RGB):
     '''Converts rgb color to the specific format that Hue API uses'''
     #colorsys takes values between 0 and 1, PIL delivers between 0 and 255
@@ -263,6 +254,11 @@ def testDict(dictionary, key, default):
     except KeyError:
         return default
 
+def newLstItem(lst, item):
+    '''Checks to see if an item is in a list, if not, adds it'''
+    if item not in lst:
+        lst.append(item)
+
 class Controller:
     '''Contains addressing information for various types of room controllers'''
     def __init__(self, patchDict):
@@ -307,18 +303,6 @@ class Fixture:
         self.room = testDict(patchDict, 'room', 'UNUSED')
         self.colorCorrection = testDict(patchDict, 'colorCorrection', [1, 1, 1])
 
-        #Get us a directory of fixtures by name
-        fixtureDict[self.name] = self
-
-        #Get us a directory of fixutres by room
-        if self.room in roomDict:
-            roomDict[self.room]['fixtures'].append(self)
-        else:
-            roomDict[self.room] = {}
-            roomDict[self.room]['fixtures'] = [self]
-            roomDict[self.room]['relays'] = []
-        roomDict['all']['fixtures'].append(self)
-
     def colorCorrect(self, rgb):
         '''Returns a corrected value for the specific fixture to use, currently
         clamps color output in a linear fashion, but you should investigate a
@@ -333,11 +317,11 @@ class Fixture:
 class Fadecandy(Fixture):
     '''WS28** control over fadecandy processor. Commands all tie to opcBridge.py
     included in this project. These fixtures are exclusively RGB or GRB'''
-    def __init__(self, patchDict):
+    def __init__(self, patch, patchDict):
         Fixture.__init__(self, patchDict)
         self.indexRange = testDict(patchDict, 'indexrange', [0,0])
         self.grb = testDict(patchDict, 'grb', False)
-        self.controller = controllerDict[patchDict['controller']]
+        self.controller = patch.controllers[patchDict['controller']]
 
     def __repr__(self):
         stringOut = self.name
@@ -391,10 +375,11 @@ class Fadecandy(Fixture):
 class Hue(Fixture):
     '''Expensive phillips hue fixtures. Can be color or just white, all of these
     communicate through the pHue library and use a bridge on the network'''
-    def __init__(self, patchDict):
+    def __init__(self, patch, patchDict):
         Fixture.__init__(self, patchDict)
         self.color = testDict(patchDict, 'color', True)
         self.id = testDict(patchDict, 'id', 0)
+        self.hueBridge = patch.hueBridge
 
     def __repr__(self):
         stringOut = ''
@@ -410,44 +395,44 @@ class Hue(Fixture):
         command = {'hue': rgb[0], 'sat': rgb[1], 'bri': rgb[2], 'transitiontime': int(fadeTime * 10), 'on': True}
         if rgb == [0, 0, 0]:
             command['on'] = False
-        hueBridge.set_light(self.id, command)
+        self.hueBridge.set_light(self.id, command)
 
     def off(self, fadeTime=0):
         command = {'on': False, 'transitiontime': fadeTime * 10}
-        hueBridge.set_light(self.id, command)
+        self.hueBridge.set_light(self.id, command)
 
     def on(self, fadeTime=0):
         command = {'on': True, 'bri': 255, 'transitiontime': fadeTime * 10}
-        hueBridge.set_light(self.id, command)
+        self.hueBridge.set_light(self.id, command)
 
     def getColor(self):
         if not hueBridge.get_light(self.id, 'on'):
             return False
-        hue = hueBridge.get_light(self.id, 'hue')
-        sat = hueBridge.get_light(self.id, 'sat')
-        val = hueBridge.get_light(self.id, 'bri')
+        hue = self.hueBridge.get_light(self.id, 'hue')
+        sat = self.hueBridge.get_light(self.id, 'sat')
+        val = self.hueBridge.get_light(self.id, 'bri')
 
         rgb = hueToRGB([hue, sat, val])
 
         return rgb
 
     def fadeUp(self, amount):
-        if not hueBridge.get_light(self.id, 'on'):
+        if not self.hueBridge.get_light(self.id, 'on'):
             return False
-        currentBri = hueBridge.get_light(self.id, 'bri')
+        currentBri = self.hueBridge.get_light(self.id, 'bri')
         currentBri += amount
         currentBri = clamp(currentBri, 0, 255)
         command = {'bri': currentBri}
-        hueBridge.set_light(self.id, command)
+        self.hueBridge.set_light(self.id, command)
 
     def fadeDown(self, amount):
-        if not hueBridge.get_light(self.id, 'on'):
+        if not self.hueBridge.get_light(self.id, 'on'):
             return False
-        currentBri = hueBridge.get_light(self.id, 'bri')
+        currentBri = self.hueBridge.get_light(self.id, 'bri')
         currentBri -= amount
         currentBri = clamp(currentBri, 0, 255)
         command = {'bri': currentBri}
-        hueBridge.set_light(self.id, command)
+        self.hueBridge.set_light(self.id, command)
 
 
 class DMX(Fixture):
@@ -462,16 +447,6 @@ class Relay:
         self.system = patchDict['system']
         self.room = testDict(patchDict, 'room', 'UNUSED')
         self.essential = testDict(patchDict, 'essential', True)
-
-        relayDict[self.name] = self
-
-        if self.room in roomDict:
-            roomDict[self.room]['relays'].append(self)
-        else:
-            roomDict[self.room] = {}
-            roomDict[self.room]['relays'] = [self]
-            roomDict[self.room]['fixtures'] = []
-        roomDict['all']['relays'].append(self)
 
 class CustomRelay(Relay):
     '''Custom built relay box, communicates with relayBridge.py for control'''
@@ -503,9 +478,10 @@ class CustomRelay(Relay):
 class HueRelay(Relay):
     '''Hue system relay, uses different communication method, but functionally
     the same'''
-    def __init__(self, patchDict):
+    def __init__(self, patch, patchDict):
         Relay.__init__(self, patchDict)
         self.id = patchDict['id']
+        self.hueBridge = patch.hueBridge
 
     def __repr__(self):
         stringOut = self.name
@@ -515,13 +491,13 @@ class HueRelay(Relay):
         return(stringOut)
 
     def getState(self):
-        return hueBridge.get_light(self.id, 'on')
+        return self.hueBridge.get_light(self.id, 'on')
 
     def on(self):
-        hueBridge.set_light(self.id, {'on': True})
+        self.hueBridge.set_light(self.id, {'on': True})
 
     def off(self):
-        hueBridge.set_light(self.id, {'on': False})
+        self.hueBridge.set_light(self.id, {'on': False})
 
     def toggle(self):
         state = self.getState()
@@ -538,11 +514,11 @@ class Room:
         self.relayList = relayList
         self.controllerList = []
         for f in fixtureList:
-            if f.system == 'Fadecandy' or f.system == 'DMX':
+            if hasattr(f, 'controller'):
                 if f.controller not in self.controllerList:
                     self.controllerList.append(f.controller)
         for r in relayList:
-            if r.system == 'CustomRelay':
+            if hasattr(r, 'controller'):
                 if r.controller not in self.controllerList:
                     self.controllerList.append(r.controller)
 
@@ -630,20 +606,38 @@ class Room:
                 result = False
         return result
 
-def setFixture(fixture, rgb, fadeTime=0):
-    '''Set color of fixutre by name'''
-    fixtureDict[fixture].setColor(rgb, fadeTime)
 
-def setRoom(room, rgb, fadeTime=0):
-    '''Set color of room by name'''
-    roomDict[room].setColor(rgb, fadeTime)
+
+
+##########################Load Config###########################################
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')) as f:
+    configFile = f.read()
+defaultConfigs = yaml.load(configFile)
+
+
+###########################Load Patch###########################################
+#Initiate object conaining our fixture patch
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
+    patchFile = f.read()
+defaultPatch = yaml.load(patchFile)
+
+#Initiate scene dictionary for later use
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')) as f:
+    sceneFile = f.read()
+scenes = yaml.load(sceneFile)
+
+
 
 class Patch:
-    def __init__(self, configs, patch):
+    '''Creates an object from which we can access all of our fixtures and rooms'''
+    def __init__(self, configs=defaultConfigs, patch=defaultPatch):
         self.controllers = {}
         self.fixtures = {}
         self.relays = {}
         self.rooms = {}
+        self.hueBridge = Bridge(configs['hueIP'])
+
+        roomNames = []
 
         for c in configs['controllers']:
             new = Controller(configs['controllers'][c])
@@ -651,66 +645,42 @@ class Patch:
 
         for f in patch:
             if patch[f]['system'] == 'Fadecandy':
-                new = Fadecandy(patch[f])
+                new = Fadecandy(self, patch[f])
                 self.fixtures[new.name] = new
+                newLstItem(roomNames, new.room)
             elif patch[f]['system'] == 'Hue':
-                new = Hue(patch[f])
+                new = Hue(self, patch[f])
                 self.fixtures[new.name] = new
+                newLstItem(roomNames, new.room)
             elif patch[f]['system'] == 'DMX':
-                new = DMX(patch[f])
+                new = DMX(self, patch[f])
                 self.fixtures[new.name] = new
+                newLstItem(roomNames, new.room)
             elif patch[f]['system'] == 'HueRelay':
-                new = HueRelay(patch[f])
+                new = HueRelay(self, patch[f])
                 self.relays[new.name] = new
+                newLstItem(roomNames, new.room)
             elif patch[f]['system'] == 'CustomRelay':
-                new = CustomRelay(patch[f])
+                new = CustomRelay(self, patch[f])
                 self.relays[new.name] = new
+                newLstItem(roomNames, new.room)
 
+        for r in roomNames:
+            fixtureList = [self.fixtures[f] for f in self.fixtures if self.fixtures[f].room == r]
+            relayList = [self.relays[f] for f in self.relays if self.relays[f].room == r]
+            new = Room(r, fixtureList, relayList)
+            self.rooms[new.name] = new
 
-###########################Load Patch###########################################
-#We roll all controllers declared in config.yml into a dictionary so we can address them by name
-controllerDict = {}
-for c in configs['controllers']:
-    new = Controller(configs['controllers'][c])
-    controllerDict[new.name] = new
+        self.rooms['all'] = Room('all', [self.fixtures[f] for f in self.fixtures], [self.relays[r] for r in self.relays])
 
-relayDict = {}
+    def fixture(self, name):
+        return self.fixtures[name]
 
-#Initiate object conaining our fixture patch
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
-    patchFile = f.read()
-patch = yaml.load(patchFile)
-#Initialize an object for every fixture declared in patch, place in dictionary so we can reference by name
-for f in patch:
-    if patch[f]['system'] == 'Fadecandy':
-        new = Fadecandy(patch[f])
-    elif patch[f]['system'] == 'Hue':
-        new = Hue(patch[f])
-    elif patch[f]['system'] == 'DMX':
-        new = DMX(patch[f])
-    elif patch[f]['system'] == 'HueRelay':
-        new = HueRelay(patch[f])
-    elif patch[f]['system'] == 'CustomRelay':
-        new = CustomRelay(patch[f])
-#We are going to repurpose roomDict, but roomList is a temporary holding pen for the follwing info
-roomList = []
-for r in roomDict:
-    if 'fixtures' in roomDict[r]:
-        fixtureList = roomDict[r]['fixtures']
-    else:
-        fixtureList = []
-    if 'relays' in roomDict[r]:
-        relayList = roomDict[r]['relays']
-    else:
-        relayList = []
-    new = Room(r, fixtureList, relayList)
-    roomList.append(new)
-#Roll rooms into a dictionary so we can reference them by name
-roomDict = {}
-for r in roomList:
-    roomDict[r.name] = r
+    def relay(self, name):
+        return self.relays[name]
 
-#Initiate scene dictionary for later use
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')) as f:
-    sceneFile = f.read()
-scenes = yaml.load(sceneFile)
+    def room(self, name):
+        return self.rooms[name]
+
+    def controller(self, name):
+        return self.controllers[name]

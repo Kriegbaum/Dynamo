@@ -3,6 +3,10 @@ import gpiozero as GPIO
 from signal import pause
 import time
 
+patch = Patch()
+room = patch.room('office')
+
+
 button1 = GPIO.Button(19)
 button2 = GPIO.Button(16)
 button3 = GPIO.Button(26)
@@ -19,26 +23,26 @@ saturatedLooks = [scenes[x] for x in saturatedLooks]
 contrastLooks = [scenes[x] for x in contrastLooks]
 
 def run1():
-    controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(naturalLooks[iterList[0]], .3)
+    room.setArbitration('ButtonPress')
+    room.scene(naturalLooks[iterList[0]], .3)
     iterList[0] += 1
     if iterList[0] >= len(naturalLooks):
         iterList[0] = 0
 def run2():
-    controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(saturatedLooks[iterList[1]], .3)
+    room.setArbitration('ButtonPress')
+    room.scene(saturatedLooks[iterList[1]], .3)
     iterList[1] += 1
     if iterList[1] >= len(saturatedLooks):
         iterList[1] = 0
 def run3():
-    controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].scene(contrastLooks[iterList[2]], .3)
+    room.setArbitration('ButtonPress')
+    room.scene(contrastLooks[iterList[2]], .3)
     iterList[2] += 1
     if iterList[2] >= len(contrastLooks) :
         iterList[2] = 0
 def run4():
-    controllerDict['officeFC'].setArbitration('ButtonPress')
-    roomDict['office'].off()
+    room.setArbitration('ButtonPress')
+    room.off()
 
 print('Initalizing...')
 fixtureDict['Whiteboard'].setColor([0,0,255], .5)

@@ -147,7 +147,7 @@ def commandParse(command):
 
 def getPixels(ip):
     '''Gives the entire pixel array back to the client as a 512 * 3 array'''
-    print('\nSending pixels to %\n' % ip)
+    print('\nSending pixels to %s \n' % ip)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
     sock.connect(server_address)

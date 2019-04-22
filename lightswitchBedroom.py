@@ -2,6 +2,8 @@ from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
 
+patch = Patch()
+room = patch.room('bedroom')
 
 button1 = GPIO.Button(26)
 button2 = GPIO.Button(20)
@@ -10,16 +12,19 @@ button4 = GPIO.Button(21)
 
 
 def run1():
-    roomDict['bedroom'].scene(scenes['Natural Glow'], 1.1)
+    room.setArbitration('ButtonPress')
+    room.scene(scenes['Natural Glow'], 1.1)
 
 def run2():
-    roomDict['bedroom'].scene(scenes['Night'], 1.1)
+    room.setArbitration('ButtonPress')
+    room.scene(scenes['Night'], 1.1)
 
 def run3():
-    roomDict['bedroom'].scene(scenes['Void'], 1.1)
+    room.setArbitration('ButtonPress')
+    room.scene(scenes['Void'], 1.1)
 
 def off():
-    roomDict['bedroom'].off()
+    room.off()
 
 
 button1.when_pressed = run1
