@@ -298,14 +298,6 @@ class Controller:
     def setArbitration(self, id):
         transmit({'type': 'setArbitration', 'id': id}, self)
 
-#We roll all controllers declared in config.yml into a dictionary so we can address them by name
-controllerDict = {}
-for c in configs['controllers']:
-    new = Controller(configs['controllers'][c])
-    controllerDict[new.name] = new
-
-
-
 class Fixture:
     '''Basic lighting object, can easily push colors to it, get status, and
     other control functions'''
@@ -462,9 +454,6 @@ class DMX(Fixture):
     '''DMX gateway control, communicates with dmxBridge.py included in this
     project. DMX fixtures can be RGB, RGBW, and anything else out there'''
     pass
-
-
-relayDict = {}
 
 class Relay:
     '''Simple on/off power control, used for stereo control or power saving'''
@@ -641,8 +630,53 @@ class Room:
                 result = False
         return result
 
+def setFixture(fixture, rgb, fadeTime=0):
+    '''Set color of fixutre by name'''
+    fixtureDict[fixture].setColor(rgb, fadeTime)
+
+def setRoom(room, rgb, fadeTime=0):
+    '''Set color of room by name'''
+    roomDict[room].setColor(rgb, fadeTime)
+
+class Patch:
+    def __init__(self, configs, patch):
+        self.controllers = {}
+        self.fixtures = {}
+        self.relays = {}
+        self.rooms = {}
+
+        for c in configs['controllers']:
+            new = Controller(configs['controllers'][c])
+            self.controllers[new.name] = new
+
+        for f in patch:
+            if patch[f]['system'] == 'Fadecandy':
+                new = Fadecandy(patch[f])
+                self.fixtures[new.name] = new
+            elif patch[f]['system'] == 'Hue':
+                new = Hue(patch[f])
+                self.fixtures[new.name] = new
+            elif patch[f]['system'] == 'DMX':
+                new = DMX(patch[f])
+                self.fixtures[new.name] = new
+            elif patch[f]['system'] == 'HueRelay':
+                new = HueRelay(patch[f])
+                self.relays[new.name] = new
+            elif patch[f]['system'] == 'CustomRelay':
+                new = CustomRelay(patch[f])
+                self.relays[new.name] = new
+
+
 ###########################Load Patch###########################################
-#Initiate object conaining our patch
+#We roll all controllers declared in config.yml into a dictionary so we can address them by name
+controllerDict = {}
+for c in configs['controllers']:
+    new = Controller(configs['controllers'][c])
+    controllerDict[new.name] = new
+
+relayDict = {}
+
+#Initiate object conaining our fixture patch
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
     patchFile = f.read()
 patch = yaml.load(patchFile)
