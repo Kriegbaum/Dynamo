@@ -624,11 +624,11 @@ class Room:
     def scene(self, sceneDict, fadeTime=2):
         '''A scene can be defined in two ways, keys are fixture names, and values
         are either an rgb list, or an rgb list and a specified fadetime for that fixture'''
-        for f in sceneDict:
-            if len(sceneDict[f]) == 2:
-                fixtureDict[f].setColor(sceneDict[f][0], sceneDict[f][1])
+        for f in self.fixtureList:
+            if len(sceneDict[f.name]) == 2:
+                f.setColor(sceneDict[f.name][0], sceneDict[f.name][1])
             else:
-                fixtureDict[f].setColor(sceneDict[f], fadeTime)
+                f.setColor(sceneDict[f.name], fadeTime)
 
     def setArbitration(self, id):
         for c in self.controllerList:
