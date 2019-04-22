@@ -1,0 +1,2 @@
+-Sending a command with time 0-0.1s to a fadecandy device causes a long fade
+  -relativeFade on OPC bridge does not currently work

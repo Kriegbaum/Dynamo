@@ -1,0 +1,159 @@
+#Office
+
+Whiteboard:
+  name: Whiteboard
+  system: Fadecandy
+  indexrange: [0,25]
+  colorCorrection: [1,.85098,.57647]
+  grb: False
+  room: office
+  controller: officeFC
+
+Worklight:
+  name: Worklight
+  system: Fadecandy
+  indexrange: [448, 449]
+  grb: False
+  colorCorrection: [.97, 1, 0.58294]
+  room: office
+  controller: officeFC
+
+Spidergod:
+  name: Spidergod
+  system: Fadecandy
+  indexrange: [256, 276]
+  colorCorrection: [1, .8627, .6705]
+  room: office
+  controller: officeFC
+
+Fan:
+  name: Fan
+  system: Fadecandy
+  indexrange: [64, 101]
+  colorCorrection: [1, .8627, .6705]
+  room: office
+  controller: officeFC
+
+Desk Lamp:
+  name: Desk Lamp
+  system: Hue
+  id: 1
+  room: office
+
+Workbench:
+  name: Workbench
+  system: Hue
+  id: 14
+  room: office
+
+Office Closet:
+  name: Office Closet
+  system: Hue
+  id: 5
+  room: office
+
+Office Monitors:
+  name: Office Monitors
+  system: HueRelay
+  id: 18
+  room: office
+
+Iris:
+  name: Iris
+  system: Hue
+  id: 27
+  colorCorrection: [.80, .86, 1]
+  room: office
+
+#Living Room
+NW Corner:
+  name: NW Corner
+  system: Hue
+  id: 7
+  room: living room
+
+NE Corner:
+  name: NE Corner
+  system: Hue
+  id: 4
+  room: living room
+
+SW Corner:
+  name: SW Corner
+  system: Hue
+  id: 9
+  room: living room
+
+SE Corner:
+  name: SE Corner
+  system: Hue
+  id: 6
+  room: living room
+
+Living Room Fan:
+  name: Living Room Fan
+  system: Hue
+  id: 23
+  colorCorrection: [1, .96, .76]
+  #HSI: 7228, 148, 255
+  room: living room
+
+Downlight:
+  name: Downlight
+  system: Hue
+  id: 16
+  room: living room
+
+#Kitchen
+Table:
+  name: Table
+  system: Hue
+  id: 15
+  room: kitchen
+
+Cabinet Top:
+  name: Cabinet Top
+  system: Hue
+  id: 25
+  room: kitchen
+
+Cabinet Bottom:
+  name: Cabinet Bottom
+  system: Hue
+  id: 26
+  room: kitchen
+  color: False
+
+Corner:
+  name: Corner
+  system: Hue
+  id: 8
+  room: kitchen
+
+Oven:
+  name: Oven
+  system: Hue
+  id: 2
+  room: kitchen
+
+#Bedroom with easier control points
+Full Array:
+  name: Full Array
+  system: Fadecandy
+  indexrange: [0, 448]
+  grb: True
+  room: bedroom
+  controller: bedroomFC
+
+Window:
+  name: Window
+  system: Fadecandy
+  indexrange: [448, 512]
+  room: bedroom
+  controller: bedroomFC
+
+Bedroom Closet:
+  name: Bedroom Closet
+  system: Hue
+  id: 10
+  room: bedroom

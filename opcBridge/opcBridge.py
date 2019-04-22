@@ -1,4 +1,4 @@
-#Located at github trevordavies095/DmxPy <- Python 3 port
+import opc
 import time
 import os
 import socket
@@ -9,23 +9,14 @@ import queue
 import datetime
 import atexit
 
-#Are we using the nice DMX box or not? The pro box doesnt need OLA, the openDMX box does
-OLA = True
-if OLA:
-    import requests
-    olaUrl = 'http://localhost:9090/set_dmx'
-else:
-    from DmxPy import DmxPy
-    dmx = DmxPy('/dev/ttyUSB0')
-
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
-#sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dmxBridge-log.txt'), 'w')
+#sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
 
 #typical command
-#{'type': 'absoluteFade', 'target values', [[address 1, value 1], [address 2, value 2]], 'fade time': 8-bit integer}
+#{'type': 'absoluteFade', 'indexRange': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
 #{'type': 'pixelRequest'}
-#{'type': 'relativeFade', 'index range': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fade time': 8-bit integer}
-#('type': 'multiCommand', [[target values 1, fadeTime1], [target values 2, fadeTime2]])
+#{'type': 'relativeFade', 'indexRange': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
+#('type': 'multiCommand', [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
 
 #typical queue item
 #[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
@@ -40,50 +31,47 @@ ipSock.close()
 
 socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
+pixels = [ [255,0,0] ] * 512
 commands = queue.Queue(maxsize=100)
 queue = queue.Queue(maxsize=4500)
-frameRate = 44
-pixels = [0] * 512
-#TODO: Figure out how to detect which serial port the EntTech driver is on)
+frameRate = 15
+FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
-arbitration = [False]
+arbitration = [False, '127.0.0.1']
 
 ############################SUPPORT FUNCTIONS###################################
-def clampEightBit(value):
+def makeEightBit(value):
     return min(255, max(0, int(value)))
 
-def sixteenToEight(value):
-    high = (value & 0xFF00) // 256
-    low = value & 0x00FF
-    return [high, low]
+def rgbLuminosity(rgb):
+    lum = (0.2126 * rgb[0]) + (0.7152 * rgb[1]) + (0.0722 * rgb[2])
+    return lum
 
-def brightnessChange(rgb, magnitude, positive):
+def brightnessChange(rgb, magnitude):
     '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
     majorColor = rgb.index(max(rgb))
-
     rgbOut = [rgb[0] + magnitude, rgb[1] + magnitude, rgb[2] + magnitude]
-
     if positive:
         if max(rgbOut) > 255:
             decrease = max(rgbOut) - 255
             for value in rgbOut:
                 value -= decrease
-
     else:
         if min(rgbOut) < 0:
             increase = abs(min(rgbOut))
             for value in rgbOut:
                 value += increase
-
     return rgbOut
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
-    new = start
-    diff = (end - start) / float(totalSteps)
+    newRGB = start
+    diffR = (end[0] - start[0]) / float(totalSteps)
+    diffG = (end[1] - start[1]) / float(totalSteps)
+    diffB = (end[2] - start[2]) / float(totalSteps)
     for i in range(totalSteps - 1):
-        new = new + diff
-        yield new
+        newRGB = [newRGB[0] + diffR, newRGB[1] + diffG, newRGB[2] + diffB]
+        yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
     yield end
 
 def socketKill(sock):
@@ -104,21 +92,14 @@ def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
     while True:
-        #This was one line further down, probably a mistake
         alteration = queue.get(True, None)
         queueLock.acquire()
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
-        if OLA:
-            listStr = str(pixels)[1:-1]
-            requests.post(olaUrl, data={'u':1, 'd':listStr})
-        else:
-            for alt in alteration:
-                dmx.setChannel(alt, alteration[alt])
-            dmx.render()
+        FCclient.put_pixels(pixels)
         queueLock.release()
-        time.sleep((1 / frameRate) * .75)
+        time.sleep(1 / frameRate)
 
 def fetchLoop():
     '''Fetches commands from the socket'''
@@ -141,6 +122,7 @@ def fetchLoop():
             else:
                 comDict = json.loads(command)
                 print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
+                comDict['ip'] = client_address[0]
                 commands.put(comDict)
                 break
 
@@ -148,34 +130,61 @@ def fetchLoop():
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
-        absoluteFade(command['target values'], command['fade time'], False)
-    elif command['type'] == 'absolute16bit':
-        absoluteFade(command['target values'], command['fade time'], True)
+        if 'indexRange' in command:
+            absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
+        else:
+            absoluteFade(command['indexes'], command['color'], command['fadeTime'])
     elif command['type'] == 'relativeFade':
-        pass
-    elif command['type'] == 'pixelRequest':
-        pass
-    elif command['type'] == 'requestArbitration':
-        getArbitration(command['ip'])
+        relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
+    elif command['type'] == 'getPixels':
+        getPixels(command['ip'])
+    elif command['type'] == 'getArbitration':
+        getArbitration(command['id'], command['ip'])
     elif command['type'] == 'setArbitration':
-        setArbitration(command['setting'])
+        setArbitration(command['id'], command['ip'])
     elif command['type'] == 'multiCommand':
         multiCommand(command['commands'])
     else:
         print('Invalid command type recieved')
         print(command['type'] + 'is not a valid command')
 
-def setArbitration(setting):
-    if type(setting) != bool:
-        print('Invalid arbitration setting, must be bool')
-    else:
-        arbitration[0] = setting
-
-def getArbitration(ip):
+def getPixels(ip):
+    '''Gives the entire pixel array back to the client as a 512 * 3 array'''
+    print('\nSending pixels to %s \n' % ip)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
     sock.connect(server_address)
-    message = json.dumps(arbitration[0])
+    message = json.dumps(pixels)
+    try:
+        sock.sendall(message.encode())
+    except Exception as e:
+        print('Failed returning pixels, ' + e)
+    finally:
+        sock.shutdown(socket.SHUT_RDWR)
+        sock.close()
+
+def setArbitration(id, ip):
+    print('\nGiving arbitration to %s from %s\n' % (id, ip))
+    arbitration[0] = id
+    arbitration[1] = ip
+
+def getArbitration(id, ip):
+    print('\nSending arbitration to %s for %s\n' % (ip, id))
+    try:
+        if id != arbitration[0]:
+            response = False
+        elif ip != arbitration[1]:
+            response = False
+        else:
+            response = True
+    except:
+        print('Arbitration request failed, returning False')
+        response = False
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (ip, 8800)
+    sock.connect(server_address)
+    message = json.dumps(response)
     try:
         sock.sendall(message.encode())
     except Exception as e:
@@ -184,13 +193,13 @@ def getArbitration(ip):
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
-def absoluteFade(targetValues, fadeTime, sixteenBit):
-    '''Is given a dictionary of indexes and their target values, and a fade time'''
-    print('Fading now')
-    targetValues = {int(k): int(v) for k, v in targetValues.items()}
+def absoluteFade(indexes, rgb, fadeTime):
+    '''Is given a color to fade to, and executes fade'''
+    print('\nInitiating Fade to %s\n' % rgb)
     if not fadeTime:
-        fadeTime = 1 / frameRate
-    print(targetValues)
+        fadeTime = 2 / frameRate
+    for c in rgb:
+        c = makeEightBit(c)
     #Calculates how many individual fade frames are needed
     alterations = int(fadeTime * frameRate)
     queueList = []
@@ -205,29 +214,17 @@ def absoluteFade(targetValues, fadeTime, sixteenBit):
         for i in range(abs(appends)):
             queueList.append({})
     #Iterate down indexes, figure out what items in queue need to be altered
-    for i in targetValues:
+    for i in indexes:
         #INVESTIGATE: THIS MIGHT BE THE SOURCE OF FLASHING ISSUES AT THE START OF A COMMAND
         start = pixels[i]
-        end = targetValues[i]
-        bridgeGenerator = bridgeValues(alterations, start, end)
-        print('Index %d' % i)
-        print('Start fade at %d' % start)
-        print('End fade at %d' % end)
+        bridgeGenerator = bridgeValues(alterations, start, rgb)
         for m in range(alterations):
-            if sixteenBit:
-                value = int(next(bridgeGenerator))
-                highLow = sixteenToEight(value)
-                queueList[m][i] = highLow[0]
-                queueList[m][i + 1] = highLow[1]
-            else:
-                queueList[m][i] = int(next(bridgeGenerator))
+            queueList[m][i] = next(bridgeGenerator)
     #If this command overrides a previous command to the pixel, it should wipe any commands remaining
         if appends < 0:
             for r in range(abs(appends)):
                 if i in queueList[alterations + r]:
                     del queueList[alterations + r][i]
-                    if sixteenBit:
-                        del queueList[alterations + r][i + 1]
     while queueList:
         queue.put(queueList.pop(0))
     queueLock.release()
@@ -260,24 +257,36 @@ def multiCommand(commands):
 
 
 
-def relativeFade(indexes, positive, magnitude, fadeTime):
+def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness'''
+    commandList = []
     for i in indexes:
         start = pixels[i]
-        if start == [0,0,0]:
-            start = [1,1,1]
-        endVal = brightnessChange(pixels[i], magnitude, positive)
-        absoluteFade(range(i), endVal, fadeTime)
-
-
-def pixelRequest():
-    '''informs the client of current pixel values'''
-    return pixels
+        endVal = brightnessChange(pixels[i], magnitude)
+        command = [[i, i + 1], endVal, fadeTime]
+        commandList.append(command)
+    multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
 fetcher = threading.Thread(target=fetchLoop)
 queuer =  threading.Thread(target=queueLoop)
 
+
+#Test pattern to indicate server is up and running
+FCclient.put_pixels(pixels)
+FCclient.put_pixels(pixels)
+time.sleep(.5)
+pixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(pixels)
+FCclient.put_pixels(pixels)
+time.sleep(.5)
+pixels = [ [255,0,0] ] * 512
+FCclient.put_pixels(pixels)
+FCclient.put_pixels(pixels)
+time.sleep(.5)
+pixels = [ [0,0,0] ] * 512
+FCclient.put_pixels(pixels)
+FCclient.put_pixels(pixels)
 
 #Initiate server
 fetcher.start()

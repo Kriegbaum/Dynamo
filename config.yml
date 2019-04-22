@@ -1,9 +1,0 @@
-hasMusicbee: True
-hasHue: True
-hasFadecandy: True
-pallettesDirWin: E:\\Spidergod\\Images\\Color pallettes
-pallettesDirLinux: /mr-flopsy/Spidergod/Images/Color Pallettes
-hueIP: 10.0.0.20
-fadecandyIPs:
-  officeFC: 10.0.0.100
-  bedroomFC: 10.0.0.102

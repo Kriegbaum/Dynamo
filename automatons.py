@@ -1,38 +1,212 @@
-from DYNAcore import *
+from Tantallion import *
 from datetime import datetime
+import time
+from phue import Bridge
+from PIL import Image
+from PIL import ImageFile
+import colorsys
+import math
+import numpy as np
+import random
+import shutil
+import socket
+import json
+import atexit
+################################################################################
+patch = Patch()
 
-def rgbRoom(room, color, time):
+#                       Control Objects
+#This helps with images that were created stupid
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-    hasFadecandy = False
-    for f in room:
-        if f.system == 'Fadecandy':
-            hasFadecandy = True
-    if hasFadecandy:
-        multiCommandList = []
-    for l in range(len(room)):
-        rgb = color
-        if hasFadecandy:
-            if room[l].system == 'Fadecandy':
-                if not room[l].grb:
-                    rgb = grbFix(rgb)
-                rgb = colorCorrect(room[l], rgb)
-                if sum(rgb) < 15:
-                    rgb = [0,0,0]
-                multiCommandList.append([room[l], rgb, time])
-        if hasHue:
-            if room[l].system == 'Hue':
-                rgb = colorCorrect(room[l], rgb)
-                rgb = convert(rgb)
-                com_on = True
-                if rgb[2] < 7:
-                    com_on = False
-                command = {'hue': rgb[0], 'sat': rgb[1] , 'bri': rgb[2] , 'transitiontime': time * 10, 'on' : com_on}
-                bridge.set_light(room[l].id, command)
+#This will let us see what musicbee is doing
+try:
+    print('Initializing Musicbee support')
+    from musicbeeipc import *
+    from mutagen import File
+    mbIPC = MusicBeeIPC()
+    hasMusicbee = True
+except:
+    print('...')
+    print('Musicbee support not found, disabling music features')
+    hasMusicbee = False
+
+def rekt(n):
+    #Function delivers the two closest divisible integers of input (n)
+    '''as in: get rekt skrub'''
+    factors = []
+    #Create a list of integer factors of (n)
+    for i in range(1, n + 1):
+        if n % i == 0:
+            factors.append(i)
+    #Grab middle or just on the large side of middle item for list
+    if len(factors) % 2 == 0:
+        larger = factors[int((len(factors) / 2))]
+    else:
+        larger = factors[int((len(factors) / 2) - .5)]
+    return [larger, int(n / larger)]
+
+def sample_sectors(image, count):
+    '''Makes a grid based off number of lights used, samples random pixel from each grid area'''
+    #Uses pillow PIL fork
+    im = Image.open(image)
+    #Grab image dimensions
+    size = im.size
+    #Is it portrait or landscape?
+    if size[0] > size[1]:
+    #Determine number of horizontal and vertical divisions in grid
+        hdiv = max(rekt(count))
+        vdiv = min(rekt(count))
+    else:
+        hdiv = min(rekt(count))
+        vdiv = max(rekt(count))
+    #FIX: The use of an array here is totally unnessecary, can be done with list function and removes numpy from dependencies
+    #Creates blank array based on number of divisions
+    varray = np.full((vdiv + 1, vdiv + 1), 0, int)
+    harray = np.full((hdiv + 1, hdiv + 1), 0, int)
+    #Fill array with horizontal division dimensions
+    for col in range(len(harray)):
+        for row in range(len(harray)):
+            harray[col][row] = (size[0] / hdiv) * row
+    #Fill other array with vertical divison dimensions
+    for col in range(len(varray)):
+        for row in range(len(varray)):
+            varray[col][row] = (size[1] / vdiv) * row
+    pixels = []
+    #Load image, this will be the error point if PIL fails, but the error will likely be at the Image.open() command
+    px = im.load()
+    #Function plays out differently if in portrait or landscape
+    if hdiv >= vdiv:
+        #Two commands to iterate through array, can simplify by making a list
+        for row in range(1, hdiv + 1):
+            for vrow in range(1, vdiv + 1):
+                #X value for random pixel sample, bounded by grid dimensions
+                hrand = random.randrange(harray[0][row - 1], harray[0][row])
+                #Y value for random pixel
+                vrand = random.randrange(varray[0][vrow - 1], varray[0][vrow])
+                #Samples pixel
+                tmpix = px[hrand, vrand]
+                #If the image is greyscale, it will deliver an integer for value, not RGB
+                if type(tmpix) == int:
+                    #We convert to RGB
+                    tmpix = [tmpix, tmpix, tmpix]
+                #Delivers pixels as a list of lists
+                pixels.append([tmpix[0], tmpix[1], tmpix[2]])
+    #INVESTIGATE: This may not be nessecary based on the way the previous if: is programmed
+    else:
+        #Same as previous sequence, but with a portrait format grid
+        for row in range(1, vdiv + 1):
+            for vrow in range(1, hdiv + 1):
+                vrand = random.randrange(varray[0][row - 1], varray[0][row])
+                hrand = random.randrange(harray[0][vrow - 1], harray[0][vrow])
+                tmpix = px[hrand, vrand]
+                if type(tmpix) == int:
+                    tmpix = [tmpix, tmpix, tmpix]
+                pixels.append([tmpix[0], tmpix[1], tmpix[2]])
+    return pixels
+
+def lights_from_image(image, room):                                             #Function takes color list and applies to lights with 10s fade
+    it = 0
+    colorlist = sample_sectors(image, len(room.fixtureList))
+    scene = {}
+    for f in room.fixtureList:
+        print('%s: %s' % (f.name, colorlist[it]))
+        scene[f.name] = [colorlist[it], 7 * 0.1 * random.randrange(6,14)]
+        it += 1
+    room.scene(scene)
+
+def dynamic_image(image, room):
+    '''This takes an image and samples colors from it'''
+    ex = 0
+    room.setArbitration('Dynamic Image')
+    while True:
+        if room.getArbitration('Dynamic Image'):
+            print('...')
+            print('...')
+            print('Iteration', ex)
+            lights_from_image(image, room)
+            time.sleep(17)
+            ex += 1
+            if ex % 3 == 0:
+                random.shuffle(room.fixtureList)
+                print('\n')
+                print('Shuffling fixture order')
         else:
-            print('You fucked up and now there is an improperly classed Fixture in your room!')
-            print(l.name, l.system)
-    if hasFadecandy:
-        sendMultiCommand(multiCommandList)
+            print('Halting automated routine, overriden by user')
+            break
+
+pallettesDir = defaultConfigs['pallettesDirWin']
+
+def image_cycle(directory, room):
+    cycleIterator = 0
+    chosenDir = os.path.join(pallettesDir, directory)
+    pallettes = os.listdir(chosenDir)
+    directoryIterator = random.randrange(0, len(pallettes))
+    room.setArbitration('Dynamic Image Cycle')
+    while True:
+        if room.getArbitration('Dynamic Image Cycle'):
+            print('...')
+            print('...')
+            print('Iteration', cycleIterator)
+            print('Sampling ', pallettes[directoryIterator])
+            image = os.path.join(chosenDir, pallettes[directoryIterator])
+            lights_from_image(image, room)
+            time.sleep(17)
+            cycleIterator += 1
+            if cycleIterator % 3 == 0:
+                random.shuffle(room.fixtureList)
+                print('\n')
+                print('Shuffling fixture order')
+            if cycleIterator % 23 == 0:
+                directoryIterator += 1
+                if directoryIterator > len(pallettes):
+                    directoryIterator = 0
+        else:
+            print('Halting automated routine, overriden by user')
+            break
+
+
+if hasMusicbee:
+    def dynamic_album(room):                                                        #Will sample image every 15 seconds for new random color
+        '''This samples colors off the currently playing album cover'''
+        ex = 0
+        Album = 'dicks'
+        room.setArbitration('Dynamic Album Cover, Musicbee')
+        while True:
+            if room.getArbitration('Dynamic Album Cover, Musicbee'):
+                print('...')
+                print('...')
+                print('Iteration', ex)
+                newAlbum = mbIPC.get_file_tag(MBMD_Album)                               #Pulls trackID of currently playing song
+
+                if newAlbum != Album:                                                   #If there isnt a new song playing, don't do image footwork
+                    Album = newAlbum
+                    song = File(mbIPC.get_file_url())
+                    try:
+                        cover = song.tags['APIC:'].data
+                        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), 'wb') as img:         #Write temporary file with new album artwork
+                            img.write(cover)
+                    except:
+                        print('SHIT SHIT SHIT....')
+                        print('APIC tag failed, attempting to read Musicbee Temporary File')
+                        try:
+                            shutil.copy(mbIPC.get_artwork_url(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'))
+                        except:
+                            print('APIC tag and musicbee backup option have both failed. This is likely because the album lacks artwork')
+                    try:
+                        print('Sampling album art for', mbIPC.get_file_tag(MBMD_Album), 'by', mbIPC.get_file_tag(MBMD_Artist))
+                    except:
+                        print('Unable to print name for some reason. Probably because I was too lazy to try and figure out unicode support')
+                lights_from_image(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'artwork.jpg'), room)         #Sample colors from temporary file
+                time.sleep(18)
+                ex += 1
+                if ex % 3 == 0:                                                         #Reorder which the grid points that each light samples every once in a while
+                    random.shuffle(room.fixtureList)
+                    print('...')
+                    print('Shuffling fixture order')
+            else:
+                print('Halting automated routine, overriden by user')
+                break
 
 def circadianLookup(city):
     '''retuns a color temperature value given an astral city object'''
@@ -104,10 +278,3 @@ def circadian(room):
             time.sleep(120)
         else:
             print('Circadian routine interrupted by manual override')
-
-#circadian(rooms['office'])
-
-
-while True:
-    kelvin = int(input())
-    rgbRoom(rooms['office'], cctRGB(kelvin), 1)
