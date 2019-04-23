@@ -94,12 +94,7 @@ ENV/
 .ropeproject
 
 #so that people will not snoop on what im listening to
-.jpg
-.png
-.jpeg
-
-
-artwork\.jpg
-
-
-.jpg
+*.jpg
+*.png
+*.jpeg
+artwork.jpg
