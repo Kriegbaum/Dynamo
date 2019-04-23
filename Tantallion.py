@@ -611,10 +611,12 @@ class Room:
             if type(sceneDict[s]) == list:
                 sceneDict[s] = {'color': sceneDict[s], 'time': fadeTime}
         for f in self.fixtureList:
+            color = sceneDict[f.name]['color']
+            timing = sceneDict[f.name]['time']
             if hasattr(f, 'controller'):
-                f.controller.cache(f, sceneDict[f.name]['color'], sceneDict[f.name]['time'])
+                f.controller.cache(f, color, timing)
             else:
-                f.setColor(sceneDict[f.name]['color'], sceneDict[f.name]['time'])
+                f.setColor(color, time)
         for c in controllerList:
             c.multiCommand()
 
