@@ -78,7 +78,8 @@ def setArbitration(id, controller):
     the routine that calls this function, id should be descriptive of process'''
     transmit({'type': 'setArbitration', 'id': id}, controller)
 
-def multiConstructor(fixutre, rgb, fadeTime):
+def multiConstructor(fixture, rgb, fadeTime):
+    rgb = fixture.colorCorrect(rgb)
     return [fixture.indexRange, rgb, fadeTime]
 
 def sendMultiCommand(commands, controller):
@@ -298,7 +299,7 @@ class Controller:
     def setArbitration(self, id):
         transmit({'type': 'setArbitration', 'id': id}, self)
 
-    def cache(fixture, color, fadeTime):
+    def cache(self, fixture, color, fadeTime):
         '''Stows a command in multiCache, to be cleared by a multicommand'''
         command = multiConstructor(fixture, color, fadeTime)
         self.multiCache.append(command)
@@ -628,8 +629,8 @@ class Room:
             if hasattr(f, 'controller'):
                 f.controller.cache(f, color, timing)
             else:
-                f.setColor(color, time)
-        for c in controllerList:
+                f.setColor(color, timing)
+        for c in self.controllerList:
             c.multiCommand()
 
     def setArbitration(self, id):
