@@ -111,7 +111,8 @@ def lights_from_image(image, room):                                             
     scene = {}
     for f in room.fixtureList:
         print('%s: %s' % (f.name, colorlist[it]))
-        scene[f.name] = [colorlist[it], 7 * 0.1 * random.randrange(6,14)]
+        scene[f.name]['color'] = colorlist[it]
+        scene[f.name]['time'] = 7 * 0.1 * random.randrange(6,14)
         it += 1
     room.scene(scene)
 

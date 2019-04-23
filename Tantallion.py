@@ -258,6 +258,10 @@ def newLstItem(lst, item):
     '''Checks to see if an item is in a list, if not, adds it'''
     if item not in lst:
         lst.append(item)
+def newDictItem(dictionary, item):
+    '''Check to see if an item is in a dictionary, if not, add it as a key with a blank list'''
+    if item not in dictionary:
+        dictionary[item] = []
 
 class Controller:
     '''Contains addressing information for various types of room controllers'''
@@ -293,6 +297,9 @@ class Controller:
 
     def setArbitration(self, id):
         transmit({'type': 'setArbitration', 'id': id}, self)
+
+    def multiCommand(self, commandList):
+        sendMultiCommand(commandList, self)
 
 class Fixture:
     '''Basic lighting object, can easily push colors to it, get status, and
@@ -545,10 +552,15 @@ class Room:
         stringOut += '\n'
         return(stringOut)
 
-    def setColor(self, rgb, fadeTime):
+    def setColor(self, rgb, fadeTime=0.5):
         for f in self.fixtureList:
-            f.setColor(rgb, fadeTime)
-            time.sleep(.01)
+            if hasattr(f, 'controller'):
+                newDictItem(controllerCommands, f.controller)
+                controllerCommands[f.controller].append([f.indexRange, rgb, fadeTime])
+            else:
+                f.setColor(sceneDict[f.name]['color'], sceneDict[f.name]['time'])
+        for c in controllerCommands:
+            c.multiCommand(controllerCommands[c])
 
     def off(self, fadeTime=0):
         for f in self.fixtureList:
@@ -589,11 +601,18 @@ class Room:
     def scene(self, sceneDict, fadeTime=2):
         '''A scene can be defined in two ways, keys are fixture names, and values
         are either an rgb list, or an rgb list and a specified fadetime for that fixture'''
+        controllerCommands = {}
+        for s in sceneDict:
+            if type(sceneDict[s]) == list:
+                sceneDict[s] = {'color': sceneDict[s], 'time': fadeTime}
         for f in self.fixtureList:
-            if len(sceneDict[f.name]) == 2:
-                f.setColor(sceneDict[f.name][0], sceneDict[f.name][1])
+            if hasattr(f, 'controller'):
+                newDictItem(controllerCommands, f.controller)
+                controllerCommands[f.controller].append([f.indexRange, sceneDict[f.name]['color'], sceneDict[f.name]['time']])
             else:
-                f.setColor(sceneDict[f.name], fadeTime)
+                f.setColor(sceneDict[f.name]['color'], sceneDict[f.name]['time'])
+        for c in controllerCommands:
+            c.multiCommand(controllerCommands[c])
 
     def setArbitration(self, id):
         for c in self.controllerList:
