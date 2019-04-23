@@ -604,6 +604,18 @@ class Room:
             for r in self.relayList:
                 r.on()
 
+    def allOn():
+        for r in self.relayList:
+            r.on()
+        for f in self.fixtureList:
+            f.on()
+
+    def allOff():
+        for r in self.relayList:
+            r.off()
+        for f in self.fixtureList:
+            f.off()
+
     def scene(self, sceneDict, fadeTime=1):
         '''A scene can be defined in two ways, keys are fixture names, and values
         are either an rgb list, or an rgb list and a specified fadetime for that fixture'''
