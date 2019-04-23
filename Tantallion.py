@@ -28,8 +28,8 @@ def transmit(command, controller):
     '''Takes a command dictionary and a controller, and sockets that command out'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (controller.ip, controller.txPort)
-    sock.connect(server_address)
     message = json.dumps(command)
+    sock.connect(server_address)
     try:
         sock.sendall(message.encode())
     except Exception as e:

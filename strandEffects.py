@@ -3,15 +3,18 @@ import time
 import math
 import numpy as np
 import PIL
-from DYNAcore import *
+from Tantallion import *
 import yaml
 import random
 import threading
 
-encoderVal = 0
-locationMap = []
-intersections = []
-allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,448))
+locationMap = [list(range(128, 178)), list(range(192, 242)), list(range(256, 306)), list(range(320, 370)), list(range(384, 434))]
+intersections = [[128, 192, 256, 320, 384]]
+allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,434))
+
+patch = Patch()
+controller = patch.controller('bedroomFC')
+
 
 #SUPPORT FUNCTIONS
 def getNextPixel(currentPixel):
@@ -27,17 +30,33 @@ def getNextPixel(currentPixel):
     else:
         return currentPixel + 1
 
+def bridgeValues(totalSteps, start, end):
+    '''Generator that creates interpolated steps between a start and end value'''
+    newRGB = start
+    diffR = (end[0] - start[0]) / float(totalSteps)
+    diffG = (end[1] - start[1]) / float(totalSteps)
+    diffB = (end[2] - start[2]) / float(totalSteps)
+    for i in range(totalSteps - 1):
+        newRGB = [newRGB[0] + diffR, newRGB[1] + diffG, newRGB[2] + diffB]
+        yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
+    yield end
+
 def gradientBuilder(stepList):
     '''Typical input:
-    [[startValue, steps], [nextValue, steps], [nextValue, steps], [endValue, 1]]
+    [[startValue, THROWAWAY], [nextValue, steps], [nextValue, steps], [endValue, steps]]
     Values are RGB
-    End value should be followed by a one,
+    Number of steps in first color are discarded
     everything else must have at least 1 step'''
 
     gradientOut = []
-    for s in range(len(stepList - 1)):
-        gradientOut.append(s[0])
-
+    gradientOut.append(stepList[0][0])
+    for s in range(1, len(stepList)):
+        start = stepList[s - 1][0]
+        steps = stepList[s][1]
+        end = stepList[s][0]
+        bridgeGenerator = bridgeValues(steps, start, end)
+        for c in range(steps):
+            gradientOut.append(next(bridgeGenerator))
     return gradientOut
 
 def randomPercent(lower, upper):
@@ -55,7 +74,7 @@ def randomPixels(number):
 
 #EFFECT LOOP
 #ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES
-def tracers(size, speed, tracerCount, colorPrimary, colorSecondary):
+def tracers(size=3, speed=1, tracerCount=2, colorPrimary, colorSecondary):
     '''Lines wander around the lighting array'''
     encoderVal = 0
     leadingEdge = 0
@@ -77,7 +96,7 @@ def imageSample(imagedir, imagefile, density=80, frequency=3, speed=1):
         color = grbFix(colorList[iterate])
         megaCommand.append([p, color, .5 * speed])
         iterate += 1
-    sendMultiCommand(megaCommand, controller='bedroomFC')
+    sendMultiCommand(megaCommand, controller)
     grouping = density // 20
     while True:
         #Grab some number of pixels
@@ -89,7 +108,7 @@ def imageSample(imagedir, imagefile, density=80, frequency=3, speed=1):
             color = grbFix(colorList[iterate])
             multiCommand.append([pix, color, 1 / speed])
             if iterate % grouping == 0:
-                sendMultiCommand(multiCommand, controller='bedroomFC')
+                sendMultiCommand(multiCommand, controller)
                 multiCommand = []
                 time.sleep((.1 / speed) * randomPercent(75, 125))
             iterate += 1
@@ -101,28 +120,20 @@ def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
     '''Used by fireflies() function. A single pixel fades up, fades down to a different color, and then recedes to background'''
     #Fly fades up to primary color
     upTime = (.5 * randomPercent(80, 160)) / speed
-    sendCommand(index, colorPrimary, fadetime=upTime, controller='bedroomFC')
+    sendCommand(index, colorPrimary, fadetime=upTime, controller)
     time.sleep((1.3 / speed) * randomPercent(80, 160))
     #Fly fades down to secondary color
     downTime = (3.7 * randomPercent(75, 110)) / speed
-    sendCommand(index, colorSecondary, fadetime=downTime, controller='bedroomFC')
+    sendCommand(index, colorSecondary, fadetime=downTime, controller)
     time.sleep((5.0 / speed) * randomPercent(80, 120))
     #Fly recedes into background
-    sendCommand(index, colorBackground, fadetime=.5, controller='bedroomFC')
+    sendCommand(index, colorBackground, fadetime=.5, controller)
 
 def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []
-    for f in rooms['bedroom']:
-        if f.system == 'Fadecandy':
-            color = colorCorrect(f, colorBackground)
-            backgroundLayer.append([f, color, .5])
-        if f.system == 'Hue':
-            color = convert(colorCorrect(f, colorBackground))
-            command = {'hue': color[0], 'sat': color[1], 'bri': color[2], 'on': False, 'transitiontime': 5}
-            bridge.set_light(f.id, command)
-    sendMultiCommand(backgroundLayer, controller='bedroomFC')
+    patch.room('bedroom').setColor(colorBackground)
     #Effect loop
     iteration = 0
     nextChoice = random.randrange(4, 8)
