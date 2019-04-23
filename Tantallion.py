@@ -78,6 +78,9 @@ def setArbitration(id, controller):
     the routine that calls this function, id should be descriptive of process'''
     transmit({'type': 'setArbitration', 'id': id}, controller)
 
+def multiConstructor(fixutre, rgb, fadeTime):
+    return [fixture.indexRange, rgb, fadeTime]
+
 def sendMultiCommand(commands, controller):
     '''Sends a command that issues an absoluteFade to multiple fixtures at once
     This should be used every time more than one command is supposed to happen simultaneously
@@ -258,10 +261,6 @@ def newLstItem(lst, item):
     '''Checks to see if an item is in a list, if not, adds it'''
     if item not in lst:
         lst.append(item)
-def newDictItem(dictionary, item):
-    '''Check to see if an item is in a dictionary, if not, add it as a key with a blank list'''
-    if item not in dictionary:
-        dictionary[item] = []
 
 class Controller:
     '''Contains addressing information for various types of room controllers'''
@@ -270,6 +269,7 @@ class Controller:
         self.room = patchDict['room']
         self.ip = patchDict['ip']
         self.system = patchDict['system']
+        self.multiCache = []
         if self.system == 'Fadecandy':
             self.txPort = testDict(patchDict, 'txPort', 8000)
             self.rxPort = testDict(patchDict, 'rxPort', 8800)
@@ -298,8 +298,15 @@ class Controller:
     def setArbitration(self, id):
         transmit({'type': 'setArbitration', 'id': id}, self)
 
-    def multiCommand(self, commandList):
-        sendMultiCommand(commandList, self)
+    def cache(fixture, color, fadeTime):
+        '''Stows a command in multiCache, to be cleared by a multicommand'''
+        command = multiConstructor(fixture, color, fadeTime)
+        self.multiCache.append(command)
+
+    def multiCommand(self):
+        '''sends all commands stored in cache'''
+        sendMultiCommand(self.multiCache, self)
+        self.multiCache = []
 
 class Fixture:
     '''Basic lighting object, can easily push colors to it, get status, and
@@ -555,12 +562,11 @@ class Room:
     def setColor(self, rgb, fadeTime=0.5):
         for f in self.fixtureList:
             if hasattr(f, 'controller'):
-                newDictItem(controllerCommands, f.controller)
-                controllerCommands[f.controller].append([f.indexRange, rgb, fadeTime])
+                f.controller.cache(f, rgb, fadeTime)
             else:
-                f.setColor(sceneDict[f.name]['color'], sceneDict[f.name]['time'])
-        for c in controllerCommands:
-            c.multiCommand(controllerCommands[c])
+                f.setColor(rgb, fadeTime)
+        for c in controllerList:
+            c.multiCommand()
 
     def off(self, fadeTime=0):
         for f in self.fixtureList:
@@ -598,21 +604,19 @@ class Room:
             for r in self.relayList:
                 r.on()
 
-    def scene(self, sceneDict, fadeTime=2):
+    def scene(self, sceneDict, fadeTime=1):
         '''A scene can be defined in two ways, keys are fixture names, and values
         are either an rgb list, or an rgb list and a specified fadetime for that fixture'''
-        controllerCommands = {}
         for s in sceneDict:
             if type(sceneDict[s]) == list:
                 sceneDict[s] = {'color': sceneDict[s], 'time': fadeTime}
         for f in self.fixtureList:
             if hasattr(f, 'controller'):
-                newDictItem(controllerCommands, f.controller)
-                controllerCommands[f.controller].append([f.indexRange, sceneDict[f.name]['color'], sceneDict[f.name]['time']])
+                f.controller.cache(f, sceneDict[f.name]['color'], sceneDict[f.name]['time'])
             else:
                 f.setColor(sceneDict[f.name]['color'], sceneDict[f.name]['time'])
-        for c in controllerCommands:
-            c.multiCommand(controllerCommands[c])
+        for c in controllerList:
+            c.multiCommand()
 
     def setArbitration(self, id):
         for c in self.controllerList:
