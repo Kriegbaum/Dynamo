@@ -364,11 +364,11 @@ class Fadecandy(Fixture):
         pixels = json.loads(recieve(self.controller))
         return pixels[self.indexRange[0]]
 
-    def fadeUp(self, amount, fadeTime=0.5):
+    def fadeUp(self, amount=25, fadeTime=0.5):
         command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
-    def fadeDown(self, amount, fadeTime=0.5):
+    def fadeDown(self, amount=25, fadeTime=0.5):
         command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount * -1, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
@@ -416,7 +416,7 @@ class Hue(Fixture):
 
         return rgb
 
-    def fadeUp(self, amount):
+    def fadeUp(self, amount=25):
         if not self.hueBridge.get_light(self.id, 'on'):
             return False
         currentBri = self.hueBridge.get_light(self.id, 'bri')
@@ -425,7 +425,7 @@ class Hue(Fixture):
         command = {'bri': currentBri}
         self.hueBridge.set_light(self.id, command)
 
-    def fadeDown(self, amount):
+    def fadeDown(self, amount=25):
         if not self.hueBridge.get_light(self.id, 'on'):
             return False
         currentBri = self.hueBridge.get_light(self.id, 'bri')
