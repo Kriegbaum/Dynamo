@@ -80,6 +80,8 @@ def setArbitration(id, controller):
 
 def multiConstructor(fixture, rgb, fadeTime):
     rgb = fixture.colorCorrect(rgb)
+    if fixture.grb:
+        rgb = grbFix(rgb)
     return [fixture.indexRange, rgb, fadeTime]
 
 def sendMultiCommand(commands, controller):
