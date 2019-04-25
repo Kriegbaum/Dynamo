@@ -8,12 +8,20 @@ import yaml
 import random
 import threading
 
-locationMap = [list(range(128, 178)), list(range(192, 242)), list(range(256, 306)), list(range(320, 370)), list(range(384, 434))]
+#Build 5x50 array, rows and columns
+locationMap = [[128], [192], [256], [320], [384]]
+for i in range(49):
+    for x in locationMap:
+        x.append(x[-1] + 1)
+#Locations where pixels touch each other
 intersections = [[128, 192, 256, 320, 384]]
+#Every index in a one dimensional array
 allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,434))
 
+#Load in our lighting rig
 patch = Patch()
 controller = patch.controller('bedroomFC')
+room = patch.room('bedroom')
 
 
 #SUPPORT FUNCTIONS
@@ -31,7 +39,8 @@ def getNextPixel(currentPixel):
         return currentPixel + 1
 
 def bridgeValues(totalSteps, start, end):
-    '''Generator that creates interpolated steps between a start and end value'''
+    '''Generator that creates interpolated steps between a start and end value
+    Accepts an rgb value, outputs rgb values'''
     newRGB = start
     diffR = (end[0] - start[0]) / float(totalSteps)
     diffG = (end[1] - start[1]) / float(totalSteps)
@@ -47,7 +56,6 @@ def gradientBuilder(stepList):
     Values are RGB
     Number of steps in first color are discarded
     everything else must have at least 1 step'''
-
     gradientOut = []
     gradientOut.append(stepList[0][0])
     for s in range(1, len(stepList)):
@@ -60,7 +68,7 @@ def gradientBuilder(stepList):
     return gradientOut
 
 def randomPercent(lower, upper):
-    '''Returns a decimal percent given integer percentages'''
+    '''Returns a random decimal percent given bounds in integers'''
     return .01 * random.randrange(lower, upper)
 
 def randomPixels(number):
@@ -72,10 +80,11 @@ def randomPixels(number):
 
 
 
-#EFFECT LOOP
-#ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES
+#EFFECT LOOPS
+#ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES FOR EVERY PARAMETER
 def tracers(size=3, speed=1, tracerCount=2, colorPrimary, colorSecondary):
-    '''Lines wander around the lighting array'''
+    '''Lines wander around the lighting array
+    NOT FINISHED'''
     encoderVal = 0
     leadingEdge = 0
     trailingEdge = False
@@ -87,7 +96,7 @@ def tracers(size=3, speed=1, tracerCount=2, colorPrimary, colorSecondary):
             trailingEdge = capturedPixels.pop(-1)
 
 def imageSample(imagedir, imagefile, density=80, frequency=3, speed=1):
-    #Render array with beautiful colors
+    '''Render array with beautiful colors'''
     fullImagePath = os.path.join(imagedir, imagefile)
     colorList = sample_sectors(fullImagePath, allMap)
     megaCommand = []
@@ -117,7 +126,8 @@ def imageSample(imagedir, imagefile, density=80, frequency=3, speed=1):
 
 
 def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
-    '''Used by fireflies() function. A single pixel fades up, fades down to a different color, and then recedes to background'''
+    '''Used by fireflies() effect. A single pixel fades up, fades down to a
+    different color, and then recedes to background'''
     #Fly fades up to primary color
     upTime = (.5 * randomPercent(80, 160)) / speed
     sendCommand(index, colorPrimary, fadetime=upTime, controller)
@@ -133,7 +143,7 @@ def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSec
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []
-    patch.room('bedroom').setColor(colorBackground)
+    room.setColor(colorBackground)
     #Effect loop
     iteration = 0
     nextChoice = random.randrange(4, 8)
@@ -156,8 +166,13 @@ def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSec
 def static(staticMap, fadeTime, globalBrightness):
     '''User definied fixed look for the room'''
 
-def sunrise(realTime, cycleTime, startTime):
-    '''Simulates circadian cycle in the room'''
+sunriseGradient = [[[42, 6, 84], 20], [[33, 22, 178], 20], [[126, 28, 255], 20], [[159, 63, 219], 20], [[255, 107, 91], 20], [[255, 179, 93], 20], [[255, 206, 182], 20], [[255, 253, 245], 20]]
+sunriseGradient += sunriseGradient.reverse()
+sunriseGradient = gradientBuilder(sunriseGradient)
+
+def gradientLoop(realTime, cycleTime, startTime):
+    '''Wraps a cylindrical gradient around the array'''
+
 
 def hyperspace(speed, colorPrimary, colorSecondary):
     '''Radial streaks of color move through the space'''
