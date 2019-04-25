@@ -14,13 +14,10 @@ import random
 ########################Basic Socket Functions##################################
 
 #Oour local IP address, tells server where to send data back to
-ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
-    ipSock.connect(('10.255.255.255', 1))
-    localIP = ipSock.getsockname()[0]
+    localIP = socket.gethostbyname(socket.gethostname())
 except:
     localIP = '127.0.0.1'
-ipSock.close()
 
 socket.setdefaulttimeout(15)
 
@@ -423,7 +420,7 @@ class Hue(Fixture):
         self.hueBridge.set_light(self.id, command)
 
     def getColor(self):
-        if not hueBridge.get_light(self.id, 'on'):
+        if not self.hueBridge.get_light(self.id, 'on'):
             return False
         hue = self.hueBridge.get_light(self.id, 'hue')
         sat = self.hueBridge.get_light(self.id, 'sat')

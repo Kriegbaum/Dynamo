@@ -45,13 +45,13 @@ def run4():
     room.off()
 
 print('Initalizing...')
-fixtureDict['Whiteboard'].setColor([0,0,255], .5)
+patch.fixture('Whiteboard').setColor([0,0,255], .5)
 time.sleep(.5)
-fixtureDict['Whiteboard'].off(.5)
+patch.fixture('Whiteboard').off(.5)
 time.sleep(.5)
-fixtureDict['Whiteboard'].setColor([0,0,255], .5)
+patch.fixture('Whiteboard').setColor([0,0,255], .5)
 time.sleep(.5)
-fixtureDict['Whiteboard'].off(.5)
+patch.fixture('Whiteboard').off(.5)
 
 button1.when_pressed = run1
 button2.when_pressed = run2
