@@ -565,7 +565,7 @@ class Room:
                 f.controller.cache(f, rgb, fadeTime)
             else:
                 f.setColor(rgb, fadeTime)
-        for c in controllerList:
+        for c in self.controllerList:
             c.multiCommand()
 
     def off(self, fadeTime=0):

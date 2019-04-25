@@ -1,4 +1,3 @@
-import opc
 import time
 import math
 import numpy as np
@@ -82,7 +81,7 @@ def randomPixels(number):
 
 #EFFECT LOOPS
 #ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES FOR EVERY PARAMETER
-def tracers(size=3, speed=1, tracerCount=2, colorPrimary, colorSecondary):
+def tracers(colorPrimary, colorSecondary, size=3, speed=1, tracerCount=2):
     '''Lines wander around the lighting array
     NOT FINISHED'''
     encoderVal = 0
@@ -130,16 +129,16 @@ def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
     different color, and then recedes to background'''
     #Fly fades up to primary color
     upTime = (.5 * randomPercent(80, 160)) / speed
-    sendCommand(index, colorPrimary, fadetime=upTime, controller)
+    sendCommand([index, index + 1], colorPrimary, controller, fadetime=upTime,)
     time.sleep((1.3 / speed) * randomPercent(80, 160))
     #Fly fades down to secondary color
     downTime = (3.7 * randomPercent(75, 110)) / speed
-    sendCommand(index, colorSecondary, fadetime=downTime, controller)
+    sendCommand([index, index + 1], colorSecondary, controller, fadetime=downTime)
     time.sleep((5.0 / speed) * randomPercent(80, 120))
     #Fly recedes into background
-    sendCommand(index, colorBackground, fadetime=.5, controller)
+    sendCommand([index, index + 1], colorBackground, controller, fadetime=.5)
 
-def fireflies(density=9, frequency=5, speed=1, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
+def fireflies(density=9, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []
@@ -167,7 +166,10 @@ def static(staticMap, fadeTime, globalBrightness):
     '''User definied fixed look for the room'''
 
 sunriseGradient = [[[42, 6, 84], 20], [[33, 22, 178], 20], [[126, 28, 255], 20], [[159, 63, 219], 20], [[255, 107, 91], 20], [[255, 179, 93], 20], [[255, 206, 182], 20], [[255, 253, 245], 20]]
-sunriseGradient += sunriseGradient.reverse()
+sunriseGradient2 = sunriseGradient
+sunriseGradient2.reverse()
+sunriseGradient += sunriseGradient2
+del sunriseGradient2
 sunriseGradient = gradientBuilder(sunriseGradient)
 
 def gradientLoop(realTime, cycleTime, startTime):
