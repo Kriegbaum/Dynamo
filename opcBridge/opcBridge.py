@@ -25,7 +25,7 @@ ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
     ipSock.connect(('10.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
-    localIP = socket.gethostbyname(socket.gethostname())
+    localIP = socket.gethostbyname(socket.gethostname() + '.local')
 except:
     localIP = '127.0.0.1'
 ipSock.close()
