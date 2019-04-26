@@ -626,7 +626,7 @@ class Room:
             if type(sceneDict[s]) == list:
                 sceneDict[s] = {'color': sceneDict[s], 'time': fadeTime}
         for f in self.fixtureList:
-            if self.name in sceneDict:
+            if f.name in sceneDict:
                 color = sceneDict[f.name]['color']
                 timing = sceneDict[f.name]['time']
                 if hasattr(f, 'controller'):
