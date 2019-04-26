@@ -95,8 +95,8 @@ def clockLoop():
         for alt in alteration:
             pixels[alt] = alteration[alt]
         FCclient.put_pixels(pixels)
-        queueLock.release()
         time.sleep(1 / frameRate)
+        queueLock.release()
 
 def fetchLoop():
     '''Fetches commands from the socket'''

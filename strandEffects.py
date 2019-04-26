@@ -166,9 +166,9 @@ def static(staticMap, fadeTime, globalBrightness):
     '''User definied fixed look for the room'''
 
 sunriseGradient = [[[42, 6, 84], 20], [[33, 22, 178], 20], [[126, 28, 255], 20], [[159, 63, 219], 20], [[255, 107, 91], 20], [[255, 179, 93], 20], [[255, 206, 182], 20], [[255, 253, 245], 20]]
-sunriseGradient2 = sunriseGradient
+sunriseGradient2 = sunriseGradient.copy()
 sunriseGradient2.reverse()
-sunriseGradient += sunriseGradient2
+sunriseGradient = sunriseGradient + sunriseGradient2
 del sunriseGradient2
 sunriseGradient = gradientBuilder(sunriseGradient)
 
