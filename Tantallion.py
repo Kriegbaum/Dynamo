@@ -10,6 +10,7 @@ import json
 import atexit
 from phue import Bridge
 import random
+import math
 
 ########################Basic Socket Functions##################################
 
