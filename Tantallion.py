@@ -246,6 +246,13 @@ def cctRGB(kelvin):
 
     return [outR, outG, outB]
 
+def rgbSetBrightness(setBri, rgb):
+    currentBri = max(rgb)
+    ratio = setBri / currentBri
+    rgbOut = [rgb[0] * ratio, rgb[1] * ratio, rgb[2] * ratio]
+    return rgbOut
+
+
 ##################Begin Fixture Patching Process################################
 
 roomDict = {'all': {'fixtures': [], 'relays': []}}
