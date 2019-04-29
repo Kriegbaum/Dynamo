@@ -372,15 +372,6 @@ class Fadecandy(Fixture):
         command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexRange': self.indexRange}
         return command
 
-    def off(self, fadeTime=0):
-        '''Turns the fixture off in specified time'''
-        self.setColor([0, 0, 0], fadeTime)
-
-    def on(self, fadeTime=0):
-        '''Turns fixture on to default value in specified time'''
-        #TODO: handle default values for fadecandy fixtures
-        self.setColor([255, 255, 255], fadeTime)
-
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
@@ -388,6 +379,17 @@ class Fadecandy(Fixture):
         transmit(command, self.controller)
         pixels = json.loads(recieve(self.controller))
         return pixels[self.indexRange[0]]
+
+    def off(self, fadeTime=0):
+        '''Turns the fixture off in specified time'''
+        self.setColor([0, 0, 0], fadeTime)
+
+    def on(self, fadeTime=0):
+        '''Turns fixture on to default value in specified time,
+        does nothing if fixture is already on'''
+        #TODO: handle default values for fadecandy fixtures
+        if sum(self.getColor()) == 0:
+            self.setColor([255, 202, 190], fadeTime)
 
     def fadeUp(self, amount=25, fadeTime=0.5):
         command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount, 'fadeTime': fadeTime}
@@ -427,8 +429,8 @@ class Hue(Fixture):
         self.hueBridge.set_light(self.id, command)
 
     def on(self, fadeTime=0):
-        command = {'on': True, 'bri': 255, 'transitiontime': fadeTime * 10}
-        self.hueBridge.set_light(self.id, command)
+        if not self.hueBridge.get_light(self.id, 'on'):
+            self.setColor([255, 202, 190])
 
     def getColor(self):
         if not self.hueBridge.get_light(self.id, 'on'):
@@ -441,7 +443,7 @@ class Hue(Fixture):
 
         return rgb
 
-    def fadeUp(self, amount):
+    def fadeUp(self, amount=25):
         if not self.hueBridge.get_light(self.id, 'on'):
             return False
         currentBri = self.hueBridge.get_light(self.id, 'bri')
@@ -450,7 +452,7 @@ class Hue(Fixture):
         command = {'bri': currentBri}
         self.hueBridge.set_light(self.id, command)
 
-    def fadeDown(self, amount):
+    def fadeDown(self, amount=25):
         if not self.hueBridge.get_light(self.id, 'on'):
             return False
         currentBri = self.hueBridge.get_light(self.id, 'bri')
@@ -587,11 +589,11 @@ class Room:
         for f in self.fixtureList:
             f.on()
 
-    def fadeUp(self, amount):
+    def fadeUp(self, amount=25):
         for f in self.fixtureList:
             f.fadeUp(amount)
 
-    def fadeDown(self, amount):
+    def fadeDown(self, amount=25):
         for f in self.fixtureList:
             f.fadeDown(amount)
 
@@ -615,13 +617,13 @@ class Room:
             for r in self.relayList:
                 r.on()
 
-    def allOn():
+    def allOn(self):
         for r in self.relayList:
             r.on()
         for f in self.fixtureList:
             f.on()
 
-    def allOff():
+    def allOff(self):
         for r in self.relayList:
             r.off()
         for f in self.fixtureList:
