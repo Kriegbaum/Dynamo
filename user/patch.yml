@@ -104,6 +104,18 @@ Downlight:
   id: 16
   room: living room
 
+Front:
+  name: Front Speakers
+  system: HueRelay
+  id: 17
+  room: living room
+
+Rear:
+  name: Rear Speakers
+  system: HueRelay
+  id: 21
+  room: living room
+
 #Kitchen
 Table:
   name: Table
@@ -136,6 +148,12 @@ Oven:
   id: 2
   room: kitchen
 
+Kitchen Speakers:
+  name: Kitchen Speakers
+  system: HueRelay
+  id: 29
+  room: kitchen
+
 #Bedroom with easier control points
 Full Array:
   name: Full Array
@@ -156,4 +174,10 @@ Bedroom Closet:
   name: Bedroom Closet
   system: Hue
   id: 10
+  room: bedroom
+
+Bedroom Speakers:
+  name: Bedroom Speakers
+  system: HueRelay
+  id: 28
   room: bedroom

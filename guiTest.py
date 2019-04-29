@@ -45,10 +45,12 @@ class UIframe:
 patch = Patch()
 
 rgb = patch.fixture('Worklight').getColor()
+for r in rgb:
+    r = int(r)
+ui = UIframe(0.2)
 
 def interface():
     imgui.new_frame()
-    dynaFrame = UIFrame(0.2)
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
             clicked_quit, selected_quit = imgui.menu_item("Quit", 'Cmd+Q', False, True)
@@ -58,16 +60,23 @@ def interface():
         imgui.end_main_menu_bar()
 
     imgui.begin("Fixture Control: Worklight", True)
-    if imgui.color_edit3('Worklight', rgb[0], rgb[1], rgb[2])[0]:
-        pass
-    if imgui.v_slider_int('red', 20, 100, rgb[0], 0, 255):
-        pass
+    changed, value = imgui.v_slider_int('red', 20, 100, rgb[0], 0, 255)
+    if changed:
+        rgb[0] = value
+        ui.cache(patch.fixture('Worklight').setColor, [rgb, 0.2])
+        ui.update()
     imgui.same_line(spacing=50)
-    if imgui.v_slider_int('green', 20, 100, rgb[1], 0, 255):
-        pass
+    changed, value = imgui.v_slider_int('green', 20, 100, rgb[1], 0, 255)
+    if changed:
+        rgb[1] = value
+        ui.cache(patch.fixture('Worklight').setColor, [rgb, 0.2])
+        ui.update()
     imgui.same_line(spacing=50)
-    if imgui.v_slider_int('blue', 20, 100, rgb[2], 0, 255):
-        pass
+    changed, value = imgui.v_slider_int('blue', 20, 100, rgb[2], 0, 255)
+    if changed:
+        rgb[2] = value
+        ui.cache(patch.fixture('Worklight').setColor, [rgb, 0.2])
+        ui.update()
 
     imgui.same_line(spacing=50)
     imgui.end()
