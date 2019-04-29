@@ -388,11 +388,11 @@ class Fadecandy(Fixture):
         pixels = json.loads(recieve(self.controller))
         return pixels[self.indexRange[0]]
 
-    def fadeUp(self, amount, fadeTime=0.5):
+    def fadeUp(self, amount=25, fadeTime=0.5):
         command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
-    def fadeDown(self, amount, fadeTime=0.5):
+    def fadeDown(self, amount=25, fadeTime=0.5):
         command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount * -1, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
