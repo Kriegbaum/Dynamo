@@ -25,7 +25,7 @@ ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
     ipSock.connect(('10.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
-    localIP = socket.gethostbyname(socket.gethostname() + '.local')
+    localIP = socket.gethostbyname(socket.gethostname())
 except:
     localIP = '127.0.0.1'
 ipSock.close()
@@ -43,10 +43,6 @@ arbitration = [False, '127.0.0.1']
 def makeEightBit(value):
     return min(255, max(0, int(value)))
 
-def rgbLuminosity(rgb):
-    lum = (0.2126 * rgb[0]) + (0.7152 * rgb[1]) + (0.0722 * rgb[2])
-    return lum
-
 def rgbSetBrightness(setBri, rgb):
     currentBri = max(rgb)
     ratio = setBri / currentBri
@@ -54,11 +50,16 @@ def rgbSetBrightness(setBri, rgb):
     return rgbOut
 
 def brightnessChange(rgb, magnitude):
-    '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
+    '''Will take an RGB value and a brigtness change and spit out what its final value should be'''
     currentBri = max(rgb)
-    newBri = currentBri + magnitude
-    newBri = min(255, max(0, int(newBri)))
-    rgbOut = rgbSetBrightness(newBri, rgb)
+    if currentBri:
+        newBri = currentBri + magnitude
+        newBri = min(255, max(0, int(newBri)))
+        if not newBri:
+            newBri = 1
+        rgbOut = rgbSetBrightness(newBri, rgb)
+    else:
+        rgbOut = rgb
     return rgbOut
 
 def bridgeValues(totalSteps, start, end):
@@ -258,7 +259,7 @@ def multiCommand(commands):
 def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness'''
     commandList = []
-    for i in indexes:
+    for i in range(indexes[0], indexes[1]):
         start = pixels[i]
         endVal = brightnessChange(pixels[i], magnitude)
         command = [[i, i + 1], endVal, fadeTime]
