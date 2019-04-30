@@ -34,7 +34,7 @@ else:
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
-    ipSock.connect(('10.255.255.255', 1))
+    ipSock.connect(('255.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
 except:
     localIP = '127.0.0.1'
@@ -60,7 +60,8 @@ def sixteenToEight(value):
     return [high, low]
 
 def brightnessChange(rgb, magnitude, positive):
-    '''INCOMPLETE: Will take an RGB value and a brigtness change and spit out what its final value should be'''
+    '''INCOMPLETE: Will take an RGB value and a brigtness change
+    and spit out what its final value should be'''
     majorColor = rgb.index(max(rgb))
 
     rgbOut = [rgb[0] + magnitude, rgb[1] + magnitude, rgb[2] + magnitude]

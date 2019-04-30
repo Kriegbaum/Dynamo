@@ -23,9 +23,8 @@ import atexit
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
-    ipSock.connect(('10.255.255.255', 1))
+    ipSock.connect(('255.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
-    localIP = socket.gethostbyname(socket.gethostname())
 except:
     localIP = '127.0.0.1'
 ipSock.close()
@@ -38,6 +37,34 @@ frameRate = 15
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
 arbitration = [False, '127.0.0.1']
+
+##################SERVER LOGGING AND REPORTING FUNCTIONS########################
+def constructErrorEntry(ip, err):
+    stringOut = str(datetime.datetime.now())
+    stringOut += ' from %s ' % ip
+    stringOut += str(err)
+    return stringOut
+
+def returnError(ip, err):
+    '''Send a report of an error back to the device that caused it'''
+    errSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        errSock.connect((ip, 8880))
+        sock.sendall(err.encode())
+    except Exception as e:
+        print(e)
+    finally:
+        sock.shutdown(socket.SHUT_RDWR)
+        sock.close()
+
+def logError(err):
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'a') as logFile:
+        logFile.write(err)
+
+def ripServer(ip, err):
+    err = constructErrorEntry(ip, err)
+    logError(err)
+    returnError(ip, err)
 
 ############################SUPPORT FUNCTIONS###################################
 def makeEightBit(value):
@@ -103,7 +130,6 @@ def clockLoop():
 def fetchLoop():
     '''Fetches commands from the socket'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #server_address = (localIP, 8000)
     server_address = (localIP, 8000)
     print('Initiating socket on %s port %s' % server_address)
     sock.bind(server_address)
@@ -129,35 +155,53 @@ def fetchLoop():
 
 def commandParse(command):
     if command['type'] == 'absoluteFade':
-        if 'indexRange' in command:
-            absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
-        else:
-            absoluteFade(command['indexes'], command['color'], command['fadeTime'])
+        try:
+            if 'indexRange' in command:
+                absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
+            else:
+                absoluteFade(command['indexes'], command['color'], command['fadeTime'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     elif command['type'] == 'relativeFade':
-        relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
+        try:
+            relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     elif command['type'] == 'getPixels':
-        getPixels(command['ip'])
+        try:
+            getPixels(command['ip'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     elif command['type'] == 'getArbitration':
-        getArbitration(command['id'], command['ip'])
+        try:
+            getArbitration(command['id'], command['ip'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     elif command['type'] == 'setArbitration':
-        setArbitration(command['id'], command['ip'])
+        try:
+            setArbitration(command['id'], command['ip'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     elif command['type'] == 'multiCommand':
-        multiCommand(command['commands'])
+        try:
+            multiCommand(command['commands'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     else:
-        print('Invalid command type recieved')
-        print(command['type'] + 'is not a valid command')
+        err = 'Invalid command type recieved' + command['type'] + 'is not a valid command'
+        ripServer(command['ip'], err)
 
 def getPixels(ip):
     '''Gives the entire pixel array back to the client as a 512 * 3 array'''
     print('\nSending pixels to %s \n' % ip)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
-    sock.connect(server_address)
     message = json.dumps(pixels)
     try:
+        sock.connect(server_address)
         sock.sendall(message.encode())
-    except Exception as e:
-        print('Failed returning pixels, ' + e)
+    except Exception as err:
+        ripServer(ip, err)
     finally:
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
@@ -176,8 +220,8 @@ def getArbitration(id, ip):
             response = False
         else:
             response = True
-    except:
-        print('Arbitration request failed, returning False')
+    except Exception as err:
+        ripServer(ip, err)
         response = False
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -186,8 +230,8 @@ def getArbitration(id, ip):
     message = json.dumps(response)
     try:
         sock.sendall(message.encode())
-    except Exception as e:
-        print('Failed returning arbitration, ' + e)
+    except Exception as err:
+        ripServer(ip, err)
     finally:
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
@@ -253,8 +297,6 @@ def multiCommand(commands):
     while queueList:
         queue.put(queueList.pop(0))
     queueLock.release()
-
-
 
 def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness'''

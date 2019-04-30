@@ -1,0 +1,12 @@
+These are the various default ports used by this system:
+
+opcBridge Tx:   8000
+opcBridge Rx:   8800
+
+CustomRelay Tx: 8001
+CustomRelay Rx: 8801
+
+dmxBridge Tx:   8002
+dmxBridge Rx:   8802
+
+Tantallion Error Rx:  8880
