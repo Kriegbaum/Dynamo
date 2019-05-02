@@ -23,9 +23,11 @@ import atexit
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
-    ipSock.connect(('255.255.255.255', 1))
+    ipSock.connect(('10.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
-except:
+except Exception as e:
+    print(e)
+    print('Local IP detection failed, listening on localhost')
     localIP = '127.0.0.1'
 ipSock.close()
 socket.setdefaulttimeout(60)
@@ -117,14 +119,17 @@ def queueLoop():
 def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
     print('Initiating Clocker')
+    now = time.clock()
     while True:
+        now = time.clock()
         alteration = queue.get(True, None)
         queueLock.acquire()
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
         FCclient.put_pixels(pixels)
-        time.sleep(1 / frameRate)
+        cycleTime = time.clock() - now
+        time.sleep(max((1 / frameRate) - cycleTime, 0))
         queueLock.release()
 
 def fetchLoop():
