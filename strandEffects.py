@@ -6,6 +6,7 @@ from Tantallion import *
 import yaml
 import random
 import threading
+from automatons import *
 
 #Build 5x50 array, rows and columns
 locationMap = [[128], [192], [256], [320], [384]]
@@ -94,34 +95,35 @@ def tracers(colorPrimary, colorSecondary, size=3, speed=1, tracerCount=2):
         if len(capturedPixels) > size:
             trailingEdge = capturedPixels.pop(-1)
 
-def imageSample(imagedir, imagefile, density=80, frequency=3, speed=1):
+def imageSample(imagedir, imagefile, density=80, frequency=1, speed=.7):
     '''Render array with beautiful colors'''
     fullImagePath = os.path.join(imagedir, imagefile)
-    colorList = sample_sectors(fullImagePath, allMap)
+    pixelCount = len(allMap)
+    colorList = sample_sectors(fullImagePath, pixelCount)
     megaCommand = []
     iterate = 0
     for p in allMap:
         color = grbFix(colorList[iterate])
-        megaCommand.append([p, color, .5 * speed])
+        megaCommand.append([[p, p + 1], color, .5 * speed])
         iterate += 1
     sendMultiCommand(megaCommand, controller)
     grouping = density // 20
     while True:
         #Grab some number of pixels
         sampledPix = randomPixels(int(density * randomPercent(50, 150)))
-        colorList = sample_sectors(fullImagePath, sampledPix)
+        colorList = sample_sectors(fullImagePath, len(sampledPix))
         iterate = 0
         multiCommand = []
         for pix in sampledPix:
             color = grbFix(colorList[iterate])
-            multiCommand.append([pix, color, 1 / speed])
+            multiCommand.append([[pix, pix + 1], color, 1 / speed])
             if iterate % grouping == 0:
                 sendMultiCommand(multiCommand, controller)
                 multiCommand = []
                 time.sleep((.1 / speed) * randomPercent(75, 125))
             iterate += 1
         if frequency:
-            time.sleep(frequency * randomPercent(20, 120))
+            time.sleep(frequency * randomPercent(50, 100))
 
 
 def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
