@@ -140,11 +140,12 @@ def firefly(index, colorPrimary, colorSecondary, colorBackground, speed):
     #Fly recedes into background
     sendCommand([index, index + 1], colorBackground, controller, fadetime=.5)
 
-def fireflies(density=9, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
+def fireflies(density=7, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
     '''Dots randomly appear on the array, and fade out into a different color'''
     #Establish the background layer
     backgroundLayer = []
-    room.setColor(colorBackground)
+    room.off()
+    patch.fixture('Full Array').setColor(colorBackground)
     #Effect loop
     iteration = 0
     nextChoice = random.randrange(4, 8)
@@ -163,6 +164,7 @@ def fireflies(density=9, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorS
         else:
             iteration += 1
             time.sleep((.5 / speed) * randomPercent(90, 190))
+        time.sleep((2 / speed) * randomPercent(10, 200))
 
 def static(staticMap, fadeTime, globalBrightness):
     '''User definied fixed look for the room'''
