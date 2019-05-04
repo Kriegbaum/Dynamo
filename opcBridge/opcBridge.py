@@ -52,15 +52,15 @@ def returnError(ip, err):
     errSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         errSock.connect((ip, 8880))
-        sock.sendall(err.encode())
+        errSock.sendall(err.encode())
     except Exception as e:
         print(e)
     finally:
-        sock.shutdown(socket.SHUT_RDWR)
-        sock.close()
+        errSock.shutdown(socket.SHUT_RDWR)
+        errSock.close()
 
 def logError(err):
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'a') as logFile:
+    with open(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'opcBridge-log.txt'), 'a') as logFile:
         logFile.write(err)
 
 def ripServer(ip, err):
@@ -127,7 +127,10 @@ def clockLoop():
         queue.task_done()
         for alt in alteration:
             pixels[alt] = alteration[alt]
-        FCclient.put_pixels(pixels)
+        try:
+            FCclient.put_pixels(pixels)
+        except Exception as e:
+            print(e)
         cycleTime = time.clock() - now
         time.sleep(max((1 / frameRate) - cycleTime, 0))
         queueLock.release()
