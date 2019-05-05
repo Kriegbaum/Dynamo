@@ -1,29 +1,45 @@
-from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
+import multiprocessing
+from strandEffects import *
 
+activeThreads = []
 patch = Patch()
 room = patch.room('bedroom')
+
+def killEveryone():
+    for thread in activeThreads:
+        thread.terminate()
+    activeThreads = []
 
 button1 = GPIO.Button(26)
 button2 = GPIO.Button(20)
 button3 = GPIO.Button(19)
 button4 = GPIO.Button(21)
 
+def runFlies():
+    flies = multiprocessing.Process(target=fireflies)
+    flies.start()
+    flies.append(activeThreads)
 
 def run1():
+    killEveryone()
     room.setArbitration('ButtonPress')
     room.scene(scenes['Natural Glow'], 1.1)
 
 def run2():
+    killEveryone()
     room.setArbitration('ButtonPress')
     room.scene(scenes['Night'], 1.1)
 
 def run3():
-    room.setArbitration('ButtonPress')
-    room.scene(scenes['Void'], 1.1)
+    killEveryone()
+    room.setArbitration('StrandEffect')
+    runFlies()
 
 def off():
+    killEveryone()
+    room.setArbitration('ButtonPress')
     room.off()
 
 
