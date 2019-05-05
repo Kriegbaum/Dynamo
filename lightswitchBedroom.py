@@ -8,9 +8,8 @@ patch = Patch()
 room = patch.room('bedroom')
 
 def killEveryone():
-    for thread in activeThreads:
-        thread.terminate()
-    activeThreads = []
+    for i in activeThreads:
+        activeThreads.pop().terminate()
 
 button1 = GPIO.Button(26)
 button2 = GPIO.Button(20)
@@ -20,7 +19,7 @@ button4 = GPIO.Button(21)
 def runFlies():
     flies = multiprocessing.Process(target=fireflies)
     flies.start()
-    flies.append(activeThreads)
+    activeThreads.append(flies)
 
 def run1():
     killEveryone()
