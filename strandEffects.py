@@ -52,12 +52,12 @@ def gradientBuilder(stepList):
         steps = stepList[s][1]
         end = stepList[s][0]
         bridgeGenerator = bridgeValues(steps, start, end)
-        for c in range(steps):
+        for c in range(steps - 1):
             gradientOut.append(next(bridgeGenerator))
     return gradientOut
 
 class PixelArray():
-    def __init__():
+    def __init__(self, allMap, locationMap, intersections, room, controller):
         self.locationMap = locationMap
         self.allMap = allMap
         self.intersections = intersections
@@ -129,6 +129,16 @@ class PixelArray():
             if frequency:
                 time.sleep(frequency * randomPercent(50, 100))
 
+    def fireflyRigid(self, index, colorPrimary, colorSecondary, colorBackground, speed):
+        '''Used by fireflies() effect. A single pixel fades up, fades down to a
+        different color, and then recedes to background'''
+        #Fly fades up to primary color
+        upTime = 0
+        sendCommand([index, index + 1], colorPrimary, self.controller, fadetime=upTime)
+        time.sleep(1.3 / speed)
+        #Fly fades down to secondary color
+        downTime = 5.0 / speed
+        sendCommand([index, index + 1], colorBackground, controller, fadetime=downTime)
 
     def firefly(self, index, colorPrimary, colorSecondary, colorBackground, speed):
         '''Used by fireflies() effect. A single pixel fades up, fades down to a
@@ -155,7 +165,7 @@ class PixelArray():
         nextChoice = random.randrange(4, 8)
         while True:
             #Grab pixels to put fireflies on
-            flyLocations = randomPixels(int(density * randomPercent(25, 150)))
+            flyLocations = self.randomPixels(int(density * randomPercent(25, 150)))
             #All flies appear
             for l in flyLocations:
                 flyThread = threading.Thread(target=self.firefly, args=[l, colorPrimary, colorSecondary, colorBackground, speed])

@@ -662,19 +662,19 @@ class Room:
 ##########################Load Config###########################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')) as f:
     configFile = f.read()
-defaultConfigs = yaml.load(configFile)
+defaultConfigs = yaml.safe_load(configFile)
 
 
 ###########################Load Patch###########################################
 #Initiate object conaining our fixture patch
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
     patchFile = f.read()
-defaultPatch = yaml.load(patchFile)
+defaultPatch = yaml.safe_load(patchFile)
 
 #Initiate scene dictionary for later use
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')) as f:
     sceneFile = f.read()
-scenes = yaml.load(sceneFile)
+scenes = yaml.safe_load(sceneFile)
 
 
 

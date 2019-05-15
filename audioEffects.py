@@ -1,52 +1,41 @@
 import librosa
 from scipy.ndimage import gaussian_filter1d
-from Tantallion import *
+from strandEffects import *
 import random
 import os
 import csv
+import numpy as np
+from playsound import playsound
+import threading
+from musicbeeipc import *
 
-path = input()
-songArray, sampleRate = librosa.load(path)
+
+mb = MusicBeeIPC()
+
+path = 'C:\\users\\akauf\\desktop\\song.mp3'
+print('Loading Song')
+sampleRate = 44100
+songArray, sampleRate = librosa.load(path, sr=sampleRate)
+print('Harmonic percussive seperation...')
 harmonicArray, percussiveArray = librosa.effects.hpss(songArray)
+print('Beat analysis...')
 BPM, beatTrack = librosa.beat.beat_track(y=songArray, sr=sampleRate, units='time')
+print('%s beats in song' % len(beatTrack))
 
-def normalize(array, sigma=0, shift=True):
-    '''Makes the highest value of the graph 255, and the lowest value 0
-    this should exaggerate the peaks and valleys, and create the highest possible
-    dynamic range, allowing the following functions access to finer detail in the track
-    If shift is true, the graph will go 0-255, if False, the graph will go -255 - 255
-    Sigma will determine the amount of smoothing in the graph'''
-    print('    Normalzing...')
-    #New list to append modified values to, to avoid altering the original array
-    values = []
-    for i in array:
-        #TODO: Test this, is there are reason for typecasting to floats?
-        if shift:
-            values.append(float(i))
-        else:
-            values.append(float(abs(i)))
-    #Smooth out jagged lines in the array
-    values = gaussian_filter1d(values, sigma)
-    low = min(values)
-    high = max(values)
-    '''Determine the factor each array value needs to be mutliplied by in order
-    to achieve the new desired range of values, keeping things proportional'''
-    if low >= 0:
-        factor = 255 / (high - low)
+def normalize(array, sigma=False, shift=False):
+    if shift:
+        low = min(array)
+        array += abs(low)
     else:
-        factor = 255 / (high + abs(low))
-    #Do this to ensure that the bottom of the graph is 0
-    for i in values:
-        if low < 0:
-            i += abs(low)
-        else:
-            i -= low
-        i *= factor
-    #Turn this into a two dimensional array to be used as a graph
-    for i in range(len(values)):
-        values[i] = [i, values[i]]
-    #Returns a two dimensional array
-    return values
+        array = np.absolute(array)
+    if sigma:
+        array = gaussian_filter1d(array, sigma)
+    array *= (255.0 / array.max())
+    return array
+
+percussiveArray = normalize(percussiveArray, sigma=(0.0224 * sampleRate))
+print('New min : %s' % min(percussiveArray))
+
 
 def sumGraph(array, sigma=15):
     '''This is essentially an integral graph in spirit, for every frame, if its
@@ -80,7 +69,7 @@ def sumGraph(array, sigma=15):
     #Lets, uhhhhh, lets uh smoooth this out
     smoothArray = gaussian_filter1d([x[1] for x in newArray], sigma)
 
-    for i in range(len(newArray):
+    for i in range(len(newArray)):
         newArray[i][1] = smoothArray[i]
 
     return newArray
@@ -135,12 +124,11 @@ but the code indicates that they are dependent on the sample rate, the original
 project seems to have done an analysis twice at two different sample rates, presumably
 one for fidelity and one for speed. Not quite sure how nessecary the double analysis is,
 seems to me now that a speed analysis should be sufficient'''
-arcGraph = normalize(songArray, sigma=(1.85 * sampleRate), shift=False)
-percGraph = normalize(percussiveArray, sigma=(0.0224 * sampleRate), shift=False)
-harmGraph = normalize(harmonicArray, sigma=(0.9571 * sampleRate))
-largeArc = sumGraph(songArray, simga=(5.442 * sampleRate))
+#arcGraph = normalize(songArray, sigma=(1.85 * sampleRate), shift=False)
+#harmGraph = normalize(harmonicArray, sigma=(0.9571 * sampleRate))
+#largeArc = sumGraph(songArray, simga=(5.442 * sampleRate))
 
-harmGraph = smoothArray(harmGraph)
+#harmGraph = smoothArray(harmGraph)
 
 def zeroSlopes(graph):
     '''Finds points in the graph where the slope is zero, determines if its high or low
@@ -152,8 +140,8 @@ def zeroSlopes(graph):
     for i in range(len(deriv) - 1):
         #deriv rarely lands at exactly zero, this finds if the derivative has passed zero between frames
         if deriv[i][1] > 0 and deriv[i + 1][1] <= 0:
-            zeroList.append([graph[i][0], True)
-        elif deriv[][1] < 0 and deriv[i + 1][1] >= 0:
+            zeroList.append([graph[i][0], True])
+        elif deriv[i][1] < 0 and deriv[i + 1][1] >= 0:
             zeroList.append([graph[i][0], False])
     return zeroList
 
@@ -167,7 +155,33 @@ def percussiveParse(graph, beatTrack, threshold=87):
     #TODO: Deterimine beat strength through a derivative of derivative
     #TODO: See how a derivative graph of percussive events compares to this
     for i in beatTrack:
-        graphPower = graph[i * sampleRate][1]
+        graphPower = graph[int(i * sampleRate)]
         if graphPower > threshold:
             beatList.append(i)
     return beatList
+
+def writeData(path, graph):
+    print('Writing graph')
+    with open(path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        for i in range(len(graph)):
+            writer.writerow([i, graph[i]])
+
+pixels = PixelArray(allMap, locationMap, intersections, room, controller)
+
+def beat():
+    flyLocation = random.choice(pixels.allMap)
+    pixels.fireflyRigid(flyLocation, [85, 117, 0], [10,26,0], [0, 12, 22], 1.3)
+
+#writeData('C:\\users\\akauf\\desktop\\percgraph.csv', percussiveArray)
+beatTrack = percussiveParse(percussiveArray, beatTrack)
+for i in beatTrack:
+    i -= .05
+print(beatTrack)
+mb.clear_now_playing_list()
+mb.stop()
+mb.queue_next(path)
+for dumb in beatTrack:
+    t = threading.Timer(dumb, beat)
+    t.start()
+mb.play()
