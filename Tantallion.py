@@ -473,6 +473,7 @@ class Relay:
         self.system = patchDict['system']
         self.room = testDict(patchDict, 'room', 'UNUSED')
         self.essential = testDict(patchDict, 'essential', True)
+        self.stage = testDict(patchDict, 'stage', 1)
 
 class CustomRelay(Relay):
     '''Custom built relay box, communicates with relayBridge.py for control'''
@@ -539,6 +540,8 @@ class Room:
         self.fixtureList = fixtureList
         self.relayList = relayList
         self.controllerList = []
+        if len(relayList) > 0:
+            self.stages = max([x.stage for x in relayList])
         for f in fixtureList:
             if hasattr(f, 'controller'):
                 if f.controller not in self.controllerList:
@@ -597,12 +600,18 @@ class Room:
             f.fadeDown(amount)
 
     def relaysOn(self):
-        for r in self.relayList:
-            r.on()
+        for i in range(1, self.stages + 1):
+            for r in self.relayList:
+                if r.stage == i:
+                    r.on()
+            time.sleep(2)
 
     def relaysOff(self):
-        for r in self.relayList:
-            r.off()
+        for i in range(self.stages, 0, -1):
+            for r in self.relayList:
+                if r.stage == i:
+                    r.off()
+            time.sleep(2)
 
     def relaysToggle(self):
         roomState = True

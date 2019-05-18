@@ -57,6 +57,7 @@ Office Monitors:
   system: HueRelay
   id: 18
   room: office
+  stage: 2
 
 Iris:
   name: Iris
