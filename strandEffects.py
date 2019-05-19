@@ -193,6 +193,23 @@ class PixelArray():
     def shimmer(speed, density, colorSpread, colorPrimary, colorSecondary):
         '''Base color field with flashes of secondary color'''
 
+    def rollFade(rgb, fadeTime, forward=True):
+        '''Rolls a color down the array'''
+        factor = .1 / fadeTime
+        interval = factor / len(locationMap)
+        if forward:
+            for row in locationMap:
+                for pixel in row:
+                    self.controller.cache(pixel, rgb, factor)
+                factor += interval
+        else:
+            for row in locationMap[::-1]:
+                for pixel in row:
+                    self.controller.cache(pixel, rgb, factor)
+                factor += interval
+        self.controller.multiCommand()
+
+
 sunriseGradient = [[[42, 6, 84], 20], [[33, 22, 178], 20], [[126, 28, 255], 20], [[159, 63, 219], 20], [[255, 107, 91], 20], [[255, 179, 93], 20], [[255, 206, 182], 20], [[255, 253, 245], 20]]
 sunriseGradient2 = sunriseGradient.copy()
 sunriseGradient2.reverse()
