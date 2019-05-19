@@ -114,7 +114,7 @@ class PixelArray():
         grouping = density // 20
         while True:
             #Grab some number of pixels
-            sampledPix = randomPixels(int(density * randomPercent(50, 150)))
+            sampledPix = self.randomPixels(int(density * randomPercent(50, 150)))
             colorList = sample_sectors(fullImagePath, len(sampledPix))
             iterate = 0
             multiCommand = []
