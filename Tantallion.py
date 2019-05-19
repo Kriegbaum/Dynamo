@@ -619,23 +619,19 @@ class Room:
             if not r.getState():
                 roomState = False
         if roomState:
-            for r in self.relayList:
-                r.off()
+            self.relaysOff()
         else:
-            for r in self.relayList:
-                r.on()
+            self.relaysOn()
 
     def allOn(self):
-        for r in self.relayList:
-            r.on()
         for f in self.fixtureList:
             f.on()
+        self.relaysOn()
 
     def allOff(self):
-        for r in self.relayList:
-            r.off()
         for f in self.fixtureList:
             f.off()
+        self.relaysOff()
 
     def scene(self, sceneDict, fadeTime=1):
         '''A scene can be defined in two ways, keys are fixture names, and values
