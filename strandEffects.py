@@ -145,7 +145,7 @@ class PixelArray():
         time.sleep((1.3 / speed) * randomPercent(80, 160))
         #Fly fades down to secondary color
         downTime = (3.7 * randomPercent(75, 110)) / speed
-        sendCommand([index, index + 1], colorSecondary, controller, fadetime=downTime)
+        sendCommand([index, index + 1], colorSecondary, self.controller, fadetime=downTime)
         time.sleep((5.0 / speed) * randomPercent(80, 120))
         #Fly recedes into background
         sendCommand([index, index + 1], colorBackground, self.controller, fadetime=.5)
@@ -191,9 +191,9 @@ class PixelArray():
 
     def rollFade(self, rgb, fadeTime, forward=True):
         '''Rolls a color down the array'''
-        lowTime = .2
+        lowTime = .3
         factor = lowTime / fadeTime
-        interval = (1 - lowTime) / len(locationMap)
+        interval = (fadeTime - lowTime) / len(locationMap)
         if forward:
             for row in locationMap:
                 for pixel in row:

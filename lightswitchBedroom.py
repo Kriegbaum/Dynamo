@@ -23,10 +23,10 @@ def runFlies():
 
 def run1():
     killEveryone()
-    patch.fixture('Window').off()
-    patch.fixture('Bedroom Closet').off()
+    patch.fixture('Window').off(.3)
+    patch.fixture('Bedroom Closet').off(.3)
     room.setArbitration('ButtonPress')
-    web.rollFade([150,195,0], 1.5)
+    web.rollFade([150,195,99], 1.5)
 
 def run2():
     killEveryone()

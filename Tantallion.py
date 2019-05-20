@@ -427,6 +427,7 @@ class Hue(Fixture):
         self.hueBridge.set_light(self.id, command)
 
     def off(self, fadeTime=0):
+        fadeTime = int(fadeTime)
         command = {'on': False, 'transitiontime': fadeTime * 10}
         self.hueBridge.set_light(self.id, command)
 
