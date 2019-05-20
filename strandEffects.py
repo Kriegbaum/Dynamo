@@ -18,8 +18,6 @@ allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + li
 
 #Load in our lighting rig
 patch = Patch()
-controller = patch.controller('bedroomFC')
-room = patch.room('bedroom')
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value
@@ -206,9 +204,9 @@ class PixelArray():
                 for pixel in row:
                     self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
                 factor += interval
-        print(self.controller.multiCache)
         self.controller.multiCommand()
 
+web = PixelArray(allMap, locationMap, intersections, patch.room('bedroom'), patch.controller('bedroomFC'))
 
 sunriseGradient = [[[42, 6, 84], 20], [[33, 22, 178], 20], [[126, 28, 255], 20], [[159, 63, 219], 20], [[255, 107, 91], 20], [[255, 179, 93], 20], [[255, 206, 182], 20], [[255, 253, 245], 20]]
 sunriseGradient2 = sunriseGradient.copy()

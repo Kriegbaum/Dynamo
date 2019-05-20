@@ -17,14 +17,16 @@ button3 = GPIO.Button(19)
 button4 = GPIO.Button(21)
 
 def runFlies():
-    flies = multiprocessing.Process(target=fireflies)
+    flies = multiprocessing.Process(target=web.fireflies)
     flies.start()
     activeThreads.append(flies)
 
 def run1():
     killEveryone()
+    patch.fixture('Window').off()
+    patch.fixture('Bedroom Closet').off()
     room.setArbitration('ButtonPress')
-    room.scene(scenes['Natural Glow'], 1.1)
+    web.rollFade([150,195,0], 1.5)
 
 def run2():
     killEveryone()
