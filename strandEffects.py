@@ -9,10 +9,8 @@ import threading
 from automatons import *
 
 #Build 5x50 array, rows and columns
-locationMap = [[128], [192], [256], [320], [384]]
-for i in range(49):
-    for x in locationMap:
-        x.append(x[-1] + 1)
+locationMap = [list(range(128,178)), list(range(192,242)), list(range(256,306)), list(range(320,370)), list(range(384,434))]
+locationMap = list(zip(*locationMap))
 #Locations where pixels touch each other
 intersections = [[128, 192, 256, 320, 384]]
 #Every index in a one dimensional array
@@ -183,30 +181,32 @@ class PixelArray():
     def static(self, staticMap, fadeTime, globalBrightness):
         '''User definied fixed look for the room'''
 
-    def gradientLoop(realTime, cycleTime, startTime):
+    def gradientLoop(self, realTime, cycleTime, startTime):
         '''Wraps a cylindrical gradient around the array'''
 
 
-    def hyperspace(speed, colorPrimary, colorSecondary):
+    def hyperspace(self, speed, colorPrimary, colorSecondary):
         '''Radial streaks of color move through the space'''
 
-    def shimmer(speed, density, colorSpread, colorPrimary, colorSecondary):
+    def shimmer(self, speed, density, colorSpread, colorPrimary, colorSecondary):
         '''Base color field with flashes of secondary color'''
 
-    def rollFade(rgb, fadeTime, forward=True):
+    def rollFade(self, rgb, fadeTime, forward=True):
         '''Rolls a color down the array'''
-        factor = .1 / fadeTime
-        interval = factor / len(locationMap)
+        lowTime = .2
+        factor = lowTime / fadeTime
+        interval = (1 - lowTime) / len(locationMap)
         if forward:
             for row in locationMap:
                 for pixel in row:
-                    self.controller.cache(pixel, rgb, factor)
+                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
                 factor += interval
         else:
             for row in locationMap[::-1]:
                 for pixel in row:
-                    self.controller.cache(pixel, rgb, factor)
+                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
                 factor += interval
+        print(self.controller.multiCache)
         self.controller.multiCommand()
 
 
