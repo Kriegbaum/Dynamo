@@ -11,6 +11,7 @@ import atexit
 from phue import Bridge
 import random
 import math
+import time
 
 ########################Basic Socket Functions##################################
 
