@@ -26,6 +26,11 @@ def sleepFade():
     time.sleep(330)
     room.off(60)
 
+def vaporCity():
+    imagePath = ('/home/pi', 'vapor_city.jpg')
+    vapor = multiprocessing.Process(target=web.imageSample, args=imagePath)
+    vapor.start()
+    activeThreads.append(vapor)
 
 def runFlies():
     flies = multiprocessing.Process(target=web.fireflies)
@@ -47,7 +52,7 @@ def run2():
 def run3():
     killEveryone()
     room.setArbitration('StrandEffect')
-    runFlies()
+    vaporCity()
 
 def off():
     killEveryone()
