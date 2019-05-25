@@ -9,10 +9,8 @@ import threading
 from automatons import *
 
 #Build 5x50 array, rows and columns
-locationMap = [[128], [192], [256], [320], [384]]
-for i in range(49):
-    for x in locationMap:
-        x.append(x[-1] + 1)
+locationMap = [list(range(128,178)), list(range(192,242)), list(range(256,306)), list(range(320,370)), list(range(384,434))]
+locationMap = list(zip(*locationMap))
 #Locations where pixels touch each other
 intersections = [[128, 192, 256, 320, 384]]
 #Every index in a one dimensional array
@@ -20,8 +18,6 @@ allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + li
 
 #Load in our lighting rig
 patch = Patch()
-controller = patch.controller('bedroomFC')
-room = patch.room('bedroom')
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value
@@ -149,7 +145,7 @@ class PixelArray():
         time.sleep((1.3 / speed) * randomPercent(80, 160))
         #Fly fades down to secondary color
         downTime = (3.7 * randomPercent(75, 110)) / speed
-        sendCommand([index, index + 1], colorSecondary, controller, fadetime=downTime)
+        sendCommand([index, index + 1], colorSecondary, self.controller, fadetime=downTime)
         time.sleep((5.0 / speed) * randomPercent(80, 120))
         #Fly recedes into background
         sendCommand([index, index + 1], colorBackground, self.controller, fadetime=.5)
@@ -183,32 +179,34 @@ class PixelArray():
     def static(self, staticMap, fadeTime, globalBrightness):
         '''User definied fixed look for the room'''
 
-    def gradientLoop(realTime, cycleTime, startTime):
+    def gradientLoop(self, realTime, cycleTime, startTime):
         '''Wraps a cylindrical gradient around the array'''
 
 
-    def hyperspace(speed, colorPrimary, colorSecondary):
+    def hyperspace(self, speed, colorPrimary, colorSecondary):
         '''Radial streaks of color move through the space'''
 
-    def shimmer(speed, density, colorSpread, colorPrimary, colorSecondary):
+    def shimmer(self, speed, density, colorSpread, colorPrimary, colorSecondary):
         '''Base color field with flashes of secondary color'''
 
-    def rollFade(rgb, fadeTime, forward=True):
+    def rollFade(self, rgb, fadeTime, forward=True):
         '''Rolls a color down the array'''
-        factor = .1 / fadeTime
-        interval = factor / len(locationMap)
+        lowTime = .3
+        factor = lowTime / fadeTime
+        interval = (fadeTime - lowTime) / len(locationMap)
         if forward:
             for row in locationMap:
                 for pixel in row:
-                    self.controller.cache(pixel, rgb, factor)
+                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
                 factor += interval
         else:
             for row in locationMap[::-1]:
                 for pixel in row:
-                    self.controller.cache(pixel, rgb, factor)
+                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
                 factor += interval
         self.controller.multiCommand()
 
+web = PixelArray(allMap, locationMap, intersections, patch.room('bedroom'), patch.controller('bedroomFC'))
 
 sunriseGradient = [[[42, 6, 84], 20], [[33, 22, 178], 20], [[126, 28, 255], 20], [[159, 63, 219], 20], [[255, 107, 91], 20], [[255, 179, 93], 20], [[255, 206, 182], 20], [[255, 253, 245], 20]]
 sunriseGradient2 = sunriseGradient.copy()

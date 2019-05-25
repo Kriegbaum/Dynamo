@@ -309,9 +309,12 @@ class Controller:
     def setArbitration(self, id):
         transmit({'type': 'setArbitration', 'id': id}, self)
 
-    def cache(self, fixture, color, fadeTime):
+    def cache(self, fixture, color, fadeTime, construct=True):
         '''Stows a command in multiCache, to be cleared by a multicommand'''
-        command = multiConstructor(fixture, color, fadeTime)
+        if construct:
+            command = multiConstructor(fixture, color, fadeTime)
+        else:
+            command = [fixture, color, fadeTime]
         self.multiCache.append(command)
 
     def multiCommand(self):
@@ -425,6 +428,7 @@ class Hue(Fixture):
         self.hueBridge.set_light(self.id, command)
 
     def off(self, fadeTime=0):
+        fadeTime = int(fadeTime)
         command = {'on': False, 'transitiontime': fadeTime * 10}
         self.hueBridge.set_light(self.id, command)
 

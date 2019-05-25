@@ -28,14 +28,16 @@ def sleepFade():
 
 
 def runFlies():
-    flies = multiprocessing.Process(target=fireflies)
+    flies = multiprocessing.Process(target=web.fireflies)
     flies.start()
     activeThreads.append(flies)
 
 def run1():
     killEveryone()
+    patch.fixture('Window').off(.3)
+    patch.fixture('Bedroom Closet').off(.3)
     room.setArbitration('ButtonPress')
-    room.scene(scenes['Natural Glow'], 1.1)
+    web.rollFade([150,195,99], 1.5)
 
 def run2():
     killEveryone()
