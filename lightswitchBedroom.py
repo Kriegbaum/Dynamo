@@ -29,6 +29,7 @@ def sleepFade():
 def vaporCity():
     imagePath = ('/home/pi', 'vapor_city.jpg')
     vapor = multiprocessing.Process(target=web.imageSample, args=imagePath)
+    room.off(15)
     vapor.start()
     activeThreads.append(vapor)
 
