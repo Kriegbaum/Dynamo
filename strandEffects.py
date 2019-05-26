@@ -95,7 +95,7 @@ class PixelArray():
             if len(capturedPixels) > size:
                 trailingEdge = capturedPixels.pop(-1)
 
-    def imageSample(self, imagedir, imagefile, density=80, frequency=1, speed=.7):
+    def imageSample(self, imagedir, imagefile, density=80, frequency=1, speed=1):
         '''Render array with beautiful colors'''
         fullImagePath = os.path.join(imagedir, imagefile)
         pixelCount = len(self.allMap)
@@ -191,7 +191,7 @@ class PixelArray():
 
     def rollFade(self, rgb, fadeTime, forward=True):
         '''Rolls a color down the array'''
-        lowTime = .3
+        lowTime = fadeTime * 0.40
         factor = lowTime / fadeTime
         interval = (fadeTime - lowTime) / len(locationMap)
         if forward:

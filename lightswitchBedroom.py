@@ -22,9 +22,14 @@ centerRight = GPIO.Button(5)
 right = GPIO.Button(6)
 
 def sleepFade():
+    patch.room('office').off()
+    patch.room('living room').off()
+    patch.room('kitchen').off()
     room.setColor([0,0,50], 300)
     time.sleep(330)
     room.off(60)
+    time.sleep(700)
+    patch.room('all').relaysOff()
 
 def vaporCity():
     imagePath = ('/home/pi', 'vapor_city.jpg')
