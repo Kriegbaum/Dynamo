@@ -109,15 +109,17 @@ def getState(ip, index):
 
 ################################COMMAND TYPE HANDLING###########################
 def commandParse(command):
-    index = command['index']
     if command['type'] == 'switch':
+        index = command['index']
         if command['state']:
             relayPatch[index].on()
         else:
             relayPatch[index].off()
     elif command['type'] == 'toggle':
+        index = command['index']
         relayPatch[index].toggle()
     elif command['type'] == 'getState':
+        index = command['index']
         getState(command['ip'], command['index'])
     else:
         print('Invalid command')
