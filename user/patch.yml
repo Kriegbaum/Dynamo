@@ -94,7 +94,7 @@ Soundcard:
 Center Monitor:
   name: Center Monitor
   system: CustomRelay
-  index: 7
+  index: 8
   room: office
   stage: 1
   controller: officeRelays
@@ -102,7 +102,7 @@ Center Monitor:
 Right Monitor:
   name: Right Monitor
   system: CustomRelay
-  index: 8
+  index: 7
   room: office
   stage: 1
   controller: officeRelays
