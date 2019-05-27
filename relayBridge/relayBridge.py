@@ -6,6 +6,7 @@ from gpiozero import OutputDevice as Relay
 import yaml
 import queue
 import threading
+import os
 
 #######################GET LOCAL IP####################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -26,10 +27,11 @@ def socketKill(sock):
 #########################CONTROL OBJECTS##############################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'relayPatch.yml')) as f:
     relayPatch = f.read()
+relayPatch = yaml.safe_load(relayPatch)
 for relay in relayPatch:
-    relay = Relay(relayPatch[relay])
+    relayPatch[relay] = Relay(relayPatch[relay])
     #If this is not here, the server will immediately turn off everythin
-    relay.on()
+    relayPatch[relay].on()
 commands = queue.Queue(maxsize=100)
 
 #####################SERVER LOGGING AND REPORTING#####################
@@ -70,15 +72,18 @@ def fetchLoop():
     atexit.register(socketKill, sock)
     while True:
         connection, client_address = sock.accept()
-        command += data
-        if data:
-            pass
-        else:
-            comDict = json.loads(command)
-            print(datetime.datetime.now(), comDict['type'], 'recieved from', client_address)
-            comDict['ip'] = client_address[0]
-            commands.put(comDict)
-            break
+        command = ''
+        while True:
+            data = connection.recv(16).decode()
+            command += data
+            if data:
+                pass
+            else:
+                comDict = json.loads(command)
+                print(datetime.datetime.now(), comDict['type'], 'recieved from', client_address)
+                comDict['ip'] = client_address[0]
+                commands.put(comDict)
+                break
 
 def switchLoop():
     while True:
