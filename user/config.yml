@@ -15,8 +15,8 @@ controllers:
     system: Fadecandy
     room: bedroom
 
-    officeRelays:
-      name: officeRelays
-      ip: 10.0.0.50
-      system: Customrelay
-      room: office
+  officeRelays:
+    name: officeRelays
+    ip: 10.0.0.50
+    system: CustomRelay
+    room: office

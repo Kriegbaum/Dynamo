@@ -482,10 +482,10 @@ class Relay:
 
 class CustomRelay(Relay):
     '''Custom built relay box, communicates with relayBridge.py for control'''
-    def __init__(self, patchDict):
+    def __init__(self, patch, patchDict):
         Relay.__init__(self, patchDict)
         self.index = patchDict['index']
-        self.controller = controllerDict[patchDict['controller']]
+        self.controller = patch.controllers[patchDict['controller']]
 
     def __repr__(self):
         stringOut = self.name
