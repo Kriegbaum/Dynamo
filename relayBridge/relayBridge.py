@@ -28,6 +28,8 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'relayPatch.y
     relayPatch = f.read()
 for relay in relayPatch:
     relay = Relay(relayPatch[relay])
+    #If this is not here, the server will immediately turn off everythin
+    relay.on()
 commands = queue.Queue(maxsize=100)
 
 #####################SERVER LOGGING AND REPORTING#####################
