@@ -7,10 +7,12 @@ patch = Patch()
 room = patch.room('office')
 
 
-button1 = GPIO.Button(19)
-button2 = GPIO.Button(16)
-button3 = GPIO.Button(26)
-button4 = GPIO.Button(20)
+button1 = GPIO.Button(19, bounce_time=0.1)
+button2 = GPIO.Button(16, bounce_time=0.1)
+button3 = GPIO.Button(26, bounce_time=0.1)
+button4 = GPIO.Button(20, bounce_time=0.1)
+
+frankenstein = GPIO.Button(13)
 
 iterList = [0,0,0]
 
@@ -44,6 +46,12 @@ def run4():
     room.setArbitration('ButtonPress')
     room.off()
 
+def periphOn():
+    room.relaysOn()
+
+def periphOff():
+    room.relaysOff()
+
 print('Initalizing...')
 patch.fixture('Whiteboard').setColor([0,0,255], .5)
 time.sleep(.5)
@@ -57,5 +65,8 @@ button1.when_pressed = run1
 button2.when_pressed = run2
 button3.when_pressed = run3
 button4.when_pressed = run4
+
+frankenstein.when_pressed = periphOn
+frankenstein.when_released = periphOff
 
 pause()
