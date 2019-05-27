@@ -52,19 +52,60 @@ Office Closet:
   id: 5
   room: office
 
-Office Monitors:
-  name: Office Monitors
-  system: HueRelay
-  id: 18
-  room: office
-  stage: 2
-
 Iris:
   name: Iris
   system: Hue
   id: 27
   colorCorrection: [.80, .86, 1]
   room: office
+
+Left Speaker:
+  name: Left Speaker
+  system: CustomRelay
+  index: 1
+  room: office
+  stage: 3
+  controller: officeRelays
+
+Right Speaker:
+  name: Right Speaker
+  system: CustomRelay
+  index: 4
+  room: office
+  stage: 3
+  controller: officeRelays
+
+Left Monitor:
+  name: Left Monitor
+  system: CustomRelay
+  index: 2
+  room: office
+  stage: 1
+  controller: officeRelays
+
+Soundcard:
+  name: soundcard
+  system: CustomRelay
+  index: 6
+  room: office
+  stage: 1
+  controller: officeRelays
+
+Center Monitor:
+  name: Center Monitor
+  system: CustomRelay
+  index: 7
+  room: office
+  stage: 1
+  controller: officeRelays
+
+Right Monitor:
+  name: Right Monitor
+  system: CustomRelay
+  index: 8
+  room: office
+  stage: 1
+  controller: officeRelays
 
 #Living Room
 NW Corner:

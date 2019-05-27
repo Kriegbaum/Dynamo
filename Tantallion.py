@@ -496,16 +496,22 @@ class CustomRelay(Relay):
         return(stringOut)
 
     def getState(self):
-        pass
+        command = {'type': 'getState', 'index': self.index}
+        transmit(command, self.controller)
+        state = json.loads(recieve(self.controller))
+        return state
 
     def on(self):
-        pass
+        command = {'type': 'switch', 'index': self.index, 'state': True}
+        transmit(command, self.controller)
 
     def off(self):
-        pass
+        command = {'type': 'switch', 'index': self.index, 'state': False}
+        transmit(command, self.controller)
 
     def toggle(self):
-        pass
+        command = {'type': 'toggle', 'index': self.index}
+        transmit(command, self.controller)
 
 class HueRelay(Relay):
     '''Hue system relay, uses different communication method, but functionally
