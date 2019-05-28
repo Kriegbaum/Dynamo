@@ -7,10 +7,10 @@ patch = Patch()
 room = patch.room('office')
 
 
-button1 = GPIO.Button(19, bounce_time=0.1)
-button2 = GPIO.Button(16, bounce_time=0.1)
-button3 = GPIO.Button(26, bounce_time=0.1)
-button4 = GPIO.Button(20, bounce_time=0.1)
+button1 = GPIO.Button(19, bounce_time=0.01)
+button2 = GPIO.Button(16, bounce_time=0.01)
+button3 = GPIO.Button(26, bounce_time=0.01)
+button4 = GPIO.Button(20, bounce_time=0.01)
 
 frankenstein = GPIO.Button(13)
 

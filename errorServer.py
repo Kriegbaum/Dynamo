@@ -21,7 +21,7 @@ def socketKill(sock):
 localIP = getIP()
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = (localIP, 8880)
-print('Initializing error server on % port %s' % server_address)
+print('Initializing error server on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(90)
 sock.settimeout(None)

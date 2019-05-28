@@ -596,7 +596,7 @@ class Room:
 
     def off(self, fadeTime=0):
         for f in self.fixtureList:
-            f.off()
+            f.off(fadeTime)
 
     def on(self, fadeTime=0):
         for f in self.fixtureList:
