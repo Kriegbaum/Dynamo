@@ -114,7 +114,10 @@ def queueLoop():
     while True:
         newCommand = commands.get(True, None)
         commands.task_done()
-        commandParse(newCommand)
+        try:
+            commandParse(newCommand)
+        except:
+            print('YA FUCKED SOMETHING UP YOU IDIOT')
 
 def clockLoop():
     '''Removes items from the queue and transmits them to the controller'''
@@ -130,7 +133,7 @@ def clockLoop():
         try:
             FCclient.put_pixels(pixels)
         except Exception as e:
-            print(e)
+            print('FCserver is down')
         cycleTime = time.clock() - now
         time.sleep(max((1 / frameRate) - cycleTime, 0))
         queueLock.release()
