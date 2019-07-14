@@ -34,6 +34,8 @@ for relay in relayPatch:
     #If this is not here, the server will immediately turn off everythin
     relayPatch[relay].on()
 commands = queue.Queue(maxsize=100)
+arbitration = [False, '121.0.0.1']
+
 
 #####################SERVER LOGGING AND REPORTING#####################
 def constructErrorEntry(ip, err):
