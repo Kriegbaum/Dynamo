@@ -108,6 +108,36 @@ def getState(ip, index):
         sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
+def setArbitration(id, ip):
+    print('\nGiving arbitration to %s from %s\n' % (id, ip))
+    arbitration[0] = id
+    arbitration[1] = ip
+
+def getArbitration(id, ip):
+    print('\nSending arbitration to %s for %s\n' % (ip, id))
+    try:
+        if id != arbitration[0]:
+            response = False
+        elif ip != arbitration[1]:
+            response = False
+        else:
+            response = True
+    except Exception as err:
+        ripServer(ip, err)
+        response = False
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = (ip, 8801)
+    sock.connect(server_address)
+    message = json.dumps(response)
+    try:
+        sock.sendall(message.encode())
+    except Exception as err:
+        ripServer(ip, err)
+    finally:
+        sock.shutdown(socket.SHUT_RDWR)
+        sock.close()
+
 ################################COMMAND TYPE HANDLING###########################
 def commandParse(command):
     if command['type'] == 'switch':
@@ -122,6 +152,16 @@ def commandParse(command):
     elif command['type'] == 'getState':
         index = command['index']
         getState(command['ip'], command['index'])
+    elif command['type'] == 'getArbitration':
+        try:
+            getArbitration(command['id'], command['ip'])
+        except Exception as err:
+            ripServer(command['ip'], err)
+    elif command['type'] == 'setArbitration':
+        try:
+            setArbitration(command['id'], command['ip'])
+        except Exception as err:
+            ripServer(command['ip'], err)
     else:
         print('Invalid command')
         ripServer(command['ip'], 'Invalid Command Type')
