@@ -1,225 +1,47 @@
-#Office
-
-Whiteboard:
-  name: Whiteboard
-  system: Fadecandy
-  indexrange: [0,25]
-  colorCorrection: [1,.85098,.57647]
-  grb: False
-  room: office
-  controller: officeFC
-
-Worklight:
-  name: Worklight
-  system: Fadecandy
-  indexrange: [448, 449]
-  grb: False
-  colorCorrection: [.97, 1, 0.58294]
-  room: office
-  controller: officeFC
-
-Spidergod:
-  name: Spidergod
-  system: Fadecandy
-  indexrange: [256, 276]
-  colorCorrection: [1, .8627, .6705]
-  room: office
-  controller: officeFC
-
-Fan:
-  name: Fan
-  system: Fadecandy
-  indexrange: [64, 101]
-  colorCorrection: [1, .8627, .6705]
-  room: office
-  controller: officeFC
-
-Desk Lamp:
-  name: Desk Lamp
-  system: Hue
-  id: 1
-  room: office
-
-Workbench:
-  name: Workbench
-  system: Hue
-  id: 14
-  room: office
-
-Office Closet:
-  name: Office Closet
-  system: Hue
-  id: 5
-  room: office
-
-Iris:
-  name: Iris
-  system: Hue
-  id: 27
-  colorCorrection: [.80, .86, 1]
-  room: office
-
 Left Speaker:
-  name: Left Speaker
-  system: CustomRelay
-  index: 1
-  room: office
-  stage: 3
-  controller: officeRelays
-
-Right Speaker:
-  name: Right Speaker
+  name: left speaker
   system: CustomRelay
   index: 4
-  room: office
+  room: bedroom
   stage: 3
-  controller: officeRelays
+  controller: bedroomRelays
+
+Right Speaker:
+  name: right speaker
+  system: CustomRelay
+  index: 7
+  room: bedroom
+  stage: 3
+  controller: bedroomRelays
 
 Left Monitor:
-  name: Left Monitor
+  name: left monitor
   system: CustomRelay
-  index: 2
-  room: office
+  index: 1
+  room: bedroom
   stage: 1
-  controller: officeRelays
+  controller: bedroomRelays
+
+Center Monitor:
+  name: center monitor
+  system: CustomRelay
+  index: 3
+  room: bedroom
+  stage: 1
+  controller: bedroomRelays
+
+Right Monitor:
+  name: right monitor
+  system: CustomRelay
+  index: 6
+  room: bedroom
+  stage: 1
+  controller: bedroomRelays
 
 Soundcard:
   name: soundcard
   system: CustomRelay
-  index: 6
-  room: office
+  index: 2
+  room: bedroom
   stage: 1
-  controller: officeRelays
-
-Center Monitor:
-  name: Center Monitor
-  system: CustomRelay
-  index: 8
-  room: office
-  stage: 1
-  controller: officeRelays
-
-Right Monitor:
-  name: Right Monitor
-  system: CustomRelay
-  index: 7
-  room: office
-  stage: 1
-  controller: officeRelays
-
-#Living Room
-NW Corner:
-  name: NW Corner
-  system: Hue
-  id: 7
-  room: living room
-
-NE Corner:
-  name: NE Corner
-  system: Hue
-  id: 4
-  room: living room
-
-SW Corner:
-  name: SW Corner
-  system: Hue
-  id: 9
-  room: living room
-
-SE Corner:
-  name: SE Corner
-  system: Hue
-  id: 6
-  room: living room
-
-Living Room Fan:
-  name: Living Room Fan
-  system: Hue
-  id: 23
-  colorCorrection: [1, .96, .76]
-  #HSI: 7228, 148, 255
-  room: living room
-
-Downlight:
-  name: Downlight
-  system: Hue
-  id: 16
-  room: living room
-
-Front:
-  name: Front Speakers
-  system: HueRelay
-  id: 17
-  room: living room
-
-Rear:
-  name: Rear Speakers
-  system: HueRelay
-  id: 21
-  room: living room
-
-#Kitchen
-Table:
-  name: Table
-  system: Hue
-  id: 15
-  room: kitchen
-
-Cabinet Top:
-  name: Cabinet Top
-  system: Hue
-  id: 25
-  room: kitchen
-
-Cabinet Bottom:
-  name: Cabinet Bottom
-  system: Hue
-  id: 26
-  room: kitchen
-  color: False
-
-Corner:
-  name: Corner
-  system: Hue
-  id: 8
-  room: kitchen
-
-Oven:
-  name: Oven
-  system: Hue
-  id: 2
-  room: kitchen
-
-Kitchen Speakers:
-  name: Kitchen Speakers
-  system: HueRelay
-  id: 29
-  room: kitchen
-
-#Bedroom with easier control points
-Full Array:
-  name: Full Array
-  system: Fadecandy
-  indexrange: [0, 448]
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
-Window:
-  name: Window
-  system: Fadecandy
-  indexrange: [448, 512]
-  room: bedroom
-  controller: bedroomFC
-
-Bedroom Closet:
-  name: Bedroom Closet
-  system: Hue
-  id: 10
-  room: bedroom
-
-Bedroom Speakers:
-  name: Bedroom Speakers
-  system: HueRelay
-  id: 28
-  room: bedroom
+  controller: bedroomRelays
