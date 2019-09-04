@@ -1,7 +1,25 @@
+Dresser:
+  name: dresser
+  system: Hue
+  id: 27
+  room: bedroom
+
+Overhead Bedroom:
+  name: overhead bedroom
+  system: Hue
+  id: 16
+  room: bedroom
+
+Desk:
+  name: desk
+  system: Hue
+  id: 15
+  room: bedroom
+
 Left Speaker:
   name: left speaker
   system: CustomRelay
-  index: 4
+  index: 5
   room: bedroom
   stage: 3
   controller: bedroomRelays
@@ -9,7 +27,7 @@ Left Speaker:
 Right Speaker:
   name: right speaker
   system: CustomRelay
-  index: 7
+  index: 6
   room: bedroom
   stage: 3
   controller: bedroomRelays
@@ -25,7 +43,7 @@ Left Monitor:
 Center Monitor:
   name: center monitor
   system: CustomRelay
-  index: 3
+  index: 7
   room: bedroom
   stage: 1
   controller: bedroomRelays
@@ -33,7 +51,7 @@ Center Monitor:
 Right Monitor:
   name: right monitor
   system: CustomRelay
-  index: 6
+  index: 4
   room: bedroom
   stage: 1
   controller: bedroomRelays
@@ -41,7 +59,7 @@ Right Monitor:
 Soundcard:
   name: soundcard
   system: CustomRelay
-  index: 2
+  index: 3
   room: bedroom
   stage: 1
   controller: bedroomRelays
