@@ -1,3 +1,19 @@
+Worklight:
+  name: worklight
+  system: Fadecandy
+  indexrange: [192, 193]
+  colorCorrection: [1, .85098, .57647]
+  room: bedroom
+  controller: bedroomFC
+
+Window:
+  name: window
+  system: Fadecandy
+  indexrange: [0, 63]
+  colorCorrection: [1, .8627, .6705]
+  room: bedroom
+  controller: bedroomFC
+
 Dresser:
   name: dresser
   system: Hue

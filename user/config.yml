@@ -3,8 +3,13 @@ pallettesDirLinux: /mr-flopsy/Spidergod/Images/Color Pallettes
 hueIP: 192.168.0.12
 
 controllers:
-  officeFC:
+  bedroomRelays:
     name: bedroomRelays
     ip: 192.168.0.19
     system: CustomRelay
+    room: bedroom
+  bedroomFC:
+    name: bedroomFC
+    ip: 192.168.0.17
+    system: Fadecandy
     room: bedroom
