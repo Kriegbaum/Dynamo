@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 from Tantallion import *
 import gpiozero as GPIO
 from signal import pause

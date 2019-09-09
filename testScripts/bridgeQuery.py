@@ -1,5 +1,5 @@
 import phue
-bridge = phue.Bridge('10.0.0.20')
+bridge = phue.Bridge('192.168.0.12')
 
 
 lights = bridge.get_light_objects('id')

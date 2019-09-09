@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 import gpiozero as GPIO
 from signal import pause
 import multiprocessing
