@@ -13,8 +13,12 @@ import random
 import math
 import time
 
-########################Basic Socket Functions##################################
+########################Default locations for config files######################
+defaultConfigPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')
+defaultPatchPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')
+defaultScenePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')
 
+########################Basic Socket Functions##################################
 #Oour local IP address, tells server where to send data back to
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
@@ -330,6 +334,9 @@ class Fixture:
         self.system = patchDict['system']
         self.room = testDict(patchDict, 'room', 'UNUSED')
         self.colorCorrection = testDict(patchDict, 'colorCorrection', [1, 1, 1])
+        self.proportion = testDict(patchDict, 'proportion', 1)
+        for i in range(len(self.colorCorrection)):
+            self.colorCorrection[i] *= self.proportion
 
     def colorCorrect(self, rgb):
         '''Returns a corrected value for the specific fixture to use, currently
@@ -672,31 +679,22 @@ class Room:
                 result = False
         return result
 
-
-
-
-##########################Load Config###########################################
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')) as f:
-    configFile = f.read()
-defaultConfigs = yaml.safe_load(configFile)
-
-
-###########################Load Patch###########################################
-#Initiate object conaining our fixture patch
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
-    patchFile = f.read()
-defaultPatch = yaml.safe_load(patchFile)
-
-#Initiate scene dictionary for later use
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')) as f:
-    sceneFile = f.read()
-scenes = yaml.safe_load(sceneFile)
-
-
-
 class Patch:
     '''Creates an object from which we can access all of our fixtures and rooms'''
-    def __init__(self, configs=defaultConfigs, patch=defaultPatch):
+    def __init__(self, configPath=defaultConfigPath, patchPath=defaultPatchPath):
+        #Load in config file
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')) as f:
+            configFile = f.read()
+        configs = yaml.safe_load(configFile)
+        #Load in patch file
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'patch.yml')) as f:
+            patchFile = f.read()
+        patch = yaml.safe_load(patchFile)
+        #Load in scenes
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'scenes.yml')) as f:
+            sceneFile = f.read()
+
+        self.scenes = yaml.safe_load(sceneFile)
         self.controllers = {}
         self.fixtures = {}
         self.relays = {}

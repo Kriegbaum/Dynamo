@@ -135,8 +135,6 @@ def dynamic_image(image, room):
             print('Halting automated routine, overriden by user')
             break
 
-pallettesDir = defaultConfigs['pallettesDirWin']
-
 def image_cycle(directory, room):
     cycleIterator = 0
     chosenDir = os.path.join(pallettesDir, directory)

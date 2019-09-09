@@ -11,6 +11,7 @@ Strands:
   system: Fadecandy
   indexrange: [128, 512]
   colorCorrection: [1, .88235, .6667]
+  proportion: .58
   grb: True
   room: bedroom
   controller: bedroomFC
@@ -24,7 +25,7 @@ Dresser:
 Overhead Bedroom:
   name: overhead bedroom
   system: Hue
-  colorCorrection: [.6, .6, .6]
+  proportion: .5
   id: 16
   room: bedroom
 
