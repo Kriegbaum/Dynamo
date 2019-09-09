@@ -1,10 +1,11 @@
 import sys
 sys.path.append('..')
 
+from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
 import multiprocessing
-from strandEffects import *
+#from strandEffects import *
 
 activeThreads = []
 patch = Patch()
@@ -19,6 +20,7 @@ button2 = GPIO.Button(22)
 button3 = GPIO.Button(10)
 button4 = GPIO.Button(9)
 
+'''
 def sleepFade():
     patch.room('office').off()
     patch.room('living room').off()
@@ -40,6 +42,7 @@ def runFlies():
     flies = multiprocessing.Process(target=web.fireflies)
     flies.start()
     activeThreads.append(flies)
+'''
 
 def run1():
     killEveryone()
@@ -57,6 +60,7 @@ def run4():
     killEveryone()
     room.relaysToggle()
 
+'''
 def runCenterRight():
     killEveryone()
     room.setArbitration('Sleeptime')
@@ -73,7 +77,7 @@ def runLeft():
     killEveryone()
     room.setArbitration('ButtonPress')
     room.scene(scenes['Void'], 1.5)
-
+'''
 
 button1.when_pressed = run1
 button2.when_pressed = run2

@@ -53,17 +53,20 @@ def recieve(controller):
     server_address = (localIP, controller.rxPort)
     sock.bind(server_address)
     sock.listen(1)
-    connection, client_address = sock.accept()
-    message = ''
-    while True:
-        data = connection.recv(16).decode()
-        message += data
-        if data:
-            pass
-        else:
-            return message
-            sock.shutdown(socket.SHUT_RDWR)
-            sock.close()
+    try:
+        connection, client_address = sock.accept()
+        message = ''
+        while True:
+            data = connection.recv(16).decode()
+            message += data
+            if data:
+                pass
+            else:
+                return message
+                sock.shutdown(socket.SHUT_RDWR)
+                sock.close()
+    except:
+        sock.close()
 
 #####################opcBridge Companion Functions##############################
 '''The following functions allow direct access to opcBridge or dmxBridge. These

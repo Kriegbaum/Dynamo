@@ -96,7 +96,7 @@ def switchLoop():
 
 def getState(ip, index):
     '''Gives the state of specified relay back to the client as a bool'''
-    print('\nSending pixels to %s \n' % ip)
+    print('\nSending relay state to %s \n' % ip)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8801)
     state = bool(relayPatch[index].value)
@@ -104,10 +104,10 @@ def getState(ip, index):
     try:
         sock.connect(server_address)
         sock.sendall(message.encode())
+        sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
         ripServer(ip, err)
     finally:
-        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def setArbitration(id, ip):
