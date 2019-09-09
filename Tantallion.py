@@ -34,9 +34,10 @@ def transmit(command, controller):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (controller.ip, controller.txPort)
     message = json.dumps(command)
-    sock.connect(server_address)
     try:
+        sock.connect(server_address)
         sock.sendall(message.encode())
+        sock.shutdown(socket.SHUT_RDWR)
     except Exception as e:
         if type(e) == socket.timeout:
             print('Socket timed out, attempting connection again')
@@ -44,7 +45,6 @@ def transmit(command, controller):
             print('Sending ' + command['type'] + ' failed')
             print(e)
     finally:
-        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def recieve(controller):

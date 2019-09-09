@@ -46,7 +46,7 @@ def runFlies():
 
 def run1():
     killEveryone()
-    room.scene('Mountains')
+    room.scene(patch.scenes['Mountains'])
 
 def run2():
     killEveryone()
