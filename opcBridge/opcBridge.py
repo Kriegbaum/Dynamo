@@ -8,6 +8,7 @@ import threading
 import queue
 import datetime
 import atexit
+import numpy as np
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
 #sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
@@ -32,9 +33,15 @@ except Exception as e:
 ipSock.close()
 socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
-pixels = [ [255,0,0] ] * 512
+pixels = np.zeroes((512, 3))
+diff = np.zeroes((512, 3))
+endVals = np.zeroes((512, 3))
+remaining = np.zeroes((512))
+
+clockLock = threading.Lock()
+clockerActive = threading.Event()
+
 commands = queue.Queue(maxsize=100)
-queue = queue.Queue(maxsize=4500)
 frameRate = 15
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
@@ -109,7 +116,7 @@ def socketKill(sock):
 
 
 def queueLoop():
-    '''Grabs new commands and populates the queue'''
+    '''Grabs commands from queue and modifies clock arrays'''
     print('Initiating queuer')
     while True:
         newCommand = commands.get(True, None)
@@ -120,23 +127,36 @@ def queueLoop():
             print('YA FUCKED SOMETHING UP YOU IDIOT')
 
 def clockLoop():
-    '''Removes items from the queue and transmits them to the controller'''
-    print('Initiating Clocker')
-    now = time.clock()
+    '''Processes individual frames'''
+    print('Initiating Clocker...')
+    now = time.perf_counter()
     while True:
-        now = time.clock()
-        alteration = queue.get(True, None)
-        queueLock.acquire()
-        queue.task_done()
-        for alt in alteration:
-            pixels[alt] = alteration[alt]
+        anyRemaining = False
+        now = time.perf_counter()
+
+        clockLock.acquire()
+        for pix in range(512):
+            if remaining[pix] > 1:
+                for i in range(3):
+                    pixels[pix][i] += diff[pix][i]
+                remaining[pix] -= 1
+                anyRemaining = True
+            elif remining[pix] == 1:
+                pixels[pix] = endVals[pix]
+                remaining[pix] -= 1
+                anyRemaining = True
+        clockLock.release()
+
         try:
             FCclient.put_pixels(pixels)
         except Exception as e:
             print('FCserver is down')
-        cycleTime = time.clock() - now
+        cycleTime = time.perf_counter() - now
         time.sleep(max((1 / frameRate) - cycleTime, 0))
-        queueLock.release()
+        if not anyRemaining:
+            clockerActive.clear()
+            print('Sleeping clocker...')
+        clockerActive.wait()
 
 def fetchLoop():
     '''Fetches commands from the socket'''
@@ -207,7 +227,11 @@ def getPixels(ip):
     print('\nSending pixels to %s \n' % ip)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
+
+    clockLock.acquire()
     message = json.dumps(pixels)
+    clockLock.release()
+
     try:
         sock.connect(server_address)
         sock.sendall(message.encode())
@@ -252,71 +276,33 @@ def absoluteFade(indexes, rgb, fadeTime):
     print('\nInitiating Fade to %s\n' % rgb)
     if not fadeTime:
         fadeTime = 2 / frameRate
-    for c in rgb:
-        c = makeEightBit(c)
-    #Calculates how many individual fade frames are needed
-    alterations = int(fadeTime * frameRate)
-    queueList = []
-    queueLock.acquire()
-    while not queue.empty():
-        queueList.append(queue.get())
-        queue.task_done()
-    #Amount of frames that need to be added to queue
-    appends = alterations - len(queueList)
-    #fill out the queue with blank dictionaries to populate
-    if appends > 0:
-        for i in range(abs(appends)):
-            queueList.append({})
-    #Iterate down indexes, figure out what items in queue need to be altered
+    frames = int(fadeTime * frameRate)
+    clockLock.acquire()
     for i in indexes:
-        #INVESTIGATE: THIS MIGHT BE THE SOURCE OF FLASHING ISSUES AT THE START OF A COMMAND
-        start = pixels[i]
-        bridgeGenerator = bridgeValues(alterations, start, rgb)
-        for m in range(alterations):
-            queueList[m][i] = next(bridgeGenerator)
-    #If this command overrides a previous command to the pixel, it should wipe any commands remaining
-        if appends < 0:
-            for r in range(abs(appends)):
-                if i in queueList[alterations + r]:
-                    del queueList[alterations + r][i]
-    while queueList:
-        queue.put(queueList.pop(0))
-    queueLock.release()
+        remining[i] = frames
+        for c in range(3):
+            diff[i][c] = (rgb[c] - pixels[i][c]) / frames
+        endVals[i] = rgb
+    clockLock.release()
+    clockerActive.set()
+
 
 def multiCommand(commands):
-    maxAlterations = int(max([i[2] for i in commands]) * frameRate)
-    queueList = []
-    queueLock.acquire()
-    while not queue.empty():
-        queueList.append(queue.get())
-        queue.task_done()
-    appends = maxAlterations - len(queueList)
-    if appends > 0:
-        for i in range(abs(appends)):
-            queueList.append({})
     for c in commands:
-        commandAlterations = int(c[2] * frameRate)
-        for i in range(c[0][0], c[0][1]):
-            start = pixels[i]
-            bridgeGenerator = bridgeValues(commandAlterations, start, c[1])
-            for m in range(commandAlterations):
-                queueList[m][i] = next(bridgeGenerator)
-        if appends < 0:
-            for r in range(abs(appends)):
-                if i in queueList[commandAlterations + r]:
-                    del queueList[commandAlterations + r][i]
-    while queueList:
-        queue.put(queueList.pop(0))
-    queueLock.release()
+        indexes = range(c[0][0], c[0][1])
+        rgb = c[1]
+        fadeTime = c[2]
+        absoluteFade(indexes, rgb, fadeTime)
 
 def relativeFade(indexes, magnitude, fadeTime):
-    '''Is given a brightness change, and alters the brightness'''
+    '''Is given a brightness change, and alters the brightness, likely unpredicatable
+    behavior if called in the middle of another fade'''
     commandList = []
-    for i in range(indexes[0], indexes[1]):
-        start = pixels[i]
+    clockLock.acquire()
+    for i in indexes:
         endVal = brightnessChange(pixels[i], magnitude)
-        command = [[i, i + 1], endVal, fadeTime]
-        commandList.append(command)
+        commandList.append([[i, i + 1], endVal, fadeTime])
+    clockLock.release()
     multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
@@ -325,20 +311,23 @@ queuer =  threading.Thread(target=queueLoop)
 
 
 #Test pattern to indicate server is up and running
-FCclient.put_pixels(pixels)
-FCclient.put_pixels(pixels)
+testPatternOff = np.zeroes((512, 3))
+testPatternRed = np.full((512, 3), [255,0,0])
+
+FCclient.put_pixels(testPatternRed)
+FCclient.put_pixels(testPatternRed)
 time.sleep(.5)
-pixels = [ [0,0,0] ] * 512
-FCclient.put_pixels(pixels)
-FCclient.put_pixels(pixels)
+FCclient.put_pixels(testPatternOff)
+FCclient.put_pixels(testPatternOff)
 time.sleep(.5)
-pixels = [ [255,0,0] ] * 512
-FCclient.put_pixels(pixels)
-FCclient.put_pixels(pixels)
+FCclient.put_pixels(testPatternRed)
+FCclient.put_pixels(testPatternRed)
 time.sleep(.5)
-pixels = [ [0,0,0] ] * 512
-FCclient.put_pixels(pixels)
-FCclient.put_pixels(pixels)
+FCclient.put_pixels(testPatternOff)
+FCclient.put_pixels(testPatternOff)
+
+del testPatternOff
+del testPatternRed
 
 #Initiate server
 fetcher.start()
