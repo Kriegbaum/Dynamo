@@ -106,6 +106,8 @@ def getState(ip, index):
         sock.sendall(message.encode())
         sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
+        print('Something went wrong with this socket!')
+        print(err)
         ripServer(ip, err)
     finally:
         sock.close()

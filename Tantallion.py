@@ -65,7 +65,8 @@ def recieve(controller):
                 return message
                 sock.shutdown(socket.SHUT_RDWR)
                 sock.close()
-    except:
+    except Exception as err:
+        print('Failed to get data', err)
         sock.close()
 
 #####################opcBridge Companion Functions##############################
