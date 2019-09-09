@@ -50,15 +50,15 @@ def run1():
 
 def run2():
     killEveryone()
-    room.fadeUp()
+    room.off()
 
 def run3():
     killEveryone()
-    room.fadeDown()
+    room.relaysOn()
 
 def run4():
     killEveryone()
-    room.relaysToggle()
+    room.relaysOff()
 
 '''
 def runCenterRight():
