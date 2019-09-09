@@ -35,8 +35,8 @@ socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = np.zeroes((512, 3))
 diff = np.zeroes((512, 3))
-endVals = np.zeroes((512, 3))
-remaining = np.zeroes((512))
+endVals = np.zeroes((512, 3), dtype='uint8')
+remaining = np.zeroes((512), dtype='unit16')
 
 clockLock = threading.Lock()
 clockerActive = threading.Event()
