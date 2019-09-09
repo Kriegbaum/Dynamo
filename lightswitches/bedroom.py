@@ -14,15 +14,10 @@ def killEveryone():
     for i in activeThreads:
         activeThreads.pop().terminate()
 
-button1 = GPIO.Button(26)
-button2 = GPIO.Button(20)
-button3 = GPIO.Button(19)
-button4 = GPIO.Button(21)
-
-left = GPIO.Button(12)
-centerLeft = GPIO.Button(13)
-centerRight = GPIO.Button(5)
-right = GPIO.Button(6)
+button1 = GPIO.Button(27)
+button2 = GPIO.Button(22)
+button3 = GPIO.Button(10)
+button4 = GPIO.Button(9)
 
 def sleepFade():
     patch.room('office').off()
@@ -48,25 +43,19 @@ def runFlies():
 
 def run1():
     killEveryone()
-    patch.fixture('Window').off(.3)
-    patch.fixture('Bedroom Closet').off(.3)
-    room.setArbitration('ButtonPress')
-    web.rollFade([150,195,99], 1.5)
+    room.scene('Mountains')
 
 def run2():
     killEveryone()
-    room.setArbitration('ButtonPress')
-    room.scene(scenes['Night'], 1.1)
+    room.fadeUp()
 
 def run3():
     killEveryone()
-    room.setArbitration('StrandEffect')
-    vaporCity()
+    room.fadeDown()
 
-def off():
+def run4():
     killEveryone()
-    room.setArbitration('ButtonPress')
-    room.off()
+    room.relaysToggle()
 
 def runCenterRight():
     killEveryone()
@@ -89,11 +78,6 @@ def runLeft():
 button1.when_pressed = run1
 button2.when_pressed = run2
 button3.when_pressed = run3
-button4.when_pressed = off
-
-left.when_pressed = runLeft
-centerLeft.when_pressed = runCenterLeft
-centerRight.when_pressed = runCenterRight
-right.when_pressed = off
+button4.when_pressed = run4
 
 pause()

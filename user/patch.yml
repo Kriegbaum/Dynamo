@@ -25,7 +25,7 @@ Dresser:
 Overhead Bedroom:
   name: overhead bedroom
   system: Hue
-  proportion: .5
+  proportion: .33
   id: 16
   room: bedroom
 
