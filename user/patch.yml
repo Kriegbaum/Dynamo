@@ -2,7 +2,7 @@ Worklight:
   name: worklight
   system: Fadecandy
   indexrange: [0, 1]
-  colorCorrection: [1, .85098, .57647]
+  colorCorrection: [1, .90, .57647]
   room: bedroom
   controller: bedroomFC
 
@@ -10,7 +10,7 @@ Strands:
   name: strands
   system: Fadecandy
   indexrange: [128, 512]
-  colorCorrection: [1, .88235, .6667]
+  colorCorrection: [1, .88235, .6967]
   proportion: .58
   grb: True
   room: bedroom

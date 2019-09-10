@@ -46,10 +46,12 @@ def runFlies():
 
 def run1():
     killEveryone()
+    room.setArbitration('ButtonPress')
     room.scene(patch.scenes['Mountains'])
 
 def run2():
     killEveryone()
+    room.setArbitration('ButtonPress')
     room.off()
 
 def run3():
@@ -58,6 +60,7 @@ def run3():
 
 def run4():
     killEveryone()
+    room.setArbitration('ButtonPress')
     room.relaysOff()
 
 '''
