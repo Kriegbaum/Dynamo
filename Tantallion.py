@@ -22,7 +22,7 @@ defaultScenePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'use
 #Oour local IP address, tells server where to send data back to
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
-    ipSock.connect(('255.255.255.255', 1))
+    ipSock.connect(('10.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
 except:
     localIP = '127.0.0.1'
