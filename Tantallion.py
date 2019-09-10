@@ -62,9 +62,8 @@ def recieve(controller):
             if data:
                 pass
             else:
-                return message
-                sock.shutdown(socket.SHUT_RDWR)
                 sock.close()
+                return message
     except Exception as err:
         print('Failed to get data', err)
         sock.close()
