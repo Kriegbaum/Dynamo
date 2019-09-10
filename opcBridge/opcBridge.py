@@ -136,6 +136,7 @@ def clockLoop():
         now = time.perf_counter()
 
         clockLock.acquire()
+        print('Clocklock acquired in clockLoop')
         for pix in range(512):
             if remaining[pix] > 1:
                 for i in range(3):
@@ -147,6 +148,7 @@ def clockLoop():
                 remaining[pix] -= 1
                 anyRemaining = True
         clockLock.release()
+        print('Clocklock released in clockLoop')
 
         try:
             FCclient.put_pixels(pixels)
@@ -230,10 +232,10 @@ def getPixels(ip):
     server_address = (ip, 8800)
 
     clockLock.acquire()
+    print('ClockLock acquired in getPixels')
     message = json.dumps(pixels)
     clockLock.release()
-
-    print('passed lock')
+    print('Clocklock released in getPixels')
 
     try:
         sock.connect(server_address)
