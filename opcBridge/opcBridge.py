@@ -161,7 +161,10 @@ def clockLoop():
         except Exception as e:
             print('FCserver is down')
         cycleTime = time.perf_counter() - now
-        time.sleep(max((1 / frameRate) - cycleTime, 0))
+        sleepTime = max((1 / frameRate) - cycleTime, 0)
+        if not sleepTime:
+            print('PERFORMANCE HIT')
+        time.sleep(sleepTime)
         if not anyRemaining:
             clockerActive.clear()
             print('Sleeping clocker...')
@@ -313,10 +316,13 @@ def relativeFade(indexes, magnitude, fadeTime):
     behavior if called in the middle of another fade'''
     commandList = []
     clockLock.acquire()
+    print('Clocklock acquired in relativeFade')
     for i in indexes:
         endVal = brightnessChange(pixels[i], magnitude)
+        print('cleared brightness change')
         commandList.append([[i, i + 1], endVal, fadeTime])
     clockLock.release()
+    print('Clocklock released in relativeFade')
     multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
