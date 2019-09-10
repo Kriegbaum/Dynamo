@@ -292,14 +292,14 @@ def absoluteFade(indexes, rgb, fadeTime):
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
     clockLock.acquire()
-#    print('Clocklock aquired in absolutefade')
+    print('Clocklock aquired in absolutefade')
     for i in indexes:
         remaining[i] = frames
         for c in range(3):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
     clockLock.release()
-#    print('clocklock released in absolutefade')
+    print('clocklock released in absolutefade')
     clockerActive.set()
 #    print('clockeractive set in absolutefade')
 
@@ -316,11 +316,15 @@ def relativeFade(indexes, magnitude, fadeTime):
     behavior if called in the middle of another fade'''
     commandList = []
     clockLock.acquire()
+    print(indexes, magnitude, fadeTime)
     print('Clocklock acquired in relativeFade')
-    for i in indexes:
-        endVal = brightnessChange(pixels[i], magnitude)
-        print('cleared brightness change')
-        commandList.append([[i, i + 1], endVal, fadeTime])
+    try:
+        for i in range(indexes[0], indexes[1]):
+            endVal = brightnessChange(pixels[i], magnitude)
+            print('cleared brightness change')
+            commandList.append([[i, i + 1], endVal, fadeTime])
+    except Exception as e:
+         print(e)
     clockLock.release()
     print('Clocklock released in relativeFade')
     multiCommand(commandList)
