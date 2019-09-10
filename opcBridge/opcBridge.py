@@ -287,7 +287,7 @@ def getArbitration(id, ip):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
-    print('\nInitiating Fade to %s\n' % rgb)
+#    print('\nInitiating Fade to %s\n' % rgb)
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
@@ -317,16 +317,13 @@ def relativeFade(indexes, magnitude, fadeTime):
     commandList = []
     clockLock.acquire()
     print(indexes, magnitude, fadeTime)
-    print('Clocklock acquired in relativeFade')
-    try:
-        for i in range(indexes[0], indexes[1]):
-            endVal = brightnessChange(pixels[i], magnitude)
-            print('cleared brightness change')
-            commandList.append([[i, i + 1], endVal, fadeTime])
-    except Exception as e:
-         print(e)
+#    print('Clocklock acquired in relativeFade')
+    for i in range(indexes[0], indexes[1]):
+        endVal = brightnessChange(pixels[i], magnitude)
+        commandList.append([[i, i + 1], endVal, fadeTime])
+    print('Fading to', endVal)
     clockLock.release()
-    print('Clocklock released in relativeFade')
+#    print('Clocklock released in relativeFade')
     multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
