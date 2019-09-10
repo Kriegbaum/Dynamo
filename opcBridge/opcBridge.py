@@ -77,6 +77,12 @@ def ripServer(ip, err):
     returnError(ip, err)
 
 ############################SUPPORT FUNCTIONS###################################
+def pixelsToJson(npArray):
+    lstOut = []
+    for i in npArray:
+        lstOut.append(list(i))
+    return lstOut
+
 def makeEightBit(value):
     return min(255, max(0, int(value)))
 
@@ -233,7 +239,7 @@ def getPixels(ip):
 
     clockLock.acquire()
     print('ClockLock acquired in getPixels')
-    message = json.dumps(pixels)
+    message = json.dumps(pixelsToJson(pixels))
     clockLock.release()
     print('Clocklock released in getPixels')
 
