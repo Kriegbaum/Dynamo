@@ -142,7 +142,7 @@ def clockLoop():
         now = time.perf_counter()
 
         clockLock.acquire()
-        print('Clocklock acquired in clockLoop')
+ #       print('Clocklock acquired in clockLoop')
         for pix in range(512):
             if remaining[pix] > 1:
                 for i in range(3):
@@ -154,7 +154,7 @@ def clockLoop():
                 remaining[pix] -= 1
                 anyRemaining = True
         clockLock.release()
-        print('Clocklock released in clockLoop')
+#        print('Clocklock released in clockLoop')
 
         try:
             FCclient.put_pixels(pixels)
@@ -238,10 +238,10 @@ def getPixels(ip):
     server_address = (ip, 8800)
 
     clockLock.acquire()
-    print('ClockLock acquired in getPixels')
+#    print('ClockLock acquired in getPixels')
     message = json.dumps(pixelsToJson(pixels))
     clockLock.release()
-    print('Clocklock released in getPixels')
+#    print('Clocklock released in getPixels')
 
     try:
         sock.connect(server_address)
@@ -289,13 +289,16 @@ def absoluteFade(indexes, rgb, fadeTime):
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
     clockLock.acquire()
+#    print('Clocklock aquired in absolutefade')
     for i in indexes:
-        remining[i] = frames
+        remaining[i] = frames
         for c in range(3):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
     clockLock.release()
+#    print('clocklock released in absolutefade')
     clockerActive.set()
+#    print('clockeractive set in absolutefade')
 
 
 def multiCommand(commands):
