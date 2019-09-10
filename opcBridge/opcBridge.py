@@ -144,7 +144,6 @@ def clockLoop():
         now = time.perf_counter()
 
         clockLock.acquire()
- #       print('Clocklock acquired in clockLoop')
         for pix in range(512):
             if remaining[pix] > 1:
                 for i in range(3):
@@ -156,17 +155,13 @@ def clockLoop():
                 remaining[pix] -= 1
                 anyRemaining = True
         clockLock.release()
-#        print('Clocklock released in clockLoop')
 
         try:
             FCclient.put_pixels(pixels)
         except Exception as e:
             print('FCserver is down')
         cycleTime = time.perf_counter() - now
-        sleepTime = max((1 / frameRate) - cycleTime, 0)
-        if not sleepTime:
-            print('PERFORMANCE HIT')
-        time.sleep(sleepTime)
+        time.sleep(max((1 / frameRate) - cycleTime, 0))
         if not anyRemaining:
             clockerActive.clear()
             print('Sleeping clocker...')
@@ -243,10 +238,8 @@ def getPixels(ip):
     server_address = (ip, 8800)
 
     clockLock.acquire()
-#    print('ClockLock acquired in getPixels')
     message = json.dumps(pixelsToJson(pixels))
     clockLock.release()
-#    print('Clocklock released in getPixels')
 
     try:
         sock.connect(server_address)
@@ -289,21 +282,17 @@ def getArbitration(id, ip):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
-#    print('\nInitiating Fade to %s\n' % rgb)
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
     clockLock.acquire()
-#    print('Clocklock aquired in absolutefade')
     for i in indexes:
         remaining[i] = frames
         for c in range(3):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
     clockLock.release()
-#    print('clocklock released in absolutefade')
     clockerActive.set()
-#    print('clockeractive set in absolutefade')
 
 
 def multiCommand(commands):
@@ -318,13 +307,11 @@ def relativeFade(indexes, magnitude, fadeTime):
     behavior if called in the middle of another fade'''
     commandList = []
     clockLock.acquire()
-#    print('Clocklock acquired in relativeFade')
     for i in range(indexes[0], indexes[1]):
         endVal = brightnessChange(pixels[i], magnitude)
         commandList.append([[i, i + 1], endVal, fadeTime])
     print('Fading to', endVal)
     clockLock.release()
-#    print('Clocklock released in relativeFade')
     multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
