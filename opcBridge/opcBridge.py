@@ -36,14 +36,14 @@ socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
 pixels = np.zeros((512, 3))
 diff = np.zeros((512, 3))
-endVals = np.zeros((512, 3), dtype='uint8')
+endVals = np.zeros((512, 3))
 remaining = np.zeros((512), dtype='uint16')
 
 clockLock = threading.Lock()
 clockerActive = threading.Event()
 
 commands = queue.Queue(maxsize=100)
-frameRate = 15
+frameRate = 12
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
 arbitration = [False, '127.0.0.1']
@@ -100,10 +100,12 @@ def brightnessChange(rgb, magnitude):
         newBri = min(255, max(0, int(newBri)))
         if not newBri:
             newBri = 1
+        if currentBri == newBri:
+            return rgb
         rgbOut = rgbSetBrightness(newBri, rgb)
+        return rgbOut
     else:
-        rgbOut = rgb
-    return rgbOut
+        return rgb
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
@@ -292,14 +294,14 @@ def absoluteFade(indexes, rgb, fadeTime):
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
     clockLock.acquire()
-    print('Clocklock aquired in absolutefade')
+#    print('Clocklock aquired in absolutefade')
     for i in indexes:
         remaining[i] = frames
         for c in range(3):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
     clockLock.release()
-    print('clocklock released in absolutefade')
+#    print('clocklock released in absolutefade')
     clockerActive.set()
 #    print('clockeractive set in absolutefade')
 
@@ -316,7 +318,6 @@ def relativeFade(indexes, magnitude, fadeTime):
     behavior if called in the middle of another fade'''
     commandList = []
     clockLock.acquire()
-    print(indexes, magnitude, fadeTime)
 #    print('Clocklock acquired in relativeFade')
     for i in range(indexes[0], indexes[1]):
         endVal = brightnessChange(pixels[i], magnitude)
@@ -333,7 +334,7 @@ queuer =  threading.Thread(target=queueLoop)
 
 #Test pattern to indicate server is up and running
 testPatternOff = np.zeros((512, 3))
-testPatternRed = np.full((512, 3), [255,0,0])
+testPatternRed = np.full((512, 3), [64,0,0])
 
 FCclient.put_pixels(testPatternRed)
 FCclient.put_pixels(testPatternRed)
