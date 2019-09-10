@@ -82,3 +82,11 @@ Soundcard:
   room: bedroom
   stage: 1
   controller: bedroomRelays
+
+Subwoofer:
+  name: subwoofer
+  system: CustomRelay
+  index: 2
+  room: bedroom
+  stage: 2
+  controller: bedroomRelays
