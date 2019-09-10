@@ -26,6 +26,7 @@ ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
     ipSock.connect(('10.255.255.255', 1))
     localIP = ipSock.getsockname()[0]
+    print('Local IP set to', localIP)
 except Exception as e:
     print(e)
     print('Local IP detection failed, listening on localhost')
@@ -33,10 +34,10 @@ except Exception as e:
 ipSock.close()
 socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
-pixels = np.zeroes((512, 3))
-diff = np.zeroes((512, 3))
-endVals = np.zeroes((512, 3), dtype='uint8')
-remaining = np.zeroes((512), dtype='unit16')
+pixels = np.zeros((512, 3))
+diff = np.zeros((512, 3))
+endVals = np.zeros((512, 3), dtype='uint8')
+remaining = np.zeros((512), dtype='uint16')
 
 clockLock = threading.Lock()
 clockerActive = threading.Event()
@@ -141,7 +142,7 @@ def clockLoop():
                     pixels[pix][i] += diff[pix][i]
                 remaining[pix] -= 1
                 anyRemaining = True
-            elif remining[pix] == 1:
+            elif remaining[pix] == 1:
                 pixels[pix] = endVals[pix]
                 remaining[pix] -= 1
                 anyRemaining = True
@@ -232,13 +233,15 @@ def getPixels(ip):
     message = json.dumps(pixels)
     clockLock.release()
 
+    print('passed lock')
+
     try:
         sock.connect(server_address)
         sock.sendall(message.encode())
-    except Exception as err:
-        ripServer(ip, err)
-    finally:
         sock.shutdown(socket.SHUT_RDWR)
+    except Exception as err:
+        print(err)
+    finally:
         sock.close()
 
 def setArbitration(id, ip):
@@ -311,7 +314,7 @@ queuer =  threading.Thread(target=queueLoop)
 
 
 #Test pattern to indicate server is up and running
-testPatternOff = np.zeroes((512, 3))
+testPatternOff = np.zeros((512, 3))
 testPatternRed = np.full((512, 3), [255,0,0])
 
 FCclient.put_pixels(testPatternRed)
