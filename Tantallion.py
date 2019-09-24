@@ -390,7 +390,8 @@ class Fadecandy(Fixture):
         will not always accurately reflect the state of the whole fixture'''
         command = {'type': 'getPixels'}
         transmit(command, self.controller)
-        pixels = json.loads(recieve(self.controller))
+        pixels = recieve(self.controller)
+        pixels = json.loads(pixels)
         return pixels[self.indexRange[0]]
 
     def off(self, fadeTime=0):

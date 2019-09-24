@@ -14,7 +14,7 @@ locationMap = list(zip(*locationMap))
 #Locations where pixels touch each other
 intersections = [[128, 192, 256, 320, 384]]
 #Every index in a one dimensional array
-allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,434))
+allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,434)) + list(range(448,512))
 
 #Load in our lighting rig
 patch = Patch()
@@ -155,7 +155,7 @@ class PixelArray():
         #Establish the background layer
         backgroundLayer = []
         self.room.off()
-        patch.fixture('Full Array').setColor(colorBackground)
+        patch.fixture('strands').setColor([0,24,44])
         #Effect loop
         iteration = 0
         nextChoice = random.randrange(4, 8)
