@@ -34,16 +34,16 @@ except Exception as e:
 ipSock.close()
 socket.setdefaulttimeout(60)
 #########################CONTROL OBJECT DEFINITIONS#############################
-pixels = np.zeros((512, 3))
-diff = np.zeros((512, 3))
-endVals = np.zeros((512, 3))
+pixels = np.zeros((512, 3), dtype='float32')
+diff = np.zeros((512, 3), dtype='float32' )
+endVals = np.zeros((512, 3), dtype='float32')
 remaining = np.zeros((512), dtype='uint16')
 
 clockLock = threading.Lock()
 clockerActive = threading.Event()
 
 commands = queue.Queue(maxsize=100)
-frameRate = 12
+frameRate = 16
 FCclient = opc.Client('localhost:7890')
 queueLock = threading.Lock()
 arbitration = [False, '127.0.0.1']
@@ -72,15 +72,18 @@ def logError(err):
         logFile.write(err)
 
 def ripServer(ip, err):
+    absoluteFade(range(0,512), [255,0,0], 0)
+    time.sleep(1)
+    absoluteFade(range(0,512), [0,0,0], 0)
     err = constructErrorEntry(ip, err)
     logError(err)
     returnError(ip, err)
-
+    print(err)
 ############################SUPPORT FUNCTIONS###################################
 def pixelsToJson(npArray):
     lstOut = []
     for i in npArray:
-        lstOut.append(list(i))
+        lstOut.append([int(i[0]), int(i[1]), int(i[2])])
     return lstOut
 
 def makeEightBit(value):
