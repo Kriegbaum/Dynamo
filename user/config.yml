@@ -5,11 +5,11 @@ hueIP: 10.0.0.11
 controllers:
   bedroomRelays:
     name: bedroomRelays
-    ip: 192.168.0.19
+    ip: 10.0.0.13
     system: CustomRelay
     room: bedroom
   bedroomFC:
     name: bedroomFC
-    ip: 192.168.0.17
+    ip: 10.0.0.9
     system: Fadecandy
     room: bedroom
