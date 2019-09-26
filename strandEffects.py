@@ -120,10 +120,10 @@ class PixelArray():
                 if iterate % grouping == 0:
                     sendMultiCommand(multiCommand, self.controller)
                     multiCommand = []
-                    time.sleep((.1 / speed) * randomPercent(75, 125))
+                    time.sleep((.1 / speed) * randomPercent(75, 190))
                 iterate += 1
             if frequency:
-                time.sleep(frequency * randomPercent(50, 100))
+                time.sleep(frequency * randomPercent(50, 110))
 
     def fireflyRigid(self, index, colorPrimary, colorSecondary, colorBackground, speed):
         '''Used by fireflies() effect. A single pixel fades up, fades down to a

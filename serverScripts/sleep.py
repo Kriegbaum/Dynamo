@@ -1,12 +1,13 @@
 import sys
 sys.path.append('..')
 
-from Tantallion import *
+from strandEffects import *
 import os
 import musicbeeipc
 import time
 from cuepy import CorsairSDK
 import subprocess
+from random import shuffle
 
 subprocess.Popen("C:\\Program Files (x86)\\MSI\\MSI LED Tool.exe")
 time.sleep(1)
@@ -22,12 +23,20 @@ mb = musicbeeipc.MusicBeeIPC()
 
 os.system('E:\\nircmd\\nircmd.exe monitor off')
 
-patch.rooms['bedroom'].setColor([6,0,64], fadeTime=45)
+patch.rooms['bedroom'].setColor([12,0,120], fadeTime=90)
+patch.fixture('desk').off(90)
+patch.fixture('dresser').off(90)
 time.sleep(90)
-patch.rooms['bedroom'].off(45)
+patch.fixture('worklight').off(45)
+randPix = web.allMap.copy()
+shuffle(randPix)
+for i in randPix:
+    command = [[[i, i + 1], [0,0,0], 2]]
+    sendMultiCommand(command, web.controller)
+    time.sleep(1)
 
 while mb.get_play_state_str() != 'Stopped':
     time.sleep(1)
 
 patch.rooms['bedroom'].relaysOff()
-#os.system('rundll32.exe powrprof.dll,SetSuspendState 0,1,0')
+os.system('rundll32.exe powrprof.dll,SetSuspendState 0,1,0')
