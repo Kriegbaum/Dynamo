@@ -6,7 +6,7 @@ from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
 import multiprocessing
-#from strandEffects import *
+from strandEffects import *
 
 activeThreads = []
 patch = Patch()
@@ -21,7 +21,7 @@ button2 = GPIO.Button(22)
 button3 = GPIO.Button(10)
 button4 = GPIO.Button(9)
 
-'''
+
 def sleepFade():
     patch.room('office').off()
     patch.room('living room').off()
@@ -35,7 +35,9 @@ def sleepFade():
 def vaporCity():
     imagePath = ('/home/pi', 'vapor_city.jpg')
     vapor = multiprocessing.Process(target=web.imageSample, args=imagePath)
-    room.off(15)
+    patch.fixture('worklight').setColor([128, 20, 50])
+    patch.fixture('desk').setColor([3, 15, 149])
+    patch.fixture('dresser').setColor([141, 24, 131])
     vapor.start()
     activeThreads.append(vapor)
 
@@ -43,24 +45,25 @@ def runFlies():
     flies = multiprocessing.Process(target=web.fireflies)
     flies.start()
     activeThreads.append(flies)
-'''
 
 def run1():
+    print('button 1 pressed')
     killEveryone()
     room.setArbitration('ButtonPress')
-    room.scene(patch.scenes['Mountains'])
+    vaporCity()
 
 def run2():
+    print('button 2 pressed')
     killEveryone()
     room.setArbitration('ButtonPress')
     room.off()
 
 def run3():
-    killEveryone()
+    print('button 3 pressed')
     room.relaysOn()
 
 def run4():
-    killEveryone()
+    print('button 4 pressed')
     room.setArbitration('ButtonPress')
     room.relaysOff()
 
