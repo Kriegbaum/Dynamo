@@ -9,18 +9,24 @@ import queue
 import datetime
 import atexit
 import numpy as np
+import yaml
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
 #sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
 
 #typical command
-#{'type': 'absoluteFade', 'indexRange': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
+#{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
 #{'type': 'pixelRequest'}
-#{'type': 'relativeFade', 'indexRange': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
+#{'type': 'relativeFade', 'indexes': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
 #('type': 'multiCommand', [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
 
 #typical queue item
 #[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
+#########################LOAD IN USER CONFIG####################################
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.yml')) as f:
+    configFile = f.read()
+configs = yaml.safe_load(configFile)
+
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:
@@ -41,6 +47,8 @@ remaining = np.zeros((512), dtype='uint16')
 
 clockLock = threading.Lock()
 clockerActive = threading.Event()
+
+psuActive = False
 
 commands = queue.Queue(maxsize=100)
 frameRate = 16
@@ -70,6 +78,7 @@ def returnError(ip, err):
 def logError(err):
     with open(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'opcBridge-log.txt'), 'a') as logFile:
         logFile.write(err)
+        logFile.write('\n')
 
 def ripServer(ip, err):
     absoluteFade(range(0,512), [255,0,0], 0)
@@ -110,6 +119,15 @@ def brightnessChange(rgb, magnitude):
     else:
         return rgb
 
+def psuCheck(pixels):
+    psuActive = False
+    for pix in pixels:
+        for color in pix:
+            if color > 0:
+                psuActive = True
+                return True
+    return psuActive
+
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
     newRGB = start
@@ -124,6 +142,25 @@ def bridgeValues(totalSteps, start, end):
 def socketKill(sock):
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
+
+def psuSwitch(state):
+    sock = socket.socket(sockt.AF_INET, socket.SOCK_STREAM)
+    server_address = (configs['PSUs']['ip'], configs['PSUs']['port'])
+    message = json.dumps({'type': 'switch', 'index': configs['PSUs']['index'], 'state': state})
+    try:
+        sock.connect(server_address)
+        sock.sendall(message.encode())
+        sock.shutdown(socket.SHUT_RDWR)
+    except Exception as e:
+        if type(e) == socket.timeout:
+            print('Socket timed out, attempting connection again')
+        else:
+            print('Sending ' + command['type'] + ' failed')
+            print(e)
+    finally:
+        sock.close()
+    psuActive = state
+
 #############################SERVER LOOPS#######################################
 
 
@@ -167,6 +204,9 @@ def clockLoop():
         time.sleep(max((1 / frameRate) - cycleTime, 0))
         if not anyRemaining:
             clockerActive.clear()
+            if not psuCheck:
+                print('Killing PSUs')
+                psuSwitch(False)
             print('Sleeping clocker...')
         clockerActive.wait()
 
@@ -199,15 +239,12 @@ def fetchLoop():
 def commandParse(command):
     if command['type'] == 'absoluteFade':
         try:
-            if 'indexRange' in command:
-                absoluteFade(range(command['indexRange'][0], command['indexRange'][1]), command['color'], command['fadeTime'])
-            else:
-                absoluteFade(command['indexes'], command['color'], command['fadeTime'])
+            absoluteFade(command['indexes'], command['color'], command['fadeTime'])
         except Exception as err:
             ripServer(command['ip'], err)
     elif command['type'] == 'relativeFade':
         try:
-            relativeFade(command['indexRange'], command['magnitude'], command['fadeTime'])
+            relativeFade(command['indexes'], command['magnitude'], command['fadeTime'])
         except Exception as err:
             ripServer(command['ip'], err)
     elif command['type'] == 'getPixels':
@@ -285,6 +322,8 @@ def getArbitration(id, ip):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
+    if not psuActive:
+        psuSwitch(True)
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
@@ -310,7 +349,7 @@ def relativeFade(indexes, magnitude, fadeTime):
     behavior if called in the middle of another fade'''
     commandList = []
     clockLock.acquire()
-    for i in range(indexes[0], indexes[1]):
+    for i in indexes:
         endVal = brightnessChange(pixels[i], magnitude)
         commandList.append([[i, i + 1], endVal, fadeTime])
     print('Fading to', endVal)

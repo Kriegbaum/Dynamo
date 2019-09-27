@@ -90,7 +90,7 @@ def multiConstructor(fixture, rgb, fadeTime):
     rgb = fixture.colorCorrect(rgb)
     if fixture.grb:
         rgb = grbFix(rgb)
-    return [fixture.indexRange, rgb, fadeTime]
+    return [fixture.indexes, rgb, fadeTime]
 
 def sendMultiCommand(commands, controller):
     '''Sends a command that issues an absoluteFade to multiple fixtures at once
@@ -101,11 +101,11 @@ def sendMultiCommand(commands, controller):
     command = {'type':'multiCommand', 'commands':commands}
     transmit(command, controller)
 
-def sendCommand(indexrange, rgb, controller, fadetime=5, type='absoluteFade'):
+def sendCommand(indexes, rgb, controller, fadetime=5, type='absoluteFade'):
     '''Sends a dictionary to specified controller'''
     #typical command
-    #{'type': 'absoluteFade', 'indexRange': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
-    command = {'type':'absoluteFade', 'color':rgb, 'fadeTime': fadetime, 'indexRange': indexrange}
+    #{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
+    command = {'type':'absoluteFade', 'color':rgb, 'fadeTime': fadetime, 'indexes': indexes}
     transmit(command, controller)
 
 '''The following functions need to be reworked in order to function in the new
@@ -113,17 +113,17 @@ structure of this system. They should probably eventually end up as fixture
 member functions for fadecandy fixtures, they work well for pixel tape
 
 def rippleFade(fixture, rgb, rippleTime=5, type='wipe'):
-    sleepTime = rippleTime / (fixture.indexrange[1] - fixture.indexrange[0])
+    sleepTime = rippleTime / len(fixture.indexes)
     #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
     #if sleepTime < .06:
     #    sleepTime = .06
-    for index in range(fixture.indexrange[0], fixture.indexrange[1]):
+    for index in fixture.indexes:
         sendCommand([index, index + 1], rgb, fadetime=.9, controller=fixture.controller)
         time.sleep(sleepTime)
 
 def dappleFade(fixture, rgb, fadetime=5):
-    indexes = list(range(fixture.indexrange[0], fixture.indexrange[1]))
-    sleepTime = fadetime / (fixture.indexrange[1] - fixture.indexrange[0])
+    indexes = fixture.indexes
+    sleepTime = fadetime / len(fixture.indexes)
     #0.06s currently represents the minimum time between commands that opcBridge can handle on an RPI3
     #if sleepTime < .06:
     #    sleepTime = .06
@@ -260,11 +260,20 @@ def rgbSetBrightness(setBri, rgb):
     rgbOut = [rgb[0] * ratio, rgb[1] * ratio, rgb[2] * ratio]
     return rgbOut
 
-
 ##################Begin Fixture Patching Process################################
 
-roomDict = {'all': {'fixtures': [], 'relays': []}}
-fixtureDict = {}
+def rangeParser(yamlInput):
+    '''Interprets a complex pixel list definition from a list of strings'''
+    indexesOut = []
+    for item in yamlInput:
+        if type(item) == int:
+            indexesOut.append(item)
+        elif type(item) == str:
+            rangeTmp = item.split('-')
+            rangeTmp = range(int(rangeTmp[0]), int(rangeTmp[1]) + 1)
+            for i in rangeTmp:
+                indexesOut.append(i)
+    return indexesOut
 
 def testDict(dictionary, key, default):
     '''See if the patch dictionary has specified a value. If it doesn't, return
@@ -357,15 +366,17 @@ class Fadecandy(Fixture):
     included in this project. These fixtures are exclusively RGB or GRB'''
     def __init__(self, patch, patchDict):
         Fixture.__init__(self, patchDict)
-        self.indexRange = testDict(patchDict, 'indexrange', [0,0])
+        self.indexes = rangeParser(testDict(patchDict, 'indexes', [0]))
         self.grb = testDict(patchDict, 'grb', False)
         self.controller = patch.controllers[patchDict['controller']]
+        #PrettyPrint version of the index value
+        self.indexRepr = testDict(patchDict, 'indexes', [0])
 
     def __repr__(self):
         stringOut = self.name
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
-        stringOut += '\nIndexes: %s' % self.indexRange
+        stringOut += '\nIndexes: %s' % self.indexRepr
         stringOut += '\nController: %s\n' % self.controller.name
         return(stringOut)
 
@@ -373,7 +384,7 @@ class Fadecandy(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexRange': self.indexRange}
+        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
         transmit(command, self.controller)
 
     def returnCommand(self, rgb, fadeTime):
@@ -382,7 +393,7 @@ class Fadecandy(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexRange': self.indexRange}
+        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
         return command
 
     def getColor(self):
@@ -392,7 +403,7 @@ class Fadecandy(Fixture):
         transmit(command, self.controller)
         pixels = recieve(self.controller)
         pixels = json.loads(pixels)
-        return pixels[self.indexRange[0]]
+        return pixels[self.indexes[0]]
 
     def off(self, fadeTime=0):
         '''Turns the fixture off in specified time'''
@@ -406,11 +417,11 @@ class Fadecandy(Fixture):
             self.setColor([255, 202, 190], fadeTime)
 
     def fadeUp(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount, 'fadeTime': fadeTime}
+        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
     def fadeDown(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexRange': self.indexRange, 'magnitude': amount * -1, 'fadeTime': fadeTime}
+        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount * -1, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
 class Hue(Fixture):
