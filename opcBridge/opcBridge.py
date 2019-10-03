@@ -170,13 +170,11 @@ def queueLoop():
     while True:
         newCommand = commands.get(True, None)
         commands.task_done()
-        commandParse(newCommand)
-        '''
         try:
             commandParse(newCommand)
         except:
             print('YA FUCKED SOMETHING UP YOU IDIOT')
-        '''
+
 def clockLoop():
     '''Processes individual frames'''
     print('Initiating Clocker...')
