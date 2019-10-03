@@ -109,21 +109,25 @@ class PixelArray():
         sendMultiCommand(megaCommand, self.controller)
         grouping = density // 20
         while True:
-            #Grab some number of pixels
-            sampledPix = self.randomPixels(int(density * randomPercent(50, 150)))
-            colorList = sample_sectors(fullImagePath, len(sampledPix))
-            iterate = 0
-            multiCommand = []
-            for pix in sampledPix:
-                color = grbFix(colorList[iterate])
-                multiCommand.append([[pix, pix + 1], color, 1 / speed])
-                if iterate % grouping == 0:
-                    sendMultiCommand(multiCommand, self.controller)
-                    multiCommand = []
-                    time.sleep((.1 / speed) * randomPercent(75, 190))
-                iterate += 1
-            if frequency:
-                time.sleep(frequency * randomPercent(50, 110))
+            if self.controller.getArbitration('strandImageSample'):
+                #Grab some number of pixels
+                sampledPix = self.randomPixels(int(density * randomPercent(50, 150)))
+                colorList = sample_sectors(fullImagePath, len(sampledPix))
+                iterate = 0
+                multiCommand = []
+                for pix in sampledPix:
+                    color = grbFix(colorList[iterate])
+                    multiCommand.append([[pix, pix + 1], color, 1 / speed])
+                    if iterate % grouping == 0:
+                        sendMultiCommand(multiCommand, self.controller)
+                        multiCommand = []
+                        time.sleep((.1 / speed) * randomPercent(75, 190))
+                    iterate += 1
+                if frequency:
+                    time.sleep(frequency * randomPercent(50, 110))
+            else:
+                print('Routine halted, overriden by manual event')
+                break
 
     def fireflyRigid(self, index, colorPrimary, colorSecondary, colorBackground, speed):
         '''Used by fireflies() effect. A single pixel fades up, fades down to a
