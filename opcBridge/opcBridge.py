@@ -144,7 +144,7 @@ def socketKill(sock):
     sock.close()
 
 def psuSwitch(state):
-    sock = socket.socket(sockt.AF_INET, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (configs['PSUs']['ip'], configs['PSUs']['port'])
     message = json.dumps({'type': 'switch', 'index': configs['PSUs']['index'], 'state': state})
     try:
@@ -170,11 +170,13 @@ def queueLoop():
     while True:
         newCommand = commands.get(True, None)
         commands.task_done()
+        commandParse(newCommand)
+        '''
         try:
             commandParse(newCommand)
         except:
             print('YA FUCKED SOMETHING UP YOU IDIOT')
-
+        '''
 def clockLoop():
     '''Processes individual frames'''
     print('Initiating Clocker...')
