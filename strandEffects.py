@@ -97,6 +97,7 @@ class PixelArray():
 
     def imageSample(self, imagedir, imagefile, density=80, frequency=1, speed=1):
         '''Render array with beautiful colors'''
+        self.controller.setArbitration('strandImageSample')
         fullImagePath = os.path.join(imagedir, imagefile)
         pixelCount = len(self.allMap)
         colorList = sample_sectors(fullImagePath, pixelCount)
