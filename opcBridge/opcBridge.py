@@ -120,13 +120,12 @@ def brightnessChange(rgb, magnitude):
         return rgb
 
 def psuCheck(pixels):
-    psuActive = False
     for pix in pixels:
         for color in pix:
             if color > 0:
-                psuActive = True
+                print("Pixels still active, Leaving PSU on...")
                 return True
-    return psuActive
+    return False
 
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
@@ -203,10 +202,10 @@ def clockLoop():
         cycleTime = time.perf_counter() - now
         time.sleep(max((1 / frameRate) - cycleTime, 0))
         if not anyRemaining:
-            clockerActive.clear()
             if not psuCheck:
                 print('Killing PSUs')
                 psuSwitch(False)
+            clockerActive.clear()
             print('Sleeping clocker...')
         clockerActive.wait()
 
