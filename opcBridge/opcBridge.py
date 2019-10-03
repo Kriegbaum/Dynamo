@@ -322,6 +322,7 @@ def getArbitration(id, ip):
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
     if not psuActive:
+        print('Spinning up PSU')
         psuSwitch(True)
     if not fadeTime:
         fadeTime = 2 / frameRate
@@ -337,11 +338,22 @@ def absoluteFade(indexes, rgb, fadeTime):
 
 
 def multiCommand(commands):
-    for c in commands:
-        indexes = range(c[0][0], c[0][1])
-        rgb = c[1]
-        fadeTime = c[2]
-        absoluteFade(indexes, rgb, fadeTime)
+    if not psuActive:
+        print('Spinning up PSU')
+        psuSwitch(True)
+
+    clockLock.acquire()
+    for x in commands:
+        indexes = range(x[0][0], x[0][1])
+        frames = int(x[2] * frameRate)
+        rgb = x[1]
+        for i in indexes:
+            remaining[i] = frames
+            for c in range(3):
+                diff[i][c] = (rgb[c] - pixels[i][c]) / frames
+            endVals[i] = rgb
+    clockLock.release()
+    clockerActive.set()
 
 def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness, likely unpredicatable
