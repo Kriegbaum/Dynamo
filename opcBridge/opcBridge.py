@@ -123,7 +123,6 @@ def psuCheck(pixels):
     for pix in pixels:
         for color in pix:
             if color > 0:
-                print("Pixels still active, Leaving PSU on...")
                 return True
     return False
 
@@ -202,7 +201,7 @@ def clockLoop():
         cycleTime = time.perf_counter() - now
         time.sleep(max((1 / frameRate) - cycleTime, 0))
         if not anyRemaining:
-            if not psuCheck():
+            if not psuCheck(pixels):
                 print('Killing PSUs')
                 psuSwitch(False)
             clockerActive.clear()
