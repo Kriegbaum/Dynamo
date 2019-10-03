@@ -23,6 +23,7 @@ mb = musicbeeipc.MusicBeeIPC()
 
 os.system('E:\\nircmd\\nircmd.exe monitor off')
 
+patch.rooms['bedroom'].setArbitration('SleepTime')
 patch.rooms['bedroom'].setColor([12,0,120], fadeTime=90)
 patch.fixture('desk').off(90)
 patch.fixture('dresser').off(90)

@@ -9,7 +9,7 @@ Worklight:
 Strands:
   name: strands
   system: Fadecandy
-  indexes: [128-512]
+  indexes: [128-511]
   colorCorrection: [1, .88235, .6967]
   proportion: .58
   grb: True
