@@ -202,7 +202,7 @@ def clockLoop():
         cycleTime = time.perf_counter() - now
         time.sleep(max((1 / frameRate) - cycleTime, 0))
         if not anyRemaining:
-            if not psuCheck:
+            if not psuCheck():
                 print('Killing PSUs')
                 psuSwitch(False)
             clockerActive.clear()
