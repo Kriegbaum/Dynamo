@@ -157,7 +157,6 @@ def psuSwitch(state):
             print(e)
     finally:
         sock.close()
-    psuActive = state
 
 #############################SERVER LOOPS#######################################
 
@@ -204,6 +203,7 @@ def clockLoop():
             if not psuCheck(pixels):
                 print('Killing PSUs')
                 psuSwitch(False)
+                psuActive = False
             clockerActive.clear()
             print('Sleeping clocker...')
         clockerActive.wait()
@@ -323,6 +323,7 @@ def absoluteFade(indexes, rgb, fadeTime):
     if not psuActive:
         print('Spinning up PSU')
         psuSwitch(True)
+        psuActive = True
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
@@ -340,6 +341,7 @@ def multiCommand(commands):
     if not psuActive:
         print('Spinning up PSU')
         psuSwitch(True)
+        psuActive = True
 
     clockLock.acquire()
     for x in commands:
