@@ -9,12 +9,12 @@ import threading
 from automatons import *
 
 #Build 5x50 array, rows and columns
-locationMap = [list(range(128,178)), list(range(192,242)), list(range(256,306)), list(range(320,370)), list(range(384,434))]
+locationMap = [list(range(128,178)), list(range(192,242)), list(range(256,306)), list(range(320,370)), list(range(384,448))]
 locationMap = list(zip(*locationMap))
 #Locations where pixels touch each other
 intersections = [[128, 192, 256, 320, 384]]
 #Every index in a one dimensional array
-allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,434)) + list(range(448,512))
+allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,448)) + list(range(448,512))
 
 #Load in our lighting rig
 patch = Patch()
@@ -105,7 +105,7 @@ class PixelArray():
         iterate = 0
         for p in self.allMap:
             color = grbFix(colorList[iterate])
-            megaCommand.append([[p, p + 1], color, .5 * speed])
+            megaCommand.append([[p], color, .5 * speed])
             iterate += 1
         sendMultiCommand(megaCommand, self.controller)
         grouping = density // 20
@@ -118,7 +118,7 @@ class PixelArray():
                 multiCommand = []
                 for pix in sampledPix:
                     color = grbFix(colorList[iterate])
-                    multiCommand.append([[pix, pix + 1], color, 1 / speed])
+                    multiCommand.append([[pix], color, 1 / speed])
                     if iterate % grouping == 0:
                         sendMultiCommand(multiCommand, self.controller)
                         multiCommand = []
@@ -135,25 +135,25 @@ class PixelArray():
         different color, and then recedes to background'''
         #Fly fades up to primary color
         upTime = 0
-        sendCommand([index, index + 1], colorPrimary, self.controller, fadetime=upTime)
+        sendCommand([index], colorPrimary, self.controller, fadetime=upTime)
         time.sleep(1.3 / speed)
         #Fly fades down to secondary color
         downTime = 5.0 / speed
-        sendCommand([index, index + 1], colorBackground, controller, fadetime=downTime)
+        sendCommand([index], colorBackground, controller, fadetime=downTime)
 
     def firefly(self, index, colorPrimary, colorSecondary, colorBackground, speed):
         '''Used by fireflies() effect. A single pixel fades up, fades down to a
         different color, and then recedes to background'''
         #Fly fades up to primary color
         upTime = (.5 * randomPercent(80, 160)) / speed
-        sendCommand([index, index + 1], colorPrimary, self.controller, fadetime=upTime)
+        sendCommand([index], colorPrimary, self.controller, fadetime=upTime)
         time.sleep((1.3 / speed) * randomPercent(80, 160))
         #Fly fades down to secondary color
         downTime = (3.7 * randomPercent(75, 110)) / speed
-        sendCommand([index, index + 1], colorSecondary, self.controller, fadetime=downTime)
+        sendCommand([index], colorSecondary, self.controller, fadetime=downTime)
         time.sleep((5.0 / speed) * randomPercent(80, 120))
         #Fly recedes into background
-        sendCommand([index, index + 1], colorBackground, self.controller, fadetime=.5)
+        sendCommand([index], colorBackground, self.controller, fadetime=.5)
 
     def fireflies(self, density=7, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
         '''Dots randomly appear on the array, and fade out into a different color'''
