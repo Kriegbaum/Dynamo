@@ -14,7 +14,7 @@ locationMap = list(zip(*locationMap))
 #Locations where pixels touch each other
 intersections = [[128, 192, 256, 320, 384]]
 #Every index in a one dimensional array
-allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,306)) + list(range(320,370)) + list(range(384,448)) + list(range(448,512))
+allMap = list(range(128,178)) + list(range(192,242)) + list(range(256,307)) + list(range(320,370)) + list(range(384,448)) + list(range(448,498))
 
 #Load in our lighting rig
 patch = Patch()
