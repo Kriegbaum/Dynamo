@@ -343,7 +343,7 @@ def multiCommand(commands):
 
     clockLock.acquire()
     for x in commands:
-        indexes = range(x[0][0], x[0][1])
+        indexes = x[0]
         frames = int(x[2] * frameRate)
         rgb = x[1]
         for i in indexes:
