@@ -308,14 +308,14 @@ def getArbitration(id, ip):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
-    sock.connect(server_address)
     message = json.dumps(response)
     try:
+        sock.connect(server_address)
         sock.sendall(message.encode())
+        sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
         ripServer(ip, err)
     finally:
-        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def absoluteFade(indexes, rgb, fadeTime):

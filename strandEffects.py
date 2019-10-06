@@ -160,7 +160,7 @@ class PixelArray():
         #Establish the background layer
         backgroundLayer = []
         self.room.off()
-        patch.fixture('strands').setColor([0,24,44])
+        patch.room('bedroom').setColor([0,24,44])
         #Effect loop
         iteration = 0
         nextChoice = random.randrange(4, 8)
