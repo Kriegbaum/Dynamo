@@ -48,8 +48,6 @@ remaining = np.zeros((512), dtype='uint16')
 clockLock = threading.Lock()
 clockerActive = threading.Event()
 
-psuActive = False
-
 commands = queue.Queue(maxsize=100)
 frameRate = 16
 FCclient = opc.Client('localhost:7890')
@@ -203,7 +201,6 @@ def clockLoop():
             if not psuCheck(pixels):
                 print('Killing PSUs')
                 psuSwitch(False)
-                psuActive = False
             clockerActive.clear()
             print('Sleeping clocker...')
         clockerActive.wait()
@@ -320,10 +317,9 @@ def getArbitration(id, ip):
 
 def absoluteFade(indexes, rgb, fadeTime):
     '''Is given a color to fade to, and executes fade'''
-    if not psuActive:
+    if not psuCheck(pixels):
         print('Spinning up PSU')
         psuSwitch(True)
-        psuActive = True
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
@@ -338,10 +334,9 @@ def absoluteFade(indexes, rgb, fadeTime):
 
 
 def multiCommand(commands):
-    if not psuActive:
+    if not psuCheck(pixels):
         print('Spinning up PSU')
         psuSwitch(True)
-        psuActive = True
 
     clockLock.acquire()
     for x in commands:
