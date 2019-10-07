@@ -78,7 +78,10 @@ def requestArbitration(id, controller):
     dcecisions about whether or not you should be in control, returns a bool'''
     transmit({'type': 'requestArbitration', 'id': id}, controller)
     arbitration = recieve(controller)
-    arbitration = json.loads(arbitration)
+    try:
+        arbitration = json.loads(arbitration)
+    except:
+        return True
     return arbitration
 
 def setArbitration(id, controller):
@@ -319,7 +322,10 @@ class Controller:
     def getArbitration(self, id):
         transmit({'type': 'getArbitration', 'id': id}, self)
         arbitration = recieve(self)
-        arbitration = json.loads(arbitration)
+        try:
+            arbitration = json.loads(arbitration)
+        except:
+            return True
         return arbitration
 
     def setArbitration(self, id):
