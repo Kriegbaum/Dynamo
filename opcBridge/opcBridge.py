@@ -86,6 +86,8 @@ def ripServer(ip, err):
     logError(err)
     returnError(ip, err)
     print(err)
+
+logError('Server booted at', str(datetime.datetime.now(), '\n')
 ############################SUPPORT FUNCTIONS###################################
 def pixelsToJson(npArray):
     lstOut = []
@@ -281,7 +283,8 @@ def getPixels(ip):
         sock.sendall(message.encode())
         sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
-        print(err)
+        err = constructErrorEntry(err)
+        logError(err)
     finally:
         sock.close()
 
@@ -309,10 +312,11 @@ def getArbitration(id, ip):
     try:
         sock.connect(server_address)
         sock.sendall(message.encode())
+        sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
+        err = constructErrorEntry(err)
         logError(err)
     finally:
-        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def absoluteFade(indexes, rgb, fadeTime):
