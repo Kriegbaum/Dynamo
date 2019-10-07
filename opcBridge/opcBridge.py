@@ -283,7 +283,7 @@ def getPixels(ip):
         sock.sendall(message.encode())
         sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
-        err = constructErrorEntry(err)
+        err = constructErrorEntry(ip, err)
         logError(err)
     finally:
         sock.close()
@@ -314,7 +314,7 @@ def getArbitration(id, ip):
         sock.sendall(message.encode())
         sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
-        err = constructErrorEntry(err)
+        err = constructErrorEntry(ip, err)
         logError(err)
     finally:
         sock.close()
