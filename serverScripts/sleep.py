@@ -24,17 +24,16 @@ mb = musicbeeipc.MusicBeeIPC()
 os.system('E:\\nircmd\\nircmd.exe monitor off')
 
 patch.rooms['bedroom'].setArbitration('SleepTime')
-patch.rooms['bedroom'].setColor([12,0,120], fadeTime=90)
+patch.rooms['bedroom'].setColor([12,0,120], fadeTime=95)
 patch.fixture('desk').off(90)
 patch.fixture('dresser').off(90)
-time.sleep(90)
+time.sleep(105)
 patch.fixture('worklight').off(45)
 randPix = web.allMap.copy()
 shuffle(randPix)
 for i in randPix:
-    command = [[[i, i + 1], [0,0,0], 2]]
-    sendMultiCommand(command, web.controller)
-    time.sleep(1)
+    web.firefly(i, [85,117,0], [10,26,0], [0,0,0], 0.8)
+    time.sleep(1.1 * randomPercent(90, 120))
 
 while mb.get_play_state_str() != 'Stopped':
     time.sleep(1)

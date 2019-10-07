@@ -87,7 +87,7 @@ def ripServer(ip, err):
     returnError(ip, err)
     print(err)
 
-logError('Server booted at', str(datetime.datetime.now(), '\n')
+logError('Server booted at', str(datetime.datetime.now()), '\n')
 ############################SUPPORT FUNCTIONS###################################
 def pixelsToJson(npArray):
     lstOut = []
