@@ -16,7 +16,6 @@ StrandsCeiling:
   room: bedroom
   controller: bedroomFC
 
-
 StrandsWalls:
   name: strands-walls
   system: Fadecandy
@@ -41,13 +40,6 @@ Dresser:
   name: dresser
   system: Hue
   id: 27
-  room: bedroom
-
-Overhead Bedroom:
-  name: overhead bedroom
-  system: Hue
-  proportion: .33
-  id: 16
   room: bedroom
 
 Desk:
