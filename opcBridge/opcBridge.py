@@ -309,10 +309,10 @@ def getArbitration(id, ip):
     try:
         sock.connect(server_address)
         sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
     except Exception as err:
-        ripServer(ip, err)
+        logError(err)
     finally:
+        sock.shutdown(socket.SHUT_RDWR)
         sock.close()
 
 def absoluteFade(indexes, rgb, fadeTime):

@@ -322,7 +322,10 @@ class Controller:
     def getArbitration(self, id):
         transmit({'type': 'getArbitration', 'id': id}, self)
         arbitration = recieve(self)
-        arbitration = json.loads(arbitration)
+        try:
+            arbitration = json.loads(arbitration)
+        except:
+            return True
         return arbitration
 
     def setArbitration(self, id):
