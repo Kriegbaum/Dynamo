@@ -1,15 +1,15 @@
 pallettesDirWin: E:\\Spidergod\\Images\\Color pallettes
 pallettesDirLinux: /mr-flopsy/Spidergod/Images/Color Pallettes
-hueIP: 10.0.0.11
+hueIP: 192.168.2.47
 
 controllers:
   bedroomRelays:
     name: bedroomRelays
-    ip: 10.0.0.13
+    ip: 192.168.2.45
     system: CustomRelay
     room: bedroom
   bedroomFC:
     name: bedroomFC
-    ip: 10.0.0.9
+    ip: 192.168.2.44
     system: Fadecandy
     room: bedroom
