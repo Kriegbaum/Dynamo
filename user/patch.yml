@@ -103,3 +103,19 @@ Subwoofer:
   room: bedroom
   stage: 2
   controller: bedroomRelays
+
+BedroomArray:
+  name: bedroom array
+  colorCorrection: [1, .88235, .6967]
+  system: PixelArray
+  room: bedroom
+  controller: bedroomFC
+  grb: True
+  map:
+  [384-412, 413-447],
+  [448-467, 468-497],
+  [320-343, 344-369],
+  [256-276, 277-306],
+  [192-207, 208-229, 230-241],
+  [128-157, 158-177]]
+  intersections: [[384, 448, 479, 320, 256, 192, 128]]

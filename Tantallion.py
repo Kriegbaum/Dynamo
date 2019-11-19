@@ -189,6 +189,31 @@ def hueToRGB(hsvHue):
     return rgbTMP
 
 #####################Color manipulation functions###############################
+def bridgeValues(totalSteps, start, end):
+    '''Generator that creates interpolated steps between a start and end value
+    Accepts an rgb value, outputs rgb values'''
+    newRGB = start
+    diffR = (end[0] - start[0]) / float(totalSteps)
+    diffG = (end[1] - start[1]) / float(totalSteps)
+    diffB = (end[2] - start[2]) / float(totalSteps)
+    yield start
+    for i in range(totalSteps - 2):
+        newRGB = [newRGB[0] + diffR, newRGB[1] + diffG, newRGB[2] + diffB]
+        yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
+    yield end
+
+def gradientBuilder(start, end, steps):
+    '''Builds an rgb gradient list given the start value, end value, and number
+    of steps in between start and end'''
+    gradientOut = []
+    bridgeGenerator = bridgeValues(steps, start, end)
+    for c in range(steps):
+        gradientOut.append(next(bridgeGenerator))
+    return gradientOut
+
+def randomPercent(lower, upper):
+    '''Returns a random decimal percent given bounds in integers'''
+    return .01 * random.randrange(lower, upper)
 
 def randomRGB():
     '''Generates a random color, good for doing tests on the system'''
@@ -267,16 +292,13 @@ def rgbSetBrightness(setBri, rgb):
 
 def rangeParser(yamlInput):
     '''Interprets a complex pixel list definition from a list of strings'''
-    indexesOut = []
-    for item in yamlInput:
-        if type(item) == int:
-            indexesOut.append(item)
-        elif type(item) == str:
-            rangeTmp = item.split('-')
-            rangeTmp = range(int(rangeTmp[0]), int(rangeTmp[1]) + 1)
-            for i in rangeTmp:
-                indexesOut.append(i)
-    return indexesOut
+    if type(yamlInput) == int:
+        return item
+    elif type(yamlInput) == str:
+        rangeTmp = yamlInput.split('-')
+        rangeTmp = range(int(rangeTmp[0]), int(rangeTmp[1]) + 1)
+        for i in rangeTmp:
+            return list(rangeTmp)
 
 def testDict(dictionary, key, default):
     '''See if the patch dictionary has specified a value. If it doesn't, return
@@ -372,17 +394,17 @@ class Fadecandy(Fixture):
     included in this project. These fixtures are exclusively RGB or GRB'''
     def __init__(self, patch, patchDict):
         Fixture.__init__(self, patchDict)
-        self.indexes = rangeParser(testDict(patchDict, 'indexes', [0]))
+        self.indexes = []
+        for i in patchDict['indexes']:
+            self.indexes.append(rangeParser(i))
         self.grb = testDict(patchDict, 'grb', False)
         self.controller = patch.controllers[patchDict['controller']]
-        #PrettyPrint version of the index value
-        self.indexRepr = testDict(patchDict, 'indexes', [0])
 
     def __repr__(self):
         stringOut = self.name
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
-        stringOut += '\nIndexes: %s' % self.indexRepr
+        stringOut += '\nIndexes: %s - %s' % (self.indexes[0], self.indexes[-1])
         stringOut += '\nController: %s\n' % self.controller.name
         return(stringOut)
 
@@ -392,15 +414,6 @@ class Fadecandy(Fixture):
             rgb = grbFix(rgb)
         command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
         transmit(command, self.controller)
-
-    def returnCommand(self, rgb, fadeTime):
-        '''Generates the command needed to set color for this fixutre, called by
-        a room function to build a multiCommand for the server'''
-        rgb = self.colorCorrect(rgb)
-        if self.grb:
-            rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
-        return command
 
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
@@ -429,6 +442,223 @@ class Fadecandy(Fixture):
     def fadeDown(self, amount=25, fadeTime=0.5):
         command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount * -1, 'fadeTime': fadeTime}
         transmit(command, self.controller)
+
+class PixelArray(Fixture):
+    def __init__(self, patch, patchDict):
+        self.allMap = []
+        self.strandMap = []
+        self.segmentMap = []
+        for strand in patchDict['map']:
+            strandList = []
+            segmentList = []
+            for segment in strand:
+                indexes = rangeParser(segment)
+                segmentList.append(indexes)
+                for index in indexes:
+                    allMap.append(index)
+                    strandList.append(index)
+            segmentMap.append(segmentList)
+            strandMap.append(strandList)
+        self.controller = patch.controllers[patchDict['controller']]
+        self.intersections = testDict(patchDict, 'intersections', [])
+        self.grb = testDict(patchDict, 'grb', False)
+
+    #SUPPORT FUNCTIONS
+    def getNextPixel(self, currentPixel):
+        '''Returns the next pixel in the line, or has a chance of returning an
+        intersecting pixel if available. If end of the line is reached, function
+        will return False and should be handled by encapsulating call'''
+        for array in self.intersections:
+            if currentPixel in array:
+                nextPixel = random.choice([i for i in array if i != currentPixel])
+                return nextPixel
+        if currentPixel % 63 == 0:
+            return False
+        else:
+            return currentPixel + 1
+
+    def randomPixels(self, number):
+        '''Returns a list [number] items long of random pixels picked from allMap'''
+        pixelList = []
+        for i in range(0, number + 1):
+            pixelList.append(random.choice(self.allMap))
+        return pixelList
+
+    #BASIC FIXTURE FUNCTIONS
+    def setColor(self, rgb, fadeTime=.5):
+        rgb = self.colorCorrect(rgb)
+        if self.grb:
+            rgb = grbFix(rgb)
+        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.allMap}
+        transmit(command, self.controller)
+
+    def getColor(self):
+        '''This will tell you the value of the first index of the fixutre, this
+        will not always accurately reflect the state of the whole fixture'''
+        command = {'type': 'getPixels'}
+        transmit(command, self.controller)
+        pixels = recieve(self.controller)
+        pixels = json.loads(pixels)
+        return pixels[self.allMap[0]]
+
+    def off(self, fadeTime=0):
+        '''Turns the fixture off in specified time'''
+        self.setColor([0, 0, 0], fadeTime)
+
+    def on(self, fadeTime=0):
+        '''Turns fixture on to default value in specified time,
+        does nothing if fixture is already on'''
+        #TODO: handle default values for fadecandy fixtures
+        if sum(self.getColor()) == 0:
+            self.setColor([255, 202, 190], fadeTime)
+
+    def fadeUp(self, amount=25, fadeTime=0.5):
+        command = {'type': 'relativeFade', 'indexes': self.allMap, 'magnitude': amount, 'fadeTime': fadeTime}
+        transmit(command, self.controller)
+
+    def fadeDown(self, amount=25, fadeTime=0.5):
+        command = {'type': 'relativeFade', 'indexes': self.allMap, 'magnitude': amount * -1, 'fadeTime': fadeTime}
+        transmit(command, self.controller)
+
+    #EFFECT LOOPS
+    #ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES FOR EVERY PARAMETER
+    def tracers(self, colorPrimary, colorSecondary, size=3, speed=1, tracerCount=2):
+        '''Lines wander around the lighting array
+        NOT FINISHED'''
+        leadingEdge = 0
+        trailingEdge = False
+        capturedPixels = [0]
+        while True:
+            leadingEdge = self.getNextPixel(leadingEdge)
+            capturedPixels.insert(0, leadingEdge)
+            if len(capturedPixels) > size:
+                trailingEdge = capturedPixels.pop(-1)
+
+    def imageSample(self, imagedir, imagefile, density=80, frequency=1, speed=1):
+        '''Render array with beautiful colors'''
+        self.controller.setArbitration('strandImageSample')
+        fullImagePath = os.path.join(imagedir, imagefile)
+        pixelCount = len(self.allMap)
+        colorList = sample_sectors(fullImagePath, pixelCount)
+        megaCommand = []
+        iterate = 0
+        for p in self.allMap:
+            color = self.colorCorrect(colorList[iterate])
+            if self.grb:
+                color = grbFix(color)
+            megaCommand.append([[p], color, .5 * speed])
+            iterate += 1
+        sendMultiCommand(megaCommand, self.controller)
+        grouping = density // 20
+        while True:
+            if self.controller.getArbitration('strandImageSample'):
+                #Grab some number of pixels
+                sampledPix = self.randomPixels(int(density * randomPercent(50, 150)))
+                colorList = sample_sectors(fullImagePath, len(sampledPix))
+                iterate = 0
+                multiCommand = []
+                for pix in sampledPix:
+                    color = self.colorCorrect(colorList[iterate])
+                    if self.grb:
+                        color = grbFix(color)
+                    multiCommand.append([[pix], color, 1 / speed])
+                    if iterate % grouping == 0:
+                        sendMultiCommand(multiCommand, self.controller)
+                        multiCommand = []
+                        time.sleep((.1 / speed) * randomPercent(75, 190))
+                    iterate += 1
+                if frequency:
+                    time.sleep(frequency * randomPercent(50, 110))
+            else:
+                print('Routine halted, overriden by manual event')
+                break
+
+    def fireflyRigid(self, index, colorPrimary, colorSecondary, colorBackground, speed):
+        '''Used by fireflies() effect. A single pixel fades up, fades down to a
+        different color, and then recedes to background'''
+        #Fly fades up to primary color
+        upTime = 0
+        sendCommand([index], colorPrimary, self.controller, fadetime=upTime)
+        time.sleep(1.3 / speed)
+        #Fly fades down to secondary color
+        downTime = 5.0 / speed
+        sendCommand([index], colorBackground, controller, fadetime=downTime)
+
+    def firefly(self, index, colorPrimary, colorSecondary, colorBackground, speed):
+        '''Used by fireflies() effect. A single pixel fades up, fades down to a
+        different color, and then recedes to background'''
+        #Fly fades up to primary color
+        upTime = (.5 * randomPercent(80, 160)) / speed
+        sendCommand([index], colorPrimary, self.controller, fadetime=upTime)
+        time.sleep((1.3 / speed) * randomPercent(80, 160))
+        #Fly fades down to secondary color
+        downTime = (3.7 * randomPercent(75, 110)) / speed
+        sendCommand([index], colorSecondary, self.controller, fadetime=downTime)
+        time.sleep((5.0 / speed) * randomPercent(80, 120))
+        #Fly recedes into background
+        sendCommand([index], colorBackground, self.controller, fadetime=.5)
+
+    def fireflies(self, density=7, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
+        '''Dots randomly appear on the array, and fade out into a different color'''
+        colorPrimary = self.colorCorrect(colorPrimary)
+        colorSecondary = self.colorCorrect(colorSecondary)
+        colorBackground = self.colorCorrect(colorBackground)
+        #Establish the background layer
+        backgroundLayer = []
+        self.room.off()
+        self.room.setColor([0,24,44])
+        #Effect loop
+        iteration = 0
+        nextChoice = random.randrange(4, 8)
+        while True:
+            #Grab pixels to put fireflies on
+            flyLocations = self.randomPixels(int(density * randomPercent(25, 150)))
+            #All flies appear
+            for l in flyLocations:
+                flyThread = threading.Thread(target=self.firefly, args=[l, colorPrimary, colorSecondary, colorBackground, speed])
+                flyThread.start()
+                time.sleep((.1 / speed) * randomPercent(100, 250))
+            if iteration % nextChoice == 0:
+                iteration = 0
+                nextChoice = random.randrange(5, 10)
+                time.sleep(frequency * randomPercent(50, 110))
+            else:
+                iteration += 1
+                time.sleep((.5 / speed) * randomPercent(90, 190))
+            time.sleep((2 / speed) * randomPercent(10, 200))
+
+    def static(self, staticMap, fadeTime, globalBrightness):
+        '''User definied fixed look for the room'''
+
+    def gradientLoop(self, realTime, cycleTime, startTime):
+        '''Wraps a cylindrical gradient around the array'''
+
+
+    def hyperspace(self, speed, colorPrimary, colorSecondary):
+        '''Radial streaks of color move through the space'''
+
+    def shimmer(self, speed, density, colorSpread, colorPrimary, colorSecondary):
+        '''Base color field with flashes of secondary color'''
+
+    def rollFade(self, rgb, fadeTime, forward=True):
+        '''Rolls a color down the array'''
+        rgb = self.colorCorrect(rgb)
+        lowTime = fadeTime * 0.40
+        factor = lowTime / fadeTime
+        interval = (fadeTime - lowTime) / len(locationMap)
+        if forward:
+            for strand in self.strandMap:
+                for pixel in strand:
+                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
+                factor += interval
+        else:
+            for strand in self.strandMap[::-1]:
+                for pixel in strand:
+                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
+                factor += interval
+        self.controller.multiCommand()
+
+
 
 class Hue(Fixture):
     '''Expensive phillips hue fixtures. Can be color or just white, all of these
