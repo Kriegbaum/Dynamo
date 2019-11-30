@@ -6,30 +6,10 @@ Worklight:
   room: bedroom
   controller: bedroomFC
 
-StrandsCeiling:
+Strands:
   name: strands-ceiling
   system: Fadecandy
-  indexes: [384-412, 448-467, 479-488, 320-343, 256-276, 192-207, 128-157]
-  colorCorrection: [1, .88235, .6967]
-  proportion: .58
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
-StrandsWalls:
-  name: strands-walls
-  system: Fadecandy
-  indexes: [413-447, 468-478, 489-497, 344-369, 277-306, 208-229, 158-177]
-  colorCorrection: [1, .88235, .6967]
-  proportion: .58
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
-StrandsDresser:
-  name: strands-dresser
-  system: Fadecandy
-  indexes: [230-241]
+  indexes: [142-191, 128-141, 448-461, 384-397, 462-511, 398-447, 320-384, 256-319, 192-255]
   colorCorrection: [1, .88235, .6967]
   proportion: .58
   grb: True
