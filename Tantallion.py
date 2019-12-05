@@ -12,6 +12,10 @@ from phue import Bridge
 import random
 import math
 import time
+from PIL import Image
+from PIL import ImageFile
+import numpy as np
+import threading
 
 ########################Default locations for config files######################
 defaultConfigPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')
@@ -288,12 +292,88 @@ def rgbSetBrightness(setBri, rgb):
     rgbOut = [rgb[0] * ratio, rgb[1] * ratio, rgb[2] * ratio]
     return rgbOut
 
+####################IMAGE MANIPULATION FUNCTIONS################################
+
+def rekt(n):
+    #Function delivers the two closest divisible integers of input (n)
+    '''as in: get rekt skrub'''
+    factors = []
+    #Create a list of integer factors of (n)
+    for i in range(1, n + 1):
+        if n % i == 0:
+            factors.append(i)
+    #Grab middle or just on the large side of middle item for list
+    if len(factors) % 2 == 0:
+        larger = factors[int((len(factors) / 2))]
+    else:
+        larger = factors[int((len(factors) / 2) - .5)]
+    return [larger, int(n / larger)]
+
+def sampleSectors(image, count):
+    '''Makes a grid based off number of lights used, samples random pixel from each grid area'''
+    #Uses pillow PIL fork
+    im = Image.open(image)
+    #Grab image dimensions
+    size = im.size
+    #Is it portrait or landscape?
+    if size[0] > size[1]:
+    #Determine number of horizontal and vertical divisions in grid
+        hdiv = max(rekt(count))
+        vdiv = min(rekt(count))
+    else:
+        hdiv = min(rekt(count))
+        vdiv = max(rekt(count))
+    #FIX: The use of an array here is totally unnessecary, can be done with list function and removes numpy from dependencies
+    #Creates blank array based on number of divisions
+    varray = np.full((vdiv + 1, vdiv + 1), 0, int)
+    harray = np.full((hdiv + 1, hdiv + 1), 0, int)
+    #Fill array with horizontal division dimensions
+    for col in range(len(harray)):
+        for row in range(len(harray)):
+            harray[col][row] = (size[0] / hdiv) * row
+    #Fill other array with vertical divison dimensions
+    for col in range(len(varray)):
+        for row in range(len(varray)):
+            varray[col][row] = (size[1] / vdiv) * row
+    pixels = []
+    #Load image, this will be the error point if PIL fails, but the error will likely be at the Image.open() command
+    px = im.load()
+    #Function plays out differently if in portrait or landscape
+    if hdiv >= vdiv:
+        #Two commands to iterate through array, can simplify by making a list
+        for row in range(1, hdiv + 1):
+            for vrow in range(1, vdiv + 1):
+                #X value for random pixel sample, bounded by grid dimensions
+                hrand = random.randrange(harray[0][row - 1], harray[0][row])
+                #Y value for random pixel
+                vrand = random.randrange(varray[0][vrow - 1], varray[0][vrow])
+                #Samples pixel
+                tmpix = px[hrand, vrand]
+                #If the image is greyscale, it will deliver an integer for value, not RGB
+                if type(tmpix) == int:
+                    #We convert to RGB
+                    tmpix = [tmpix, tmpix, tmpix]
+                #Delivers pixels as a list of lists
+                pixels.append([tmpix[0], tmpix[1], tmpix[2]])
+    #INVESTIGATE: This may not be nessecary based on the way the previous if: is programmed
+    else:
+        #Same as previous sequence, but with a portrait format grid
+        for row in range(1, vdiv + 1):
+            for vrow in range(1, hdiv + 1):
+                vrand = random.randrange(varray[0][row - 1], varray[0][row])
+                hrand = random.randrange(harray[0][vrow - 1], harray[0][vrow])
+                tmpix = px[hrand, vrand]
+                if type(tmpix) == int:
+                    tmpix = [tmpix, tmpix, tmpix]
+                pixels.append([tmpix[0], tmpix[1], tmpix[2]])
+    return pixels
+
 ##################Begin Fixture Patching Process################################
 
 def rangeParser(yamlInput):
     '''Interprets a complex pixel list definition from a list of strings'''
     if type(yamlInput) == int:
-        return item
+        return yamlInput
     elif type(yamlInput) == str:
         rangeTmp = yamlInput.split('-')
         rangeTmp = range(int(rangeTmp[0]), int(rangeTmp[1]) + 1)
@@ -445,6 +525,7 @@ class Fadecandy(Fixture):
 
 class PixelArray(Fixture):
     def __init__(self, patch, patchDict):
+        Fixture.__init__(self, patchDict)
         self.allMap = []
         self.strandMap = []
         self.segmentMap = []
@@ -455,13 +536,21 @@ class PixelArray(Fixture):
                 indexes = rangeParser(segment)
                 segmentList.append(indexes)
                 for index in indexes:
-                    allMap.append(index)
+                    self.allMap.append(index)
                     strandList.append(index)
-            segmentMap.append(segmentList)
-            strandMap.append(strandList)
+            self.segmentMap.append(segmentList)
+            self.strandMap.append(strandList)
         self.controller = patch.controllers[patchDict['controller']]
         self.intersections = testDict(patchDict, 'intersections', [])
         self.grb = testDict(patchDict, 'grb', False)
+
+    def __repr__(self):
+        stringOut = self.name
+        stringOut += '\nType: %s' % self.system
+        stringOut += '\nRoom: %s' % self.room
+        stringOut += '\nIndexes: %s - %s' % (self.allMap[0], self.allMap[-1])
+        stringOut += '\nController: %s\n' % self.controller.name
+        return(stringOut)
 
     #SUPPORT FUNCTIONS
     def getNextPixel(self, currentPixel):
@@ -539,7 +628,7 @@ class PixelArray(Fixture):
         self.controller.setArbitration('strandImageSample')
         fullImagePath = os.path.join(imagedir, imagefile)
         pixelCount = len(self.allMap)
-        colorList = sample_sectors(fullImagePath, pixelCount)
+        colorList = sampleSectors(fullImagePath, pixelCount)
         megaCommand = []
         iterate = 0
         for p in self.allMap:
@@ -554,7 +643,7 @@ class PixelArray(Fixture):
             if self.controller.getArbitration('strandImageSample'):
                 #Grab some number of pixels
                 sampledPix = self.randomPixels(int(density * randomPercent(50, 150)))
-                colorList = sample_sectors(fullImagePath, len(sampledPix))
+                colorList = sampleSectors(fullImagePath, len(sampledPix))
                 iterate = 0
                 multiCommand = []
                 for pix in sampledPix:
@@ -605,8 +694,7 @@ class PixelArray(Fixture):
         colorBackground = self.colorCorrect(colorBackground)
         #Establish the background layer
         backgroundLayer = []
-        self.room.off()
-        self.room.setColor([0,24,44])
+        self.setColor([0,24,44])
         #Effect loop
         iteration = 0
         nextChoice = random.randrange(4, 8)
@@ -643,19 +731,22 @@ class PixelArray(Fixture):
     def rollFade(self, rgb, fadeTime, forward=True):
         '''Rolls a color down the array'''
         rgb = self.colorCorrect(rgb)
-        lowTime = fadeTime * 0.40
-        factor = lowTime / fadeTime
-        interval = (fadeTime - lowTime) / len(locationMap)
+        if self.grb:
+            rgb = grbFix(rgb)
+        lowTime = fadeTime * 0.3
+        interval = (fadeTime - lowTime) / len(self.strandMap)
         if forward:
             for strand in self.strandMap:
+                stepTime = lowTime
                 for pixel in strand:
-                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
-                factor += interval
+                    self.controller.cache([pixel], rgb, stepTime, construct=False)
+                    stepTime += interval
         else:
             for strand in self.strandMap[::-1]:
+                stepTime = lowTime
                 for pixel in strand:
-                    self.controller.cache([pixel, pixel + 1], rgb, factor * fadeTime, construct=False)
-                factor += interval
+                    self.controller.cache([pixel], rgb, stepTime, construct=False)
+                    stepTime += interval
         self.controller.multiCommand()
 
 
@@ -978,6 +1069,10 @@ class Patch:
             elif patch[f]['system'] == 'CustomRelay':
                 new = CustomRelay(self, patch[f])
                 self.relays[new.name] = new
+                newLstItem(roomNames, new.room)
+            elif patch[f]['system'] == 'PixelArray':
+                new = PixelArray(self, patch[f])
+                self.fixtures[new.name] = new
                 newLstItem(roomNames, new.room)
 
         for r in roomNames:
