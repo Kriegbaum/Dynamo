@@ -33,7 +33,7 @@ patch.fixture('worklight').off(45)
 randPix = web.allMap.copy()
 shuffle(randPix)
 for i in randPix:
-    web.firefly(i, [85,117,0], [10,26,0], [0,0,0], 2)
+    web.firefly(i, [90,90,90], [20,20,20], [0,0,0], 2)
     time.sleep(.2 * randomPercent(90, 120))
 
 while mb.get_play_state_str() != 'Stopped':

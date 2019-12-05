@@ -643,7 +643,7 @@ class Room:
             for r in self.relayList:
                 if r.stage == i:
                     r.on()
-            time.sleep(2)
+            time.sleep(3)
 
     def relaysOff(self):
         for i in range(self.stages, 0, -1):
