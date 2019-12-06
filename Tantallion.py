@@ -215,6 +215,13 @@ def gradientBuilder(start, end, steps):
         gradientOut.append(next(bridgeGenerator))
     return gradientOut
 
+def gradientApplicator(start, end, indexList, controller, fadeTime=1):
+    '''Applies a gradient to a given range of indexes on a given controller'''
+    gradientList = gradientBuilder(start, end, len(indexList))
+    for index in indexList:
+        controller.cache([index], gradientList.pop(0), fadeTime, construct=False)
+    controller.multiCommand()
+
 def randomPercent(lower, upper):
     '''Returns a random decimal percent given bounds in integers'''
     return .01 * random.randrange(lower, upper)
