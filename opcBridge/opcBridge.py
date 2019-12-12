@@ -348,6 +348,8 @@ def multiCommand(commands):
     for x in commands:
         indexes = x[0]
         frames = int(x[2] * frameRate)
+        if not frames:
+            frames = 1
         rgb = x[1]
         for i in indexes:
             remaining[i] = frames

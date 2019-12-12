@@ -533,7 +533,7 @@ class Fadecandy(Fixture):
 class PixelArray(Fixture):
     def __init__(self, patch, patchDict):
         Fixture.__init__(self, patchDict)
-        self.allMap = []
+        self.indexes = []
         self.strandMap = []
         self.segmentMap = []
         for strand in patchDict['map']:
@@ -543,10 +543,14 @@ class PixelArray(Fixture):
                 indexes = rangeParser(segment)
                 segmentList.append(indexes)
                 for index in indexes:
-                    self.allMap.append(index)
+                    self.indexes.append(index)
                     strandList.append(index)
             self.segmentMap.append(segmentList)
             self.strandMap.append(strandList)
+        self.articulationPoints = 0
+        self.articulationPoints += len(self.segmentMap)
+        for strand in self.segmentMap:
+            self.articulationPoints += len(strand)
         self.controller = patch.controllers[patchDict['controller']]
         self.intersections = testDict(patchDict, 'intersections', [])
         self.grb = testDict(patchDict, 'grb', False)
@@ -555,7 +559,7 @@ class PixelArray(Fixture):
         stringOut = self.name
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
-        stringOut += '\nIndexes: %s - %s' % (self.allMap[0], self.allMap[-1])
+        stringOut += '\nIndexes: %s - %s' % (self.indexes[0], self.indexes[-1])
         stringOut += '\nController: %s\n' % self.controller.name
         return(stringOut)
 
@@ -574,10 +578,10 @@ class PixelArray(Fixture):
             return currentPixel + 1
 
     def randomPixels(self, number):
-        '''Returns a list [number] items long of random pixels picked from allMap'''
+        '''Returns a list [number] items long of random pixels picked from indexes'''
         pixelList = []
         for i in range(0, number + 1):
-            pixelList.append(random.choice(self.allMap))
+            pixelList.append(random.choice(self.indexes))
         return pixelList
 
     #BASIC FIXTURE FUNCTIONS
@@ -585,7 +589,7 @@ class PixelArray(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.allMap}
+        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
         transmit(command, self.controller)
 
     def getColor(self):
@@ -595,7 +599,7 @@ class PixelArray(Fixture):
         transmit(command, self.controller)
         pixels = recieve(self.controller)
         pixels = json.loads(pixels)
-        return pixels[self.allMap[0]]
+        return pixels[self.indexes[0]]
 
     def off(self, fadeTime=0):
         '''Turns the fixture off in specified time'''
@@ -609,11 +613,11 @@ class PixelArray(Fixture):
             self.setColor([255, 202, 190], fadeTime)
 
     def fadeUp(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexes': self.allMap, 'magnitude': amount, 'fadeTime': fadeTime}
+        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
     def fadeDown(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexes': self.allMap, 'magnitude': amount * -1, 'fadeTime': fadeTime}
+        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount * -1, 'fadeTime': fadeTime}
         transmit(command, self.controller)
 
     #EFFECT LOOPS
@@ -634,11 +638,11 @@ class PixelArray(Fixture):
         '''Render array with beautiful colors'''
         self.controller.setArbitration('strandImageSample')
         fullImagePath = os.path.join(imagedir, imagefile)
-        pixelCount = len(self.allMap)
+        pixelCount = len(self.indexes)
         colorList = sampleSectors(fullImagePath, pixelCount)
         megaCommand = []
         iterate = 0
-        for p in self.allMap:
+        for p in self.indexes:
             color = self.colorCorrect(colorList[iterate])
             if self.grb:
                 color = grbFix(color)

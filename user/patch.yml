@@ -6,36 +6,6 @@ Worklight:
   room: bedroom
   controller: bedroomFC
 
-StrandsCeiling:
-  name: strands-ceiling
-  system: Fadecandy
-  indexes: [384-412, 448-467, 479-488, 320-343, 256-276, 192-207, 128-157]
-  colorCorrection: [1, .88235, .6967]
-  proportion: .58
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
-StrandsWalls:
-  name: strands-walls
-  system: Fadecandy
-  indexes: [413-447, 468-478, 489-497, 344-369, 277-306, 208-229, 158-177]
-  colorCorrection: [1, .88235, .6967]
-  proportion: .58
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
-StrandsDresser:
-  name: strands-dresser
-  system: Fadecandy
-  indexes: [230-241]
-  colorCorrection: [1, .88235, .6967]
-  proportion: .58
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
 Dresser:
   name: dresser
   system: Hue
@@ -112,13 +82,13 @@ BedroomArray:
   controller: bedroomFC
   grb: True
   map:
-    - [142-191]
+    - [142-146, 147-157, 158-171, 172-188, 189-191]
     - [128-141]
     - [448-461]
     - [384-397]
-    - [462-511]
-    - [398-447]
-    - [320-384]
-    - [256-319]
-    - [192-255]
+    - [462-477, 478-485, 486-489, 490-496, 497-501, 502-511]
+    - [398-409, 410-418, 419-427, 428-439, 440-447]
+    - [320-325, 326-332, 333-339, 340-343, 344-384]
+    - [256-269, 270-279, 280-319]
+    - [192-197, 198-208, 209-216, 217-222, 223-230, 231-241]
   intersections: [[384, 448, 479, 320, 256, 192, 128]]
