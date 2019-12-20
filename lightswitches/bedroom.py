@@ -6,11 +6,11 @@ from Tantallion import *
 import gpiozero as GPIO
 from signal import pause
 import multiprocessing
-from strandEffects import *
 
 activeThreads = []
 patch = Patch()
 room = patch.room('bedroom')
+web = patch.fixture('bedroom array')
 
 def killEveryone():
     for i in activeThreads:

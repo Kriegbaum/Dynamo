@@ -428,6 +428,15 @@ class Controller:
         stringOut += '\nRx Port: %s\n' % self.rxPort
         return stringOut
 
+    def getPixels(self):
+        '''This will tell you the value of the first index of the fixutre, this
+        will not always accurately reflect the state of the whole fixture'''
+        command = {'type': 'getPixels'}
+        transmit(command, self)
+        pixels = recieve(self)
+        pixels = json.loads(pixels)
+        return pixels
+
     def getArbitration(self, id):
         transmit({'type': 'getArbitration', 'id': id}, self)
         arbitration = recieve(self)
