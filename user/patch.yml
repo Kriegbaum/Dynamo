@@ -6,16 +6,6 @@ Worklight:
   room: bedroom
   controller: bedroomFC
 
-Strands:
-  name: strands-ceiling
-  system: Fadecandy
-  indexes: [142-191, 128-141, 448-461, 384-397, 462-511, 398-447, 320-384, 256-319, 192-255]
-  colorCorrection: [1, .88235, .6967]
-  proportion: .58
-  grb: True
-  room: bedroom
-  controller: bedroomFC
-
 Dresser:
   name: dresser
   system: Hue
@@ -83,3 +73,22 @@ Subwoofer:
   room: bedroom
   stage: 2
   controller: bedroomRelays
+
+BedroomArray:
+  name: bedroom array
+  colorCorrection: [1, .88235, .6967]
+  system: PixelArray
+  room: bedroom
+  controller: bedroomFC
+  grb: True
+  map:
+    - [142-146, 147-157, 158-171, 172-181, 182-191]
+    - [128-141]
+    - [448-461]
+    - [384-397]
+    - [462-477, 478-485, 486-489, 490-496, 497-501, 502-511]
+    - [398-409, 410-418, 419-427, 428-439, 440-447]
+    - [320-325, 326-332, 333-339, 340-348, 349-354, 355-359, 360-365, 366-369]
+    - [256-269, 270-278, 279-287, 288-296, 297-305]
+    - [192-197, 198-208, 209-216, 217-222, 223-230, 231-241]
+  intersections: [[384, 448, 479, 320, 256, 192, 128]]

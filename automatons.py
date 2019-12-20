@@ -107,13 +107,27 @@ def sample_sectors(image, count):
 
 def lights_from_image(image, room):                                             #Function takes color list and applies to lights with 10s fade
     it = 0
-    colorlist = sample_sectors(image, len(room.fixtureList))
-    scene = {}
+    samples = 0
+    for fixture in room.fixtureList:
+        if fixture.system == 'PixelArray':
+            samples += fixture.articulationPoints
+        else:
+            samples += 1
+    colorlist = sample_sectors(image, samples)
+    random.shuffle(colorlist)
     for f in room.fixtureList:
-        print('%s: %s' % (f.name, colorlist[it]))
-        scene[f.name]= {'color':  colorlist[it], 'time': 7 * 0.1 * random.randrange(6,14)}
-        it += 1
-    room.scene(scene)
+        if f.system == 'PixelArray':
+            for strand in f.segmentMap:
+                for segment in strand:
+                    gradientApplicator(grbFix(colorlist[it]), grbFix(colorlist[it + 1]), segment, f.controller, fadeTime=7 * 0.1 * random.randrange(6,14))
+                    it += 1
+            print('%s: %s samples' % (f.name, f.articulationPoints))
+
+        else:
+            f.setColor(colorlist[it], fadeTime=7 * 0.1 * random.randrange(6,14))
+            print('%s: %s' % (f.name, colorlist[it]))
+        #scene[f.name]= {'color':  colorlist[it], 'time': 7 * 0.1 * random.randrange(6,14)}
+            it += 1
 
 def dynamic_image(image, room):
     '''This takes an image and samples colors from it'''
@@ -126,11 +140,6 @@ def dynamic_image(image, room):
             print('Iteration', ex)
             lights_from_image(image, room)
             time.sleep(17)
-            ex += 1
-            if ex % 3 == 0:
-                random.shuffle(room.fixtureList)
-                print('\n')
-                print('Shuffling fixture order')
         else:
             print('Halting automated routine, overriden by user')
             break
