@@ -8,10 +8,12 @@ import subprocess
 from random import shuffle
 import platform
 
+
 if platform.system() == 'Windows':
     from cuepy import CorsairSDK
     import musicbeeipc
     subprocess.Popen("C:\\Program Files (x86)\\MSI\\MSI LED Tool.exe")
+    
     time.sleep(1)
     os.system('taskkill /IM \"MSI LED Tool.exe\" /F')
 

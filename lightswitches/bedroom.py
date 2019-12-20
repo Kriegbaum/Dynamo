@@ -41,6 +41,15 @@ def vaporCity():
     vapor.start()
     activeThreads.append(vapor)
 
+def eiffel():
+    imagePath = ('/home/pi', 'eiffel3.jpg')
+    eiffel3 = multiprocessing.Process(target=web.imageSample, args=imagePath)
+    patch.fixture('desk').setColor([150, 105, 50])
+    patch.fixture('dresser').setColor([78, 52, 37])
+    patch.fixture('worklight').setColor([120, 85, 65])
+    eiffel3.start()
+    activeThreads.append(eiffel3)
+
 def runFlies():
     flies = multiprocessing.Process(target=web.fireflies)
     flies.start()
@@ -50,7 +59,7 @@ def run1():
     print('button 1 pressed')
     killEveryone()
     room.setArbitration('ButtonPress')
-    vaporCity()
+    eiffel()
 
 def run2():
     print('button 2 pressed')
