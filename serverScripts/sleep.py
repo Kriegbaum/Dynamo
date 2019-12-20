@@ -39,6 +39,8 @@ if platform.system() == 'Windows':
         flyThread = threading.Thread(target=web.firefly, args=[i, [90,90,90], [20,20,20], [0,0,0], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
+    time.sleep(10)
+    patch.fixture('bedroom array').off()
 
     while mb.get_play_state_str() != 'Stopped':
         time.sleep(1)
@@ -79,8 +81,10 @@ elif platform.system() == 'Linux':
         flyThread = threading.Thread(target=web.firefly, args=[i, [90,90,90], [20,20,20], [0,0,0], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
+    time.sleep(2)
+    patch.fixture('bedroom array').off()
 
-    while subprocess.check_output('banshee --query-current-state', shell=True) == 'current-state: playing\n':
+    while subprocess.check_output('banshee --query-current-state', shell=True) == b'current-state: playing\n':
         time.sleep(3)
 
     patch.rooms['bedroom'].relaysOff()

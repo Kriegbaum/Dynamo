@@ -140,11 +140,6 @@ def dynamic_image(image, room):
             print('Iteration', ex)
             lights_from_image(image, room)
             time.sleep(17)
-            ex += 1
-            if ex % 3 == 0:
-                random.shuffle(room.fixtureList)
-                print('\n')
-                print('Shuffling fixture order')
         else:
             print('Halting automated routine, overriden by user')
             break
