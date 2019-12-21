@@ -74,6 +74,7 @@ def returnError(ip, err):
         errSock.close()
 
 def logError(err):
+    print(err)
     with open(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'opcBridge-log.txt'), 'a') as logFile:
         logFile.write(err)
         logFile.write('\n')
@@ -84,7 +85,6 @@ def ripServer(ip, err):
     absoluteFade(range(0,512), [0,0,0], 0)
     err = constructErrorEntry(ip, err)
     logError(err)
-    returnError(ip, err)
     print(err)
 
 

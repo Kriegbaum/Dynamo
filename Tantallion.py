@@ -54,7 +54,8 @@ def transmit(command, controller):
 def recieve(controller):
     '''Waits for a response fom a controller that we've sent a request to'''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (localIP, controller.rxPort)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    server_address = ('0.0.0.0', controller.rxPort)
     sock.bind(server_address)
     sock.listen(1)
     try:
