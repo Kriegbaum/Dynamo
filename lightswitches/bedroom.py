@@ -7,6 +7,7 @@ import gpiozero as GPIO
 from signal import pause
 import multiprocessing
 
+imageWarm = True
 activeThreads = []
 patch = Patch()
 room = patch.room('bedroom')
@@ -33,7 +34,7 @@ def sleepFade():
     patch.room('all').relaysOff()
 
 def vaporCity():
-    imagePath = ('/home/pi', 'vapor_city.jpg')
+    imagePath = ('/home/pi', 'vapor_city2.jpg')
     vapor = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('worklight').setColor([128, 20, 50])
     patch.fixture('desk').setColor([3, 15, 149])
@@ -42,7 +43,7 @@ def vaporCity():
     activeThreads.append(vapor)
 
 def eiffel():
-    imagePath = ('/home/pi', 'eiffel3.jpg')
+    imagePath = ('/home/pi', 'eiffel4.jpg')
     eiffel3 = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('desk').setColor([150, 105, 50])
     patch.fixture('dresser').setColor([78, 52, 37])
@@ -59,7 +60,12 @@ def run1():
     print('button 1 pressed')
     killEveryone()
     room.setArbitration('ButtonPress')
-    eiffel()
+    if imageWarm:
+        imageWarm = False
+        eiffel()
+    else:
+        imageWarm = True
+        vaporCity()
 
 def run2():
     print('button 2 pressed')
