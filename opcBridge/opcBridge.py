@@ -45,13 +45,11 @@ diff = np.zeros((512, 3), dtype='float32' )
 endVals = np.zeros((512, 3), dtype='float32')
 remaining = np.zeros((512), dtype='uint16')
 
-clockLock = threading.Lock()
 clockerActive = threading.Event()
 
 commands = queue.Queue(maxsize=100)
 frameRate = 16
 FCclient = opc.Client('localhost:7890')
-queueLock = threading.Lock()
 arbitration = [False, '127.0.0.1']
 
 ##################SERVER LOGGING AND REPORTING FUNCTIONS########################
@@ -179,10 +177,16 @@ def clockLoop():
     print('Initiating Clocker...')
     now = time.perf_counter()
     while True:
+        while not commadns.empty():
+            newCommand = commands.get()
+            commands.task_done()
+            try:
+                commandParse(newCommand)
+            except:
+                print('YA FUCKED SOMETHING UP YOU IDIOT')
         anyRemaining = False
         now = time.perf_counter()
 
-        clockLock.acquire()
         for pix in range(512):
             if remaining[pix] > 1:
                 for i in range(3):
@@ -193,7 +197,6 @@ def clockLoop():
                 pixels[pix] = endVals[pix]
                 remaining[pix] -= 1
                 anyRemaining = True
-        clockLock.release()
 
         try:
             FCclient.put_pixels(pixels)
@@ -276,9 +279,7 @@ def getPixels(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (ip, 8800)
 
-    clockLock.acquire()
     message = json.dumps(pixelsToJson(pixels))
-    clockLock.release()
 
     try:
         sock.connect(server_address)
@@ -329,13 +330,11 @@ def absoluteFade(indexes, rgb, fadeTime):
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
-    clockLock.acquire()
     for i in indexes:
         remaining[i] = frames
         for c in range(3):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
-    clockLock.release()
     clockerActive.set()
 
 
@@ -344,7 +343,6 @@ def multiCommand(commands):
         print('Spinning up PSU')
         psuSwitch(True)
 
-    clockLock.acquire()
     for x in commands:
         indexes = x[0]
         frames = int(x[2] * frameRate)
@@ -356,19 +354,16 @@ def multiCommand(commands):
             for c in range(3):
                 diff[i][c] = (rgb[c] - pixels[i][c]) / frames
             endVals[i] = rgb
-    clockLock.release()
     clockerActive.set()
 
 def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness, likely unpredicatable
     behavior if called in the middle of another fade'''
     commandList = []
-    clockLock.acquire()
     for i in indexes:
         endVal = brightnessChange(pixels[i], magnitude)
         commandList.append([[i, i + 1], endVal, fadeTime])
     print('Fading to', endVal)
-    clockLock.release()
     multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
@@ -397,5 +392,4 @@ del testPatternRed
 
 #Initiate server
 fetcher.start()
-queuer.start()
 clocker.start()

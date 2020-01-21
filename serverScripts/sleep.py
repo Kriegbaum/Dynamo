@@ -13,7 +13,7 @@ if platform.system() == 'Windows':
     from cuepy import CorsairSDK
     import musicbeeipc
     subprocess.Popen("C:\\Program Files (x86)\\MSI\\MSI LED Tool.exe")
-    
+
     time.sleep(1)
     os.system('taskkill /IM \"MSI LED Tool.exe\" /F')
 
@@ -29,7 +29,7 @@ if platform.system() == 'Windows':
     os.system('E:\\nircmd\\nircmd.exe monitor off')
 
     patch.rooms['bedroom'].setArbitration('SleepTime')
-    time.sleep(10)
+    time.sleep(20)
     patch.rooms['bedroom'].setColor([15,12,85], fadeTime=95)
     patch.fixture('desk').off(90)
     patch.fixture('dresser').off(90)
@@ -42,7 +42,6 @@ if platform.system() == 'Windows':
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
     time.sleep(10)
-    patch.fixture('bedroom array').off()
 
     while mb.get_play_state_str() != 'Stopped':
         time.sleep(1)
@@ -84,7 +83,6 @@ elif platform.system() == 'Linux':
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
     time.sleep(2)
-    patch.fixture('bedroom array').off()
 
     while subprocess.check_output('banshee --query-current-state', shell=True) == b'current-state: playing\n':
         time.sleep(3)
