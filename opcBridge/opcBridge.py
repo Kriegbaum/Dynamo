@@ -208,8 +208,9 @@ def clockLoop():
             if not psuCheck(pixels):
                 print('Killing PSUs')
                 psuSwitch(False)
-            clockerActive.clear()
-            print('Sleeping clocker...')
+            if commands.empty():
+                clockerActive.clear()
+                print('Sleeping clocker...')
         clockerActive.wait()
 
 def fetchLoop():
@@ -234,6 +235,7 @@ def fetchLoop():
                 print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
                 comDict['ip'] = client_address[0]
                 commands.put(comDict)
+                clockerActive.set()
                 break
 
 ###################COMMAND TYPE HANDLING########################################
@@ -335,7 +337,6 @@ def absoluteFade(indexes, rgb, fadeTime):
         for c in range(3):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
-    clockerActive.set()
 
 
 def multiCommand(commands):
@@ -354,7 +355,6 @@ def multiCommand(commands):
             for c in range(3):
                 diff[i][c] = (rgb[c] - pixels[i][c]) / frames
             endVals[i] = rgb
-    clockerActive.set()
 
 def relativeFade(indexes, magnitude, fadeTime):
     '''Is given a brightness change, and alters the brightness, likely unpredicatable
