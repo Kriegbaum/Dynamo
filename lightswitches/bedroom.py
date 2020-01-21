@@ -7,7 +7,7 @@ import gpiozero as GPIO
 from signal import pause
 import multiprocessing
 
-imageWarm = True
+warm = True
 activeThreads = []
 patch = Patch()
 room = patch.room('bedroom')
@@ -56,15 +56,22 @@ def runFlies():
     flies.start()
     activeThreads.append(flies)
 
+def warmOrCool():
+    global warm
+    if warm:
+        warm = False
+        return True
+    else:
+        warm = True
+        return False
+
 def run1():
     print('button 1 pressed')
     killEveryone()
     room.setArbitration('ButtonPress')
-    if imageWarm:
-        imageWarm = False
+    if warmOrCool():
         eiffel()
     else:
-        imageWarm = True
         vaporCity()
 
 def run2():
