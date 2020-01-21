@@ -177,7 +177,7 @@ def clockLoop():
     print('Initiating Clocker...')
     now = time.perf_counter()
     while True:
-        while not commadns.empty():
+        while not commands.empty():
             newCommand = commands.get()
             commands.task_done()
             try:
