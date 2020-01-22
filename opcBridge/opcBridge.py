@@ -163,20 +163,20 @@ def psuSwitch(state):
 def clockLoop():
     '''Processes individual frames'''
     print('Initiating Clocker...')
-    now = time.perf_counter()
     while 1:
         now = time.perf_counter()
         while not commands.empty():
             newCommand = commands.get()
-            commands.task_done()
             try:
                 commandParse(newCommand)
             except:
                 print('YA FUCKED SOMETHING UP YOU IDIOT')
         anyRemaining = False
 
-        for pix in [i for i in range(512) if remaining[i] > 0]:
-            if remaining[pix] > 1:
+        for pix in range(512):
+            if not remaining[pix]:
+                pass
+            elif remaining[pix] > 1:
                 for i in range(3):
                     pixels[pix][i] += diff[pix][i]
                 remaining[pix] -= 1
@@ -220,7 +220,7 @@ def fetchLoop():
                 pass
             else:
                 comDict = json.loads(command)
-                print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
+                #print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
                 comDict['ip'] = client_address[0]
                 commands.put(comDict)
                 clockerActive.set()
