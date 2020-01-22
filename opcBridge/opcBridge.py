@@ -160,23 +160,12 @@ def psuSwitch(state):
 
 #############################SERVER LOOPS#######################################
 
-
-def queueLoop():
-    '''Grabs commands from queue and modifies clock arrays'''
-    print('Initiating queuer')
-    while True:
-        newCommand = commands.get(True, None)
-        commands.task_done()
-        try:
-            commandParse(newCommand)
-        except:
-            print('YA FUCKED SOMETHING UP YOU IDIOT')
-
 def clockLoop():
     '''Processes individual frames'''
     print('Initiating Clocker...')
     now = time.perf_counter()
-    while True:
+    while 1:
+        now = time.perf_counter()
         while not commands.empty():
             newCommand = commands.get()
             commands.task_done()
@@ -185,9 +174,8 @@ def clockLoop():
             except:
                 print('YA FUCKED SOMETHING UP YOU IDIOT')
         anyRemaining = False
-        now = time.perf_counter()
 
-        for pix in range(512):
+        for pix in [i for i in range(512) if remaining[i] > 0]:
             if remaining[pix] > 1:
                 for i in range(3):
                     pixels[pix][i] += diff[pix][i]
@@ -368,8 +356,6 @@ def relativeFade(indexes, magnitude, fadeTime):
 
 clocker = threading.Thread(target=clockLoop)
 fetcher = threading.Thread(target=fetchLoop)
-queuer =  threading.Thread(target=queueLoop)
-
 
 #Test pattern to indicate server is up and running
 testPatternOff = np.zeros((512, 3))
