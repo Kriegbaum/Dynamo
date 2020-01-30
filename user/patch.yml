@@ -8,9 +8,15 @@ Worklight:
 
 Dresser:
   name: dresser
+  system: Fadecandy
+  indexes: [1-28]
+  room: bedroom
+  controller: bedroomFC
+
+Iris:
+  name: iris
   system: Hue
   id: 27
-  room: bedroom
 
 Desk:
   name: desk
@@ -79,6 +85,7 @@ BedroomArray:
   colorCorrection: [1, .88235, .6967]
   system: PixelArray
   room: bedroom
+  proportion: .75
   controller: bedroomFC
   grb: True
   map:
