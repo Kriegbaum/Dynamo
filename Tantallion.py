@@ -493,7 +493,11 @@ class Fadecandy(Fixture):
         Fixture.__init__(self, patchDict)
         self.indexes = []
         for i in patchDict['indexes']:
-            self.indexes.append(rangeParser(i))
+            temp = rangeParser(i)
+            if type(temp) == int:
+                self.indexes.append(temp)
+            elif type(temp) == list:
+                self.indexes += temp
         self.grb = testDict(patchDict, 'grb', False)
         self.controller = patch.controllers[patchDict['controller']]
 

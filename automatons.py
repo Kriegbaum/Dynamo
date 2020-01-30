@@ -119,7 +119,7 @@ def lights_from_image(image, room):                                             
         if f.system == 'PixelArray':
             for strand in f.segmentMap:
                 for segment in strand:
-                    gradientApplicator(grbFix(colorlist[it]), grbFix(colorlist[it + 1]), segment, f.controller, fadeTime=7 * 0.1 * random.randrange(6,14))
+                    gradientApplicator(grbFix(f.colorCorrect(colorlist[it])), grbFix(f.colorCorrect(colorlist[it + 1])), segment, f.controller, fadeTime=7 * 0.1 * random.randrange(6,14))
                     it += 1
             print('%s: %s samples' % (f.name, f.articulationPoints))
 
