@@ -38,7 +38,7 @@ def vaporCity():
     vapor = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('worklight').setColor([128, 20, 50])
     patch.fixture('desk').setColor([3, 15, 149])
-    patch.fixture('dresser').setColor([141, 24, 131])
+    patch.fixture('dresser').setColor([211, 36, 196])
     vapor.start()
     activeThreads.append(vapor)
 
@@ -46,7 +46,7 @@ def eiffel():
     imagePath = ('/home/pi', 'eiffel4.jpg')
     eiffel3 = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('desk').setColor([150, 105, 50])
-    patch.fixture('dresser').setColor([78, 52, 37])
+    patch.fixture('dresser').setColor([175, 117, 82])
     patch.fixture('worklight').setColor([120, 85, 65])
     eiffel3.start()
     activeThreads.append(eiffel3)
