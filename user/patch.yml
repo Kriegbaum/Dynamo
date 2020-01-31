@@ -10,6 +10,7 @@ Dresser:
   name: dresser
   system: Fadecandy
   indexes: [1-28]
+  colorCorrection: [1, .85098, .57647]
   room: bedroom
   controller: bedroomFC
 
