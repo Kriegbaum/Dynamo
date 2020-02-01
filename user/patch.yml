@@ -14,11 +14,6 @@ Dresser:
   room: bedroom
   controller: bedroomFC
 
-Iris:
-  name: iris
-  system: Hue
-  id: 27
-
 Desk:
   name: desk
   system: Hue
@@ -100,3 +95,41 @@ BedroomArray:
     - [256-269, 270-278, 279-287, 288-296, 297-305]
     - [192-197, 198-208, 209-216, 217-222, 223-230, 231-241]
   intersections: [[384, 448, 479, 320, 256, 192, 128]]
+
+#               LIVING ROOM
+
+Iris:
+  name: iris
+  system: Hue
+  id: 27
+  room: living room
+
+FAIboi:
+  name: FAI boi
+  system: Hue
+  id: 9
+  room: living room
+
+FloorLamp:
+  name: floor lamp
+  system: Hue
+  id: 7
+  room: living room
+
+FloorLamp:
+  name: floor lamp
+  system: Hue
+  id: 7
+  room: living room
+
+FireplaceR:
+  name: fireplace right
+  system: Hue
+  id: 4
+  room: living room
+
+FireplaceL:
+  name: fireplace left
+  system: Hue
+  id: 1
+  room: living room

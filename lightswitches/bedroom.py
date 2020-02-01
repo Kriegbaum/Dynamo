@@ -51,13 +51,31 @@ def eiffel():
     eiffel3.start()
     activeThreads.append(eiffel3)
 
+def snowy():
+    imagePath = ('/home/pi', 'snowy-dim.jpg')
+    snow = multiprocessing.Process(target=web.imageSample, args=imagePath)
+    patch.fixture('worklight').setColor([128,128,128])
+    patch.fixture('desk').setColor([128,128,128])
+    patch.fixture('dresser').setColor([128,128,128])
+    snow.start()
+    activeThreads.append(snow)
+
+def valtari():
+    imagePath = ('/home/pi', 'valtari2.jpg')
+    valtari = multiprocessing.Process(target=web.imageSample, args=imagePath)
+    patch.fixture('worklight').setColor([228,208,70])
+    patch.fixture('desk').setColor([52,61,52])
+    patch.fixture('dresser').setColor([71,96,22])
+    valtari.start()
+    activeThreads.append(valtari)
+
 def runFlies():
     flies = multiprocessing.Process(target=web.fireflies)
     flies.start()
     activeThreads.append(flies)
 
 def warmOrCool():
-    global warm
+    global iterati
     if warm:
         warm = False
         return True
