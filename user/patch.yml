@@ -6,6 +6,14 @@ Worklight:
   room: bedroom
   controller: bedroomFC
 
+SG:
+  name: spidergod
+  system: Fadecandy
+  indexes: [64]
+  proportion: .6
+  room: bedroom
+  controller: bedroomFC
+
 Dresser:
   name: dresser
   system: Fadecandy
@@ -132,4 +140,10 @@ FireplaceL:
   name: fireplace left
   system: Hue
   id: 1
+  room: living room
+
+Subwoofer:
+  name: livingroom sub
+  system: HueRelay
+  id: 20
   room: living room
