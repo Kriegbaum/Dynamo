@@ -146,4 +146,5 @@ Subwoofer:
   name: livingroom sub
   system: HueRelay
   id: 20
+  stage: 1
   room: living room

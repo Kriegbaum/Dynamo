@@ -866,6 +866,7 @@ class CustomRelay(Relay):
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
         stringOut += '\nIndex: %s' % self.index
+        stringOut += '\nStage: %s' % self.stage
         stringOut += '\nController: %s\n' % self.controller.name
         return(stringOut)
 
@@ -900,6 +901,7 @@ class HueRelay(Relay):
         stringOut += '\nType: %s' % self.system
         stringOut += '\nRoom: %s' % self.room
         stringOut += '\nID: %s' % self.id
+        stringOut += '\nStage %s' % self.stage
         return(stringOut)
 
     def getState(self):
