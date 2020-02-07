@@ -12,7 +12,10 @@ activeThreads = []
 patch = Patch()
 room = patch.room('bedroom')
 web = patch.fixture('bedroom array')
-imageIterator = 0
+class imageIterator:
+    def __init__(self):
+        self.it = 0
+image = imageIterator()
 
 def killEveryone():
     for i in activeThreads:
@@ -75,25 +78,25 @@ def runFlies():
     flies.start()
     activeThreads.append(flies)
 
-def iteratorTracker(iterator):
-    if iterator == 0:
+def iteratorTracker(i):
+    if i.it == 0:
+        i.it += 1
         vaporCity()
-        iterator += 1
-    elif iterator == 1:
+    elif i.it == 1:
+        i.it += 1
         eiffel()
-        iterator += 1
-    elif iterator == 2:
+    elif i.it == 2:
+        i.it += 1
         snowy()
-        iterator += 1
-    elif iterator == 3:
+    elif i.it == 3:
+        i.it = 0
         valtari()
-        iterator = 0
 
 def run1():
     print('button 1 pressed')
     killEveryone()
     room.setArbitration('ButtonPress')
-    iteratorTracker(imageIterator)
+    iteratorTracker(image)
 
 def run2():
     print('button 2 pressed')
