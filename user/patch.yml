@@ -145,6 +145,25 @@ FireplaceL:
 Subwoofer:
   name: livingroom sub
   system: HueRelay
+<<<<<<< HEAD
   id: 20
   stage: 1
+=======
+  stage: 1
+  id: 22
+  room: living room
+
+Rear Speakers:
+  name: rear speakers
+  system: HueRelay
+  stage: 2
+  id: 17
+  room: living room
+
+Front Speakers:
+  name: front speakers
+  system: HueRelay
+  stage: 2
+  id: 21
+>>>>>>> e8543193dbd3e13b78890295488a6dc84e6fd051
   room: living room
