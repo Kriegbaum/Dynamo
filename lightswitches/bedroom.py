@@ -78,6 +78,12 @@ def runFlies():
     flies.start()
     activeThreads.append(flies)
 
+def killLights():
+    patch.fixture('desk').off()
+    patch.fixture('dresser').off()
+    patch.fixture('worklight').off()
+    web.rollFade([0,0,0], .25)
+
 def iteratorTracker(i):
     if i.it == 0:
         i.it += 1
@@ -101,8 +107,8 @@ def run1():
 def run2():
     print('button 2 pressed')
     killEveryone()
-    room.setArbitration('ButtonPress')
-    room.off()
+    room.setArbitration('ButtonPressOff')
+    killLights()
 
 def run3():
     print('button 3 pressed')
