@@ -82,7 +82,7 @@ def killLights():
     patch.fixture('desk').off()
     patch.fixture('dresser').off()
     patch.fixture('worklight').off()
-    web.rollFade([0,0,0], .25)
+    web.rollFade([0,0,0], .3)
 
 def iteratorTracker(i):
     if i.it == 0:
