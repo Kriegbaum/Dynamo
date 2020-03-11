@@ -203,31 +203,6 @@ def clockLoop():
                 print('Sleeping clocker...')
         clockerActive.wait()
 
-def fetchLoop():
-    '''Fetches commands from the socket'''
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (localIP, 8000)
-    print('Initiating socket on %s port %s' % server_address)
-    sock.bind(server_address)
-    sock.listen(90)
-    sock.settimeout(None)
-    atexit.register(socketKill, sock)
-    while True:
-        connection, client_address = sock.accept()
-        command = ''
-        while True:
-            data = connection.recv(16).decode()
-            command += data
-            if data:
-                pass
-            else:
-                comDict = json.loads(command)
-                #print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
-                comDict['ip'] = client_address[0]
-                commands.put(comDict)
-                clockerActive.set()
-                break
-
 ###################COMMAND TYPE HANDLING########################################
 class GetPixels(Resource):
     def get(self):
@@ -259,48 +234,57 @@ class Arbitration(Resource):
 
 class AbsoluteFade(Resource):
     '''Is given a color to fade to, and executes fade'''
-    if not psuCheck(pixels):
-        print('Spinning up PSU')
-        psuSwitch(True)
-    if not fadeTime:
-        fadeTime = 2 / frameRate
-    frames = int(fadeTime * frameRate)
-    for i in indexes:
-        remaining[i] = frames
-        for c in range(3):
-            diff[i][c] = (rgb[c] - pixels[i][c]) / frames
-        endVals[i] = rgb
-
-
-def multiCommand(commands):
-    if not psuCheck(pixels):
-        print('Spinning up PSU')
-        psuSwitch(True)
-
-    for x in commands:
-        indexes = x[0]
-        frames = int(x[2] * frameRate)
-        if not frames:
-            frames = 1
-        rgb = x[1]
+    def get(self):
+        fadeTime =
+        rgb =
+        indexes =
+        if not psuCheck(pixels):
+            print('Spinning up PSU')
+            psuSwitch(True)
+        if not fadeTime:
+            fadeTime = 2 / frameRate
+        frames = int(fadeTime * frameRate)
         for i in indexes:
             remaining[i] = frames
             for c in range(3):
                 diff[i][c] = (rgb[c] - pixels[i][c]) / frames
             endVals[i] = rgb
 
-def relativeFade(indexes, magnitude, fadeTime):
+
+class MultiCommand(Resource):
+    def get(self):
+        commands =
+        if not psuCheck(pixels):
+            print('Spinning up PSU')
+            psuSwitch(True)
+
+        for x in commands:
+            indexes = x[0]
+            frames = int(x[2] * frameRate)
+            if not frames:
+                frames = 1
+            rgb = x[1]
+            for i in indexes:
+                remaining[i] = frames
+                for c in range(3):
+                    diff[i][c] = (rgb[c] - pixels[i][c]) / frames
+                endVals[i] = rgb
+
+class RelativeFade(Resource):
     '''Is given a brightness change, and alters the brightness, likely unpredicatable
     behavior if called in the middle of another fade'''
-    commandList = []
-    for i in indexes:
-        endVal = brightnessChange(pixels[i], magnitude)
-        commandList.append([[i, i + 1], endVal, fadeTime])
-    print('Fading to', endVal)
-    multiCommand(commandList)
+    def get(self):
+        indexes =
+        magnitude =
+        fadeTime =
+        commandList = []
+        for i in indexes:
+            endVal = brightnessChange(pixels[i], magnitude)
+            commandList.append([[i, i + 1], endVal, fadeTime])
+        print('Fading to', endVal)
+        multiCommand(commandList)
 
 clocker = threading.Thread(target=clockLoop)
-fetcher = threading.Thread(target=fetchLoop)
 
 #Test pattern to indicate server is up and running
 testPatternOff = np.zeros((512, 3))
