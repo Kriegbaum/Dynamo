@@ -10,6 +10,8 @@ import datetime
 import atexit
 import numpy as np
 import yaml
+from flask import Flask request
+from flask_restful import Resource, Api
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
 #sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
@@ -26,6 +28,10 @@ import yaml
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.yml')) as f:
     configFile = f.read()
 configs = yaml.safe_load(configFile)
+
+################################FLASK OBJECTS###################################
+app = Flask(__name__)
+api = Api(app)
 
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -137,10 +143,6 @@ def bridgeValues(totalSteps, start, end):
         yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
     yield end
 
-def socketKill(sock):
-    sock.shutdown(socket.SHUT_RDWR)
-    sock.close()
-
 def psuSwitch(state):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (configs['PSUs']['ip'], configs['PSUs']['port'])
@@ -227,92 +229,35 @@ def fetchLoop():
                 break
 
 ###################COMMAND TYPE HANDLING########################################
+class GetPixels(Resource):
+    def get(self):
+        '''Gives the entire pixel array back to the client as a 512 * 3 array'''
+        print('\nSending pixels to %s \n' % ip)
+        message = json.dumps(pixelsToJson(pixels))
+        return message
 
-def commandParse(command):
-    if command['type'] == 'absoluteFade':
-        try:
-            absoluteFade(command['indexes'], command['color'], command['fadeTime'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'relativeFade':
-        try:
-            relativeFade(command['indexes'], command['magnitude'], command['fadeTime'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'getPixels':
-        try:
-            getPixels(command['ip'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'getArbitration':
-        try:
-            getArbitration(command['id'], command['ip'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'setArbitration':
-        try:
-            setArbitration(command['id'], command['ip'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'multiCommand':
-        try:
-            multiCommand(command['commands'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    else:
-        err = 'Invalid command type recieved' + command['type'] + 'is not a valid command'
-        ripServer(command['ip'], err)
+class Arbitration(Resource):
+    #TODO: Can you extract the JSON in top-level class declaration?
+    def put(self):
+        #TODO: Find flask-like way to parse JSON from REST
+        id =
+        ip =
+        print('\nGiving arbitration to %s from %s\n' % (id, ip))
+        arbitration[0] = id
+        arbitration[1] = ip
 
-def getPixels(ip):
-    '''Gives the entire pixel array back to the client as a 512 * 3 array'''
-    print('\nSending pixels to %s \n' % ip)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (ip, 8800)
-
-    message = json.dumps(pixelsToJson(pixels))
-
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as err:
-        err = constructErrorEntry(ip, err)
-        logError(err)
-    finally:
-        sock.close()
-
-def setArbitration(id, ip):
-    print('\nGiving arbitration to %s from %s\n' % (id, ip))
-    arbitration[0] = id
-    arbitration[1] = ip
-
-def getArbitration(id, ip):
-    print('\nSending arbitration to %s for %s\n' % (ip, id))
-    try:
+    def get(self):
+        id =
+        ip =
+        print('\nSending arbitration to %s for %s\n' % (ip, id))
         if id != arbitration[0]:
-            response = False
+            return False
         elif ip != arbitration[1]:
-            response = False
+            return False
         else:
-            response = True
-    except Exception as err:
-        ripServer(ip, err)
-        response = False
+            return True
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (ip, 8800)
-    message = json.dumps(response)
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as err:
-        err = constructErrorEntry(ip, err)
-        logError(err)
-    finally:
-        sock.close()
-
-def absoluteFade(indexes, rgb, fadeTime):
+class AbsoluteFade(Resource):
     '''Is given a color to fade to, and executes fade'''
     if not psuCheck(pixels):
         print('Spinning up PSU')
