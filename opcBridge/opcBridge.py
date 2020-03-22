@@ -10,8 +10,8 @@ import datetime
 import atexit
 import numpy as np
 import yaml
-from flask import Flask request
-from flask_restful import Resource, Api
+from flask import Flask, request
+from flask_restful import Resource, Api, reqparse
 
 #This will log EVERYTHING, disable when you've ceased being confused about your socket issues
 #sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
@@ -30,8 +30,19 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.ym
 configs = yaml.safe_load(configFile)
 
 ################################FLASK OBJECTS###################################
-app = Flask(__name__)
-api = Api(app)
+FLASK_DEBUG = True
+fetcher = Flask(__name__)
+api = Api(fetcher)
+parser = reqparse.RequestParser()
+
+#########################VARIOUS COMMAND FIELDS#################################
+parser.add_argument('fadetime', type=float, help='How long will this fade take?')
+parser.add_argument('indexes', type=json.loads, help='Which pixels are targeted')
+parser.add_argument('id', type=str, help='Arbtration ID')
+parser.add_argument('ip', type=str, help='IP address of client')
+parser.add_argument('rgb', type=json.loads, help='Target color')
+parser.add_argument('magnitude', type=float, help='Size of fade')
+parser.add_argument('commandlist', type=json.loads, help='List of commands for a multicommand')
 
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -125,13 +136,6 @@ def brightnessChange(rgb, magnitude):
     else:
         return rgb
 
-def psuCheck(pixels):
-    for pix in pixels:
-        for color in pix:
-            if color > 0:
-                return True
-    return False
-
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
     newRGB = start
@@ -160,7 +164,19 @@ def psuSwitch(state):
     finally:
         sock.close()
 
-#############################SERVER LOOPS#######################################
+def psuCheck(pixels):
+    for pix in pixels:
+        for color in pix:
+            if color > 0:
+                return True
+    return False
+
+def runPSU():
+    if not psuCheck(pixels):
+        print('Spinning up PSU')
+        psuSwitch(True)
+
+#############################RENDER LOOP########################################
 
 def clockLoop():
     '''Processes individual frames'''
@@ -204,26 +220,29 @@ def clockLoop():
         clockerActive.wait()
 
 ###################COMMAND TYPE HANDLING########################################
-class GetPixels(Resource):
+class Pixels(Resource):
     def get(self):
         '''Gives the entire pixel array back to the client as a 512 * 3 array'''
-        print('\nSending pixels to %s \n' % ip)
+        print('\nSending pixels to %s \n' % request.remote_addr)
         message = json.dumps(pixelsToJson(pixels))
         return message
+api.add_resource(Pixels, '/pixels')
 
 class Arbitration(Resource):
     #TODO: Can you extract the JSON in top-level class declaration?
     def put(self):
         #TODO: Find flask-like way to parse JSON from REST
-        id =
-        ip =
+        args = parser.parse_args()
+        id = args['id']
+        ip = request.remote_addr
         print('\nGiving arbitration to %s from %s\n' % (id, ip))
         arbitration[0] = id
         arbitration[1] = ip
 
     def get(self):
-        id =
-        ip =
+        args = parser.parse_args()
+        id = args['id']
+        ip = request.remote_addr
         print('\nSending arbitration to %s for %s\n' % (ip, id))
         if id != arbitration[0]:
             return False
@@ -231,16 +250,18 @@ class Arbitration(Resource):
             return False
         else:
             return True
+api.add_resource(Arbitration, '/arbitration')
 
 class AbsoluteFade(Resource):
     '''Is given a color to fade to, and executes fade'''
     def get(self):
-        fadeTime =
-        rgb =
-        indexes =
-        if not psuCheck(pixels):
-            print('Spinning up PSU')
-            psuSwitch(True)
+        args = parser.parse_args()
+        fadeTime = args['fadetime']
+        rgb = args['rgb']
+        indexes = args['indexes']
+        print(type(indexes))
+        print(indexes)
+        runPSU()
         if not fadeTime:
             fadeTime = 2 / frameRate
         frames = int(fadeTime * frameRate)
@@ -249,15 +270,14 @@ class AbsoluteFade(Resource):
             for c in range(3):
                 diff[i][c] = (rgb[c] - pixels[i][c]) / frames
             endVals[i] = rgb
+api.add_resource(AbsoluteFade, '/absolutefade')
 
 
 class MultiCommand(Resource):
     def get(self):
-        commands =
-        if not psuCheck(pixels):
-            print('Spinning up PSU')
-            psuSwitch(True)
-
+        args = parser.parse_args()
+        commands = args['commandlist']
+        runPSU()
         for x in commands:
             indexes = x[0]
             frames = int(x[2] * frameRate)
@@ -269,20 +289,23 @@ class MultiCommand(Resource):
                 for c in range(3):
                     diff[i][c] = (rgb[c] - pixels[i][c]) / frames
                 endVals[i] = rgb
+api.add_resource(MultiCommand, '/multicommand')
 
 class RelativeFade(Resource):
     '''Is given a brightness change, and alters the brightness, likely unpredicatable
     behavior if called in the middle of another fade'''
     def get(self):
-        indexes =
-        magnitude =
-        fadeTime =
+        args = parser.parse_args()
+        indexes = args['indexes']
+        magnitude = args['magnitude']
+        fadeTime = args['fadetime']
         commandList = []
         for i in indexes:
             endVal = brightnessChange(pixels[i], magnitude)
             commandList.append([[i, i + 1], endVal, fadeTime])
         print('Fading to', endVal)
         multiCommand(commandList)
+api.add_resource(RelativeFade, '/relativefade')
 
 clocker = threading.Thread(target=clockLoop)
 
@@ -306,5 +329,6 @@ del testPatternOff
 del testPatternRed
 
 #Initiate server
-fetcher.start()
+clocker.daemon = True
 clocker.start()
+fetcher.run(debug=FLASK_DEBUG)
