@@ -184,11 +184,15 @@ def clockLoop():
     while 1:
         now = time.perf_counter()
         while not commands.empty():
-            newCommand = commands.get()
+            newCommand, args = commands.get()
+            newCommand(*args)
+            '''
             try:
-                commandParse(newCommand)
-            except:
+                newCommand(*args)
+            except Exception as e:
                 print('YA FUCKED SOMETHING UP YOU IDIOT')
+                print(e)
+            '''
         anyRemaining = False
 
         for pix in range(512):
@@ -218,6 +222,39 @@ def clockLoop():
                 clockerActive.clear()
                 print('Sleeping clocker...')
         clockerActive.wait()
+##################ARRAY MANIPULATING FUNCTIONS##################################
+def absoluteFade(rgb, indexes, fadeTime):
+    runPSU()
+    if not fadeTime:
+        fadeTime = 2 / frameRate
+    frames = int(fadeTime * frameRate)
+    for i in indexes:
+        remaining[i] = frames
+        for c in range(3):
+            diff[i][c] = (rgb[c] - pixels[i][c]) / frames
+        endVals[i] = rgb
+
+def multiCommand(commandList):
+    runPSU()
+    for x in commandList:
+        indexes = x[0]
+        frames = int(x[2] * frameRate)
+        if not frames:
+            frames = 1
+        rgb = x[1]
+        for i in indexes:
+            remaining[i] = frames
+            for c in range(3):
+                diff[i][c] = (rgb[c] - pixels[i][c]) / frames
+            endVals[i] = rgb
+
+def relativeFade(magnitude, indexes, fadeTime):
+    runPSU()
+    commandList = []
+    for i in indexes:
+        endVal = brightnessChange(pixels[i], magnitude)
+        commandList.append([[i, i + 1], endVal, fadeTime])
+    multiCommand(commandList)
 
 ###################COMMAND TYPE HANDLING########################################
 class Pixels(Resource):
@@ -259,36 +296,16 @@ class AbsoluteFade(Resource):
         fadeTime = args['fadetime']
         rgb = args['rgb']
         indexes = args['indexes']
-        print(type(indexes))
-        print(indexes)
-        runPSU()
-        if not fadeTime:
-            fadeTime = 2 / frameRate
-        frames = int(fadeTime * frameRate)
-        for i in indexes:
-            remaining[i] = frames
-            for c in range(3):
-                diff[i][c] = (rgb[c] - pixels[i][c]) / frames
-            endVals[i] = rgb
+        commands.put((absoluteFade, [rgb, indexes, fadeTime]))
+        clockerActive.set()
 api.add_resource(AbsoluteFade, '/absolutefade')
-
 
 class MultiCommand(Resource):
     def get(self):
         args = parser.parse_args()
-        commands = args['commandlist']
-        runPSU()
-        for x in commands:
-            indexes = x[0]
-            frames = int(x[2] * frameRate)
-            if not frames:
-                frames = 1
-            rgb = x[1]
-            for i in indexes:
-                remaining[i] = frames
-                for c in range(3):
-                    diff[i][c] = (rgb[c] - pixels[i][c]) / frames
-                endVals[i] = rgb
+        commandList = args['commandlist']
+        commands.put((multiCommand, [commandList]))
+        clockerActive.set()
 api.add_resource(MultiCommand, '/multicommand')
 
 class RelativeFade(Resource):
@@ -299,12 +316,8 @@ class RelativeFade(Resource):
         indexes = args['indexes']
         magnitude = args['magnitude']
         fadeTime = args['fadetime']
-        commandList = []
-        for i in indexes:
-            endVal = brightnessChange(pixels[i], magnitude)
-            commandList.append([[i, i + 1], endVal, fadeTime])
-        print('Fading to', endVal)
-        multiCommand(commandList)
+        commands.put((relativeFade, [magnitude, indexes, fadeTime]))
+        clockerActive.set()
 api.add_resource(RelativeFade, '/relativefade')
 
 clocker = threading.Thread(target=clockLoop)
