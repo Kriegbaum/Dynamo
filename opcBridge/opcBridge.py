@@ -2,19 +2,14 @@ import opc
 import time
 import os
 import socket
-import sys
 import json
 import threading
 import queue
 import datetime
-import atexit
 import numpy as np
 import yaml
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-
-#This will log EVERYTHING, disable when you've ceased being confused about your socket issues
-#sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
 
 #typical command
 #{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
@@ -70,38 +65,11 @@ FCclient = opc.Client('localhost:7890')
 arbitration = [False, '127.0.0.1']
 
 ##################SERVER LOGGING AND REPORTING FUNCTIONS########################
-def constructErrorEntry(ip, err):
-    stringOut = str(datetime.datetime.now())
-    stringOut += ' from %s ' % ip
-    stringOut += str(err)
-    return stringOut
-
-def returnError(ip, err):
-    '''Send a report of an error back to the device that caused it'''
-    errSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        errSock.connect((ip, 8880))
-        errSock.sendall(err.encode())
-    except Exception as e:
-        print(e)
-    finally:
-        errSock.shutdown(socket.SHUT_RDWR)
-        errSock.close()
-
 def logError(err):
     print(err)
-    with open(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'opcBridge-log.txt'), 'a') as logFile:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'a') as logFile:
         logFile.write(err)
         logFile.write('\n')
-
-def ripServer(ip, err):
-    absoluteFade(range(0,512), [255,0,0], 0)
-    time.sleep(1)
-    absoluteFade(range(0,512), [0,0,0], 0)
-    err = constructErrorEntry(ip, err)
-    logError(err)
-    print(err)
-
 
 bootMsg = 'Server booted at ' + str(datetime.datetime.now()) + '\n'
 logError(bootMsg)
@@ -185,14 +153,12 @@ def clockLoop():
         now = time.perf_counter()
         while not commands.empty():
             newCommand, args = commands.get()
-            newCommand(*args)
-            '''
             try:
                 newCommand(*args)
             except Exception as e:
                 print('YA FUCKED SOMETHING UP YOU IDIOT')
-                print(e)
-            '''
+                logError(str(e))
+
         anyRemaining = False
 
         for pix in range(512):
@@ -266,9 +232,7 @@ class Pixels(Resource):
 api.add_resource(Pixels, '/pixels')
 
 class Arbitration(Resource):
-    #TODO: Can you extract the JSON in top-level class declaration?
     def put(self):
-        #TODO: Find flask-like way to parse JSON from REST
         args = parser.parse_args()
         id = args['id']
         ip = request.remote_addr
@@ -344,4 +308,4 @@ del testPatternRed
 #Initiate server
 clocker.daemon = True
 clocker.start()
-fetcher.run(debug=FLASK_DEBUG)
+fetcher.run(host=localIP, debug=FLASK_DEBUG)
