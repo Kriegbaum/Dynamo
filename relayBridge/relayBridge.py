@@ -7,6 +7,7 @@ import threading
 import os
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
+import json
 
 #######################GET LOCAL IP####################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -48,7 +49,7 @@ parser = reqparse.RequestParser()
 
 #############################COMMAND FIELDS#####################################
 parser.add_argument('index', type=int, help='Which relay is the command addressed to')
-parser.add_argument('state', type=bool, help='True for on, false for off')
+parser.add_argument('state', type=json.loads, help='True for on, false for off')
 parser.add_argument('id', type=str, help='Arbitration id for server')
 
 ###############################MAIN SERVER ACTIONS######################

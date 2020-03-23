@@ -837,15 +837,15 @@ class CustomRelay(Relay):
 
     def on(self):
         params = {'index': self.index, 'state': True}
-        seaGet(self, 'switch', params=params)
+        seaGet(self.controller, 'switch', params=params)
 
     def off(self):
         params = {'index': self.index, 'state': False}
-        seaGet(self, 'switch', params=params)
+        seaGet(self.controller, 'switch', params=params)
 
     def toggle(self):
         params = {'index': self.index}
-        seaGet(self, 'toggle', params=params)
+        seaGet(self.controller, 'toggle', params=params)
 
 class HueRelay(Relay):
     '''Hue system relay, uses different communication method, but functionally
