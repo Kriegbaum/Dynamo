@@ -10,6 +10,7 @@ import numpy as np
 import yaml
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
+import logging
 
 #########################LOAD IN USER CONFIG####################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.yml')) as f:
@@ -18,6 +19,8 @@ configs = yaml.safe_load(configFile)
 
 ################################FLASK OBJECTS###################################
 FLASK_DEBUG = False
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 fetcher = Flask(__name__)
 api = Api(fetcher)
 parser = reqparse.RequestParser()
