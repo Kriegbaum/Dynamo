@@ -27,7 +27,7 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'relayPatch.y
 relayPatch = yaml.safe_load(relayPatch)
 for relay in relayPatch:
     relayPatch[relay] = Relay(relayPatch[relay])
-    #If this is not here, the server will immediately turn off everythin
+    #If this is not here, the server will immediately turn off everything
     relayPatch[relay].on()
 commands = queue.Queue(maxsize=100)
 arbitration = [False, '121.0.0.1']
@@ -70,6 +70,7 @@ class State(Resource):
         index = args['index']
         state = bool(relayPatch[index].value)
         return json.dumps(state)
+api.add_resource(State, '/state')
 
 class Switch(Resource):
     '''Switches specified relay on or off'''
@@ -81,6 +82,7 @@ class Switch(Resource):
             relayPatch[index].on()
         else:
             relayPatch[index].off()
+api.add_resource(Switch, '/switch')
 
 class Toggle(Resource):
     def get(self):
@@ -88,6 +90,7 @@ class Toggle(Resource):
         index = args['index']
         relayPatch[index].toggle()
         return bool(relayPatch[index].value)
+api.add_resource(Toggle, '/toggle')
 
 class Arbitration(Resource):
     '''Who has control over this server?'''
@@ -108,7 +111,7 @@ class Arbitration(Resource):
         ip = request.remote_addr
         arbitration[0] = id
         arbitration[1] = ip
-
+api.add_resource(Arbitration, '/arbitration')
 
 ################################COMMAND TYPE HANDLING###########################
 switcher = threading.Thread(target=switchLoop)

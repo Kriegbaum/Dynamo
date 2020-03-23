@@ -11,14 +11,6 @@ import yaml
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 
-#typical command
-#{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
-#{'type': 'pixelRequest'}
-#{'type': 'relativeFade', 'indexes': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
-#('type': 'multiCommand', [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
-
-#typical queue item
-#[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
 #########################LOAD IN USER CONFIG####################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.yml')) as f:
     configFile = f.read()
