@@ -16,6 +16,7 @@ from PIL import Image
 from PIL import ImageFile
 import numpy as np
 import threading
+import requests
 
 ########################Default locations for config files######################
 defaultConfigPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'config.yml')
@@ -33,66 +34,34 @@ except:
 ipSock.close()
 socket.setdefaulttimeout(15)
 
-def transmit(command, controller):
-    '''Takes a command dictionary and a controller, and sockets that command out'''
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (controller.ip, controller.txPort)
-    message = json.dumps(command)
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as e:
-        if type(e) == socket.timeout:
-            print('Socket timed out, attempting connection again')
-        else:
-            print('Sending ' + command['type'] + ' failed')
-            print(e)
-    finally:
-        sock.close()
-
-def recieve(controller):
-    '''Waits for a response fom a controller that we've sent a request to'''
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    server_address = ('0.0.0.0', controller.rxPort)
-    sock.bind(server_address)
-    sock.listen(1)
-    try:
-        connection, client_address = sock.accept()
-        message = ''
-        while True:
-            data = connection.recv(16).decode()
-            message += data
-            if data:
-                pass
-            else:
-                sock.close()
-                return message
-    except Exception as err:
-        print('Failed to get data', err)
-        sock.close()
-
 #####################opcBridge Companion Functions##############################
 '''The following functions allow direct access to opcBridge or dmxBridge. These
 should stay classless to allow finer control for things like effects engines
 fixutre class member functions may depend on some of these functions'''
 
+def seaGet(controller, route, params=None):
+    response = requests.get(controller.ip + ':' + controller.port + '/' + route, params=params)
+    return response.content
+
+def seaPut(controller, route, params=None):
+    response = requests.put(controller.ip + ':' + controller.port + '/' + route, params=params)
+    return response.content
+
 def requestArbitration(id, controller):
     '''Asks for arbitration from the controller, currently the server makes the
     dcecisions about whether or not you should be in control, returns a bool'''
-    transmit({'type': 'requestArbitration', 'id': id}, controller)
-    arbitration = recieve(controller)
+    arbitration = seaGet(controller, 'arbitration', params={'id': id})
     try:
         arbitration = json.loads(arbitration)
     except:
+        print('Arbitration request failed, continuting routine')
         return True
     return arbitration
 
 def setArbitration(id, controller):
     '''Takes arbitration for your own process. An id should be established for
     the routine that calls this function, id should be descriptive of process'''
-    transmit({'type': 'setArbitration', 'id': id}, controller)
+    seaPut(controller, 'arbitration', params={'id': id})
 
 def multiConstructor(fixture, rgb, fadeTime):
     rgb = fixture.colorCorrect(rgb)
@@ -104,17 +73,14 @@ def sendMultiCommand(commands, controller):
     '''Sends a command that issues an absoluteFade to multiple fixtures at once
     This should be used every time more than one command is supposed to happen simultaneously
     it is more efficent for opcBridge, faster, and less error prone'''
-    #('type': 'multiCommand', 'commands': [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
     #Index 0 in each command can be fixture or index, but should be index by the time it reaches opcBridge
-    command = {'type':'multiCommand', 'commands':commands}
-    transmit(command, controller)
+    seaGet(controller, 'multicommand', params={'commandlist': commands})
 
-def sendCommand(indexes, rgb, controller, fadetime=5, type='absoluteFade'):
+def sendCommand(indexes, rgb, controller, fadetime=5):
     '''Sends a dictionary to specified controller'''
     #typical command
     #{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
-    command = {'type':'absoluteFade', 'color':rgb, 'fadeTime': fadetime, 'indexes': indexes}
-    transmit(command, controller)
+    seaGet(controller, 'absolutefade', params={'indexes': indexes, 'rgb': rgb, 'fadetime': fadeTime})
 
 '''The following functions need to be reworked in order to function in the new
 structure of this system. They should probably eventually end up as fixture
@@ -411,44 +377,37 @@ class Controller:
         self.system = patchDict['system']
         self.multiCache = []
         if self.system == 'Fadecandy':
-            self.txPort = testDict(patchDict, 'txPort', 8000)
-            self.rxPort = testDict(patchDict, 'rxPort', 8800)
+            self.port = testDict(patchDict, 'port', 8000)
         elif self.system == 'CustomRelay':
-            self.txPort = testDict(patchDict, 'txPort', 8001)
-            self.rxPort = testDict(patchDict, 'rxPort', 8801)
+            self.port = testDict(patchDict, 'port', 8001)
         elif self.system == 'DMX':
-            self.txPort = testDict(patchDict, 'txPort', 8002)
-            self.rxPort = testDict(patchDict, 'rxPort', 8802)
+            self.port = testDict(patchDict, 'port', 8002)
 
     def __repr__(self):
         stringOut = self.name
         stringOut += '\nRoom: %s' % self.room
         stringOut += '\nIP: %s' % self.ip
         stringOut += '\nSystem: %s' % self.system
-        stringOut += '\nTx Port: %s' % self.txPort
-        stringOut += '\nRx Port: %s\n' % self.rxPort
+        stringOut += '\nPort: %s' % self.port
         return stringOut
 
     def getPixels(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
-        command = {'type': 'getPixels'}
-        transmit(command, self)
-        pixels = recieve(self)
-        pixels = json.loads(pixels)
-        return pixels
+        response = seaGet(self, 'pixels')
+        return json.loads(response)
 
     def getArbitration(self, id):
-        transmit({'type': 'getArbitration', 'id': id}, self)
-        arbitration = recieve(self)
+        response = seaGet(self, 'arbitration', params={'id':id})
         try:
             arbitration = json.loads(arbitration)
         except:
+            print('Error in retrieving Arbitration for %s, continuting routine...' % self)
             return True
         return arbitration
 
     def setArbitration(self, id):
-        transmit({'type': 'setArbitration', 'id': id}, self)
+        seaPut(self, 'arbitration', params={'id':id})
 
     def cache(self, fixture, color, fadeTime, construct=True):
         '''Stows a command in multiCache, to be cleared by a multicommand'''
@@ -513,15 +472,13 @@ class Fadecandy(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
-        transmit(command, self.controller)
+        params = {'rgb': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
+        seaGet(self, 'absolutefade', params=params)
 
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
-        command = {'type': 'getPixels'}
-        transmit(command, self.controller)
-        pixels = recieve(self.controller)
+        response = seaGet(self, 'pixels')
         pixels = json.loads(pixels)
         return pixels[self.indexes[0]]
 
@@ -536,13 +493,13 @@ class Fadecandy(Fixture):
         if sum(self.getColor()) == 0:
             self.setColor([255, 202, 190], fadeTime)
 
-    def fadeUp(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount, 'fadeTime': fadeTime}
-        transmit(command, self.controller)
+    def fadeUp(self, magnitude=25, fadeTime=0.5):
+        params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadeTime': fadeTime}
+        seaGet(self, 'relativefade', params=params)
 
-    def fadeDown(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount * -1, 'fadeTime': fadeTime}
-        transmit(command, self.controller)
+    def fadeDown(self, magnitude=25, fadeTime=0.5):
+        params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadeTime': fadeTime}
+        seaGet(self, 'relativefade', params=params)
 
 class PixelArray(Fixture):
     def __init__(self, patch, patchDict):
@@ -603,15 +560,13 @@ class PixelArray(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        command = {'type': 'absoluteFade', 'color': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
-        transmit(command, self.controller)
+        params = {'rgb': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
+        seaGet(self, 'absolutefade', params=params)
 
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
-        command = {'type': 'getPixels'}
-        transmit(command, self.controller)
-        pixels = recieve(self.controller)
+        pixels = seaGet(self, 'pixels')
         pixels = json.loads(pixels)
         return pixels[self.indexes[0]]
 
@@ -626,13 +581,13 @@ class PixelArray(Fixture):
         if sum(self.getColor()) == 0:
             self.setColor([255, 202, 190], fadeTime)
 
-    def fadeUp(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount, 'fadeTime': fadeTime}
-        transmit(command, self.controller)
+    def fadeUp(self, magnitude=25, fadeTime=0.5):
+        params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadeTime': fadeTime}
+        seaGet(self, 'relativefade', params=params)
 
-    def fadeDown(self, amount=25, fadeTime=0.5):
-        command = {'type': 'relativeFade', 'indexes': self.indexes, 'magnitude': amount * -1, 'fadeTime': fadeTime}
-        transmit(command, self.controller)
+    def fadeDown(self, magnitude=25, fadeTime=0.5):
+        params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadeTime': fadeTime}
+        seaGet(self, 'relativefade', params=params)
 
     #EFFECT LOOPS
     #ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES FOR EVERY PARAMETER
@@ -871,22 +826,21 @@ class CustomRelay(Relay):
         return(stringOut)
 
     def getState(self):
-        command = {'type': 'getState', 'index': self.index}
-        transmit(command, self.controller)
-        state = json.loads(recieve(self.controller))
-        return state
+        params = {'index': self.index}
+        response = seaGet(self, 'state', params=params)
+        return json.loads(response)
 
     def on(self):
-        command = {'type': 'switch', 'index': self.index, 'state': True}
-        transmit(command, self.controller)
+        params = {'index': self.index, 'state': True}
+        seaGet(self, 'switch', params=params)
 
     def off(self):
-        command = {'type': 'switch', 'index': self.index, 'state': False}
-        transmit(command, self.controller)
+        params = {'index': self.index, 'state': False}
+        seaGet(self, 'switch', params=params)
 
     def toggle(self):
-        command = {'type': 'toggle', 'index': self.index}
-        transmit(command, self.controller)
+        params = {'index': self.index}
+        seaGet(self, 'toggle', params=params)
 
 class HueRelay(Relay):
     '''Hue system relay, uses different communication method, but functionally

@@ -219,7 +219,7 @@ class Pixels(Resource):
     def get(self):
         '''Gives the entire pixel array back to the client as a 512 * 3 array'''
         print('\nSending pixels to %s \n' % request.remote_addr)
-        message = json.dumps(pixelsToJson(pixels))
+        message = pixelsToJson(pixels)
         return message
 api.add_resource(Pixels, '/pixels')
 

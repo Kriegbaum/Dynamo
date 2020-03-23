@@ -1,5 +1,4 @@
 import socket
-import json
 import datetime
 from gpiozero import OutputDevice as Relay
 import yaml
@@ -69,7 +68,7 @@ class State(Resource):
         args = parser.parse_args()
         index = args['index']
         state = bool(relayPatch[index].value)
-        return json.dumps(state)
+        return state
 api.add_resource(State, '/state')
 
 class Switch(Resource):
