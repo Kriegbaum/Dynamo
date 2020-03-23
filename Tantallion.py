@@ -39,10 +39,16 @@ should stay classless to allow finer control for things like effects engines
 fixutre class member functions may depend on some of these functions'''
 
 def seaGet(controller, route, params=None):
+    if params:
+        for p in params:
+            params[p] = json.dumps(params[p])
     response = requests.get('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params)
     return response.content
 
 def seaPut(controller, route, params=None):
+    if params:
+        for p in params:
+            params[p] = json.dumps(params[p])
     response = requests.put('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params)
     return response.content
 
@@ -75,7 +81,7 @@ def sendMultiCommand(commands, controller):
     #Index 0 in each command can be fixture or index, but should be index by the time it reaches opcBridge
     seaGet(controller, 'multicommand', params={'commandlist': commands})
 
-def sendCommand(indexes, rgb, controller, fadetime=5):
+def sendCommand(indexes, rgb, controller, fadeTime=5):
     '''Sends a dictionary to specified controller'''
     #typical command
     #{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
@@ -399,7 +405,7 @@ class Controller:
     def getArbitration(self, id):
         response = seaGet(self, 'arbitration', params={'id':id})
         try:
-            arbitration = json.loads(arbitration)
+            arbitration = json.loads(response)
         except:
             print('Error in retrieving Arbitration for %s, continuting routine...' % self)
             return True
@@ -471,7 +477,7 @@ class Fadecandy(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        params = {'rgb': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
+        params = {'rgb': rgb, 'fadetime': fadeTime, 'indexes': self.indexes}
         seaGet(self.controller, 'absolutefade', params=params)
 
     def getColor(self):
@@ -493,11 +499,11 @@ class Fadecandy(Fixture):
             self.setColor([255, 202, 190], fadeTime)
 
     def fadeUp(self, magnitude=25, fadeTime=0.5):
-        params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadeTime': fadeTime}
+        params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadetime': fadeTime}
         seaGet(self.controller, 'relativefade', params=params)
 
     def fadeDown(self, magnitude=25, fadeTime=0.5):
-        params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadeTime': fadeTime}
+        params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadetime': fadeTime}
         seaGet(self.controller, 'relativefade', params=params)
 
 class PixelArray(Fixture):
@@ -559,7 +565,7 @@ class PixelArray(Fixture):
         rgb = self.colorCorrect(rgb)
         if self.grb:
             rgb = grbFix(rgb)
-        params = {'rgb': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
+        params = {'rgb': rgb, 'fadetime': fadeTime, 'indexes': self.indexes}
         seaGet(self.controller, 'absolutefade', params=params)
 
     def getColor(self):
@@ -581,11 +587,11 @@ class PixelArray(Fixture):
             self.setColor([255, 202, 190], fadeTime)
 
     def fadeUp(self, magnitude=25, fadeTime=0.5):
-        params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadeTime': fadeTime}
+        params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadetime': fadeTime}
         seaGet(self.controller, 'relativefade', params=params)
 
     def fadeDown(self, magnitude=25, fadeTime=0.5):
-        params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadeTime': fadeTime}
+        params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadetime': fadeTime}
         seaGet(self.controller, 'relativefade', params=params)
 
     #EFFECT LOOPS
@@ -646,25 +652,25 @@ class PixelArray(Fixture):
         different color, and then recedes to background'''
         #Fly fades up to primary color
         upTime = 0
-        sendCommand([index], colorPrimary, self.controller, fadetime=upTime)
+        sendCommand([index], colorPrimary, self.controller, fadeTime=upTime)
         time.sleep(1.3 / speed)
         #Fly fades down to secondary color
         downTime = 5.0 / speed
-        sendCommand([index], colorBackground, controller, fadetime=downTime)
+        sendCommand([index], colorBackground, controller, fadeTime=downTime)
 
     def firefly(self, index, colorPrimary, colorSecondary, colorBackground, speed):
         '''Used by fireflies() effect. A single pixel fades up, fades down to a
         different color, and then recedes to background'''
         #Fly fades up to primary color
         upTime = (.5 * randomPercent(80, 160)) / speed
-        sendCommand([index], colorPrimary, self.controller, fadetime=upTime)
+        sendCommand([index], colorPrimary, self.controller, fadeTime=upTime)
         time.sleep((1.3 / speed) * randomPercent(80, 160))
         #Fly fades down to secondary color
         downTime = (3.7 * randomPercent(75, 110)) / speed
-        sendCommand([index], colorSecondary, self.controller, fadetime=downTime)
+        sendCommand([index], colorSecondary, self.controller, fadeTime=downTime)
         time.sleep((5.0 / speed) * randomPercent(80, 120))
         #Fly recedes into background
-        sendCommand([index], colorBackground, self.controller, fadetime=.5)
+        sendCommand([index], colorBackground, self.controller, fadeTime=.5)
 
     def fireflies(self, density=7, frequency=5, speed=0.7, colorPrimary=[85,117,0], colorSecondary=[10,26,0], colorBackground=[0,12,22]):
         '''Dots randomly appear on the array, and fade out into a different color'''

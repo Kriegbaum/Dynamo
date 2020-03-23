@@ -17,7 +17,7 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.ym
 configs = yaml.safe_load(configFile)
 
 ################################FLASK OBJECTS###################################
-FLASK_DEBUG = True
+FLASK_DEBUG = False
 fetcher = Flask(__name__)
 api = Api(fetcher)
 parser = reqparse.RequestParser()
@@ -151,6 +151,7 @@ def clockLoop():
                 print('YA FUCKED SOMETHING UP YOU IDIOT')
                 logError(str(e))
 
+
         anyRemaining = False
 
         for pix in range(512):
@@ -211,7 +212,7 @@ def relativeFade(magnitude, indexes, fadeTime):
     commandList = []
     for i in indexes:
         endVal = brightnessChange(pixels[i], magnitude)
-        commandList.append([[i, i + 1], endVal, fadeTime])
+        commandList.append([[i], endVal, fadeTime])
     multiCommand(commandList)
 
 ###################COMMAND TYPE HANDLING########################################
