@@ -115,7 +115,7 @@ def psuSwitch(state):
     ip = configs['PSUs']['ip']
     port = configs['PSUs']['port']
     params = {'index': configs['PSUs']['index'], 'state': state}
-    requests.get('http://' + ip + ':' + port + '/switch', params=params)
+    requests.get('http://' + ip + ':' + str(port) + '/switch', params=params)
 
 def psuCheck(pixels):
     for pix in pixels:
