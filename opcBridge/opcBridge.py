@@ -11,6 +11,7 @@ import yaml
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 import logging
+import requests
 
 #########################LOAD IN USER CONFIG####################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.yml')) as f:
@@ -111,21 +112,10 @@ def bridgeValues(totalSteps, start, end):
     yield end
 
 def psuSwitch(state):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (configs['PSUs']['ip'], configs['PSUs']['port'])
-    message = json.dumps({'type': 'switch', 'index': configs['PSUs']['index'], 'state': state})
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as e:
-        if type(e) == socket.timeout:
-            print('Socket timed out, attempting connection again')
-        else:
-            print('Sending ' + command['type'] + ' failed')
-            print(e)
-    finally:
-        sock.close()
+    ip = configs['PSUs']['ip']
+    port = configs['PSUs']['port']
+    params = {'index': configs['PSUs']['index'], 'state': state}
+    requests.get('http://' + ip + ':' + port + '/switch', params=params)
 
 def psuCheck(pixels):
     for pix in pixels:

@@ -832,7 +832,7 @@ class CustomRelay(Relay):
 
     def getState(self):
         params = {'index': self.index}
-        response = seaGet(self, 'state', params=params)
+        response = seaGet(self.controller, 'state', params=params)
         return json.loads(response)
 
     def on(self):
