@@ -115,4 +115,4 @@ api.add_resource(Arbitration, '/arbitration')
 ################################COMMAND TYPE HANDLING###########################
 switcher = threading.Thread(target=switchLoop)
 switcher.start()
-fetcher.run(host=localIP, debug=FLASK_DEBUG)
+fetcher.run(host=localIP, port=8001 debug=FLASK_DEBUG)

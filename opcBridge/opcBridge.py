@@ -300,4 +300,4 @@ del testPatternRed
 #Initiate server
 clocker.daemon = True
 clocker.start()
-fetcher.run(host=localIP, debug=FLASK_DEBUG)
+fetcher.run(host=localIP, port=8000, debug=FLASK_DEBUG)

@@ -3,7 +3,6 @@ class-based because I'm trying to be a civilized person'''
 
 import os
 import yaml
-import sys
 import colorsys
 import socket
 import json
@@ -40,11 +39,11 @@ should stay classless to allow finer control for things like effects engines
 fixutre class member functions may depend on some of these functions'''
 
 def seaGet(controller, route, params=None):
-    response = requests.get(controller.ip + ':' + controller.port + '/' + route, params=params)
+    response = requests.get('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params)
     return response.content
 
 def seaPut(controller, route, params=None):
-    response = requests.put(controller.ip + ':' + controller.port + '/' + route, params=params)
+    response = requests.put('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params)
     return response.content
 
 def requestArbitration(id, controller):
@@ -473,12 +472,12 @@ class Fadecandy(Fixture):
         if self.grb:
             rgb = grbFix(rgb)
         params = {'rgb': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
-        seaGet(self, 'absolutefade', params=params)
+        seaGet(self.controller, 'absolutefade', params=params)
 
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
-        response = seaGet(self, 'pixels')
+        pixels = seaGet(self.controller, 'pixels')
         pixels = json.loads(pixels)
         return pixels[self.indexes[0]]
 
@@ -495,11 +494,11 @@ class Fadecandy(Fixture):
 
     def fadeUp(self, magnitude=25, fadeTime=0.5):
         params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadeTime': fadeTime}
-        seaGet(self, 'relativefade', params=params)
+        seaGet(self.controller, 'relativefade', params=params)
 
     def fadeDown(self, magnitude=25, fadeTime=0.5):
         params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadeTime': fadeTime}
-        seaGet(self, 'relativefade', params=params)
+        seaGet(self.controller, 'relativefade', params=params)
 
 class PixelArray(Fixture):
     def __init__(self, patch, patchDict):
@@ -561,12 +560,12 @@ class PixelArray(Fixture):
         if self.grb:
             rgb = grbFix(rgb)
         params = {'rgb': rgb, 'fadeTime': fadeTime, 'indexes': self.indexes}
-        seaGet(self, 'absolutefade', params=params)
+        seaGet(self.controller, 'absolutefade', params=params)
 
     def getColor(self):
         '''This will tell you the value of the first index of the fixutre, this
         will not always accurately reflect the state of the whole fixture'''
-        pixels = seaGet(self, 'pixels')
+        pixels = seaGet(self.controller, 'pixels')
         pixels = json.loads(pixels)
         return pixels[self.indexes[0]]
 
@@ -583,11 +582,11 @@ class PixelArray(Fixture):
 
     def fadeUp(self, magnitude=25, fadeTime=0.5):
         params = {'indexes': self.indexes, 'magnitude': magnitude, 'fadeTime': fadeTime}
-        seaGet(self, 'relativefade', params=params)
+        seaGet(self.controller, 'relativefade', params=params)
 
     def fadeDown(self, magnitude=25, fadeTime=0.5):
         params = {'indexes': self.indexes, 'magnitude': magnitude * -1, 'fadeTime': fadeTime}
-        seaGet(self, 'relativefade', params=params)
+        seaGet(self.controller, 'relativefade', params=params)
 
     #EFFECT LOOPS
     #ALL OF THESE SHOULD EVENTUALLY HAVE DEFAULT VALUES FOR EVERY PARAMETER
