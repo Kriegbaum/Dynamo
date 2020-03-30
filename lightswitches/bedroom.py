@@ -101,13 +101,11 @@ def iteratorTracker(i):
 def run1():
     print('button 1 pressed')
     killEveryone()
-    room.setArbitration('ButtonPress')
     iteratorTracker(image)
 
 def run2():
     print('button 2 pressed')
     killEveryone()
-    room.setArbitration('ButtonPressOff')
     killLights()
 
 def run3():
@@ -116,7 +114,6 @@ def run3():
 
 def run4():
     print('button 4 pressed')
-    room.setArbitration('ButtonPress')
     room.relaysOff()
 
 '''
