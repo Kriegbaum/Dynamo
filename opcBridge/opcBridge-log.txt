@@ -1,0 +1,20 @@
+'int' object is not iterable
+unsupported operand type(s) for *: 'NoneType' and 'int'
+unsupported operand type(s) for *: 'NoneType' and 'int'
+Server booted at 2020-03-23 15:18:33.652009
+
+unsupported operand type(s) for *: 'NoneType' and 'int'
+Server booted at 2020-03-23 15:19:33.310805
+
+Server booted at 2020-03-23 15:20:17.061344
+
+Server booted at 2020-03-23 15:20:29.734680
+
+unsupported operand type(s) for *: 'NoneType' and 'int'
+index 512 is out of bounds for axis 0 with size 512
+Server booted at 2020-03-23 15:25:39.357191
+
+Server booted at 2020-03-23 15:34:26.285289
+
+Server booted at 2020-03-23 15:39:28.419144
+

@@ -39,10 +39,12 @@ if platform.system() == 'Windows':
     patch.fixture('spidergod').off(60)
     randPix = web.indexes.copy()
     shuffle(randPix)
+    whiteVal = 90
     for i in randPix:
-        flyThread = threading.Thread(target=web.firefly, args=[i, [90,90,90], [20,20,20], [0,0,0], 0.8])
+        flyThread = threading.Thread(target=web.firefly, args=[i, [whiteVal,whiteVal,whiteVal], [whiteVal / 4,whiteVal / 4,whiteVal / 4], [0,0,0], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
+        whiteVal -= 0.1
     time.sleep(10)
 
     while mb.get_play_state_str() != 'Stopped':
