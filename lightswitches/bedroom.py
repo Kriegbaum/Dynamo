@@ -79,6 +79,7 @@ def runFlies():
     activeThreads.append(flies)
 
 def killLights():
+    room.setArbitration('ButtonPress')
     patch.fixture('desk').off()
     patch.fixture('dresser').off()
     patch.fixture('worklight').off()

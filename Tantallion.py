@@ -959,11 +959,15 @@ class Room:
                     r.off()
             time.sleep(2)
 
-    def relaysToggle(self):
+    def relayState(self):
         roomState = True
         for r in self.relayList:
             if not r.getState():
                 roomState = False
+        return roomState
+
+    def relaysToggle(self):
+        roomState = self.relayState()
         if roomState:
             self.relaysOff()
         else:
