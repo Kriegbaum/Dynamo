@@ -162,3 +162,40 @@ Front Speakers:
   stage: 2
   id: 21
   room: living room
+
+#KITCHEN
+Undercab 1:
+  name: undercabinet 1
+  system: Hue
+  id: 24
+  room: kitchen
+
+Undercab 2:
+  name: undercabinet 2
+  system: Hue
+  id: 26
+  room: kitchen
+
+Kitchen Table:
+  name: kitchen table
+  system: Hue
+  id: 3
+  room: kitchen
+
+Kitchen Sink:
+  name: sink
+  system: Hue
+  id: 2
+  room: kitchen
+
+Kitchen Overhead:
+  name: kitchen overhead
+  system: Hue
+  id: 16
+  room: kitchen
+
+Kitchen Stereo:
+  name: kitchen stereo
+  system: HueRelay
+  id: 28
+  room: kitchen

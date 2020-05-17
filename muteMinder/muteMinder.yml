@@ -1,0 +1,6 @@
+host: 192.168.2.65
+port: 1705
+snapClients:
+  b8:27:eb:e6:30:06: dining room
+  b8:27:eb:77:b7:1c: kitchen
+  dc:a6:32:0d:11:b4: living room
