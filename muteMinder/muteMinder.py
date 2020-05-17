@@ -49,6 +49,8 @@ class MuteMinder(snapcast.control.Snapserver):
             if muteState != stereo.muteCache:
                 stereo.muteCache = muteState
                 stereo.switch(not muteState)
+        except:
+            pass
 
 @asyncio.coroutine
 def create_muteminder(loop, host, port=1705, reconnect=False):
