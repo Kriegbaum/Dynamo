@@ -106,10 +106,10 @@ BedroomArray:
 
 #               LIVING ROOM
 
-Iris:
-  name: iris
+Reading:
+  name: reading lamp
   system: Hue
-  id: 27
+  id: 11
   room: living room
 
 FAIboi:
