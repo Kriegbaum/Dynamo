@@ -191,7 +191,7 @@ Kitchen Sink:
 Kitchen Overhead:
   name: kitchen overhead
   system: Hue
-  id: 16
+  id: 6
   room: kitchen
 
 Kitchen Stereo:
@@ -199,3 +199,35 @@ Kitchen Stereo:
   system: HueRelay
   id: 28
   room: kitchen
+
+#Dining Room
+
+Overhead1:
+  name: overhead1
+  id: 16
+  system: Hue
+  room: dining room
+
+Overhead2:
+  name: overhead2
+  id: 30
+  system: Hue
+  room: dining room
+
+Overhead3:
+  name: overhead3
+  id: 31
+  system: Hue
+  room: dining room
+
+Iris:
+  name: iris
+  id: 27
+  system: Hue
+  room: dining room
+
+Coffee:
+  name: coffee station
+  id: 14
+  system: Hue
+  room: dining room
