@@ -163,6 +163,13 @@ Front Speakers:
   id: 21
   room: living room
 
+Subwoofer:
+  name: subwoofer
+  system: HueRelay
+  stage: 1
+  id: 18
+  room: living room
+
 #KITCHEN
 Undercab 1:
   name: undercabinet 1
