@@ -27,6 +27,7 @@ Desk:
   system: Hue
   id: 15
   room: bedroom
+  proportion: .8
 
 Left Speaker:
   name: left speaker

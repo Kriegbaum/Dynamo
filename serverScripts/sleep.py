@@ -25,7 +25,7 @@ if platform.system() == 'Windows':
     patch = Patch()
     mb = musicbeeipc.MusicBeeIPC()
     web = patch.fixture('bedroom array')
-    os.system('E:\\nircmd\\nircmd.exe setsysvolume 6750')
+    os.system('E:\\nircmd\\nircmd.exe setsysvolume 7250')
     mb.set_volume(100)
     def volumeDown():
         vol = 100
