@@ -43,6 +43,7 @@ def vaporCity():
     patch.fixture('worklight').setColor([128, 20, 50])
     patch.fixture('desk').setColor([3, 15, 149])
     patch.fixture('dresser').setColor([211, 36, 196])
+    patch.fixture('whiteboard').setColor([40,120,190])
     vapor.start()
     activeThreads.append(vapor)
 
@@ -52,6 +53,7 @@ def eiffel():
     patch.fixture('desk').setColor([150, 105, 50])
     patch.fixture('dresser').setColor([175, 117, 82])
     patch.fixture('worklight').setColor([120, 85, 65])
+    patch.fixture('whiteboard').setColor([120,90,30])
     eiffel3.start()
     activeThreads.append(eiffel3)
 
@@ -61,6 +63,7 @@ def snowy():
     patch.fixture('worklight').setColor([128,128,128])
     patch.fixture('desk').setColor([128,128,128])
     patch.fixture('dresser').setColor([128,128,128])
+    patch.fixture('whiteboard').setColor([115,115,120])
     snow.start()
     activeThreads.append(snow)
 
@@ -70,6 +73,7 @@ def valtari():
     patch.fixture('worklight').setColor([228,208,70])
     patch.fixture('desk').setColor([52,61,52])
     patch.fixture('dresser').setColor([71,96,22])
+    patch.fixture('whiteboard').setColor([100,110,50])
     valtari.start()
     activeThreads.append(valtari)
 

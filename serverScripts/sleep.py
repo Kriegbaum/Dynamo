@@ -25,7 +25,7 @@ if platform.system() == 'Windows':
     patch = Patch()
     mb = musicbeeipc.MusicBeeIPC()
     web = patch.fixture('bedroom array')
-    os.system('E:\\nircmd\\nircmd.exe setsysvolume 7250')
+    os.system('E:\\nircmd\\nircmd.exe setsysvolume 9000')
     mb.set_volume(100)
     def volumeDown():
         vol = 100
@@ -52,7 +52,13 @@ if platform.system() == 'Windows':
     volDown.start()
     whiteVal = 90
     for i in randPix:
-        flyThread = threading.Thread(target=web.firefly, args=[i, [whiteVal,whiteVal,whiteVal], [whiteVal / 4,whiteVal / 4,whiteVal / 4], [0,0,0], 0.8])
+        lowCol = [random.randrange(0,20), random.randrange(0,20), random.randrange(19,60)]
+        flyThread = threading.Thread(target=web.firefly, args=[i, [whiteVal,whiteVal,whiteVal], [whiteVal / 4,whiteVal / 4,whiteVal / 4], lowCol, 0.8])
+        flyThread.start()
+        time.sleep(1.5 * randomPercent(70, 155))
+    shuffle(randPix)
+    for i in randPix:
+        flyThread = threading.Thread(target=web.firefly, args=[i, [21,30,0], [10,20,0], [0,0,0], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
         whiteVal -= 0.1
