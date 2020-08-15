@@ -25,7 +25,7 @@ if platform.system() == 'Windows':
     patch = Patch()
     mb = musicbeeipc.MusicBeeIPC()
     web = patch.fixture('bedroom array')
-    os.system('E:\\nircmd\\nircmd.exe setsysvolume 9000')
+    os.system('E:\\nircmd\\nircmd.exe setsysvolume 10000')
     mb.set_volume(100)
     def volumeDown():
         vol = 100
@@ -45,6 +45,7 @@ if platform.system() == 'Windows':
     patch.fixture('dresser').off(45)
     patch.fixture('worklight').off(45)
     patch.fixture('spidergod').off(60)
+    patch.fixture('whiteboard').off(60)
     patch.fixture('bedroom array').rollFade([15, 12, 75], 120)
     randPix = web.indexes.copy()
     shuffle(randPix)
