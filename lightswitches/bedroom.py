@@ -41,8 +41,10 @@ def vaporCity():
     imagePath = ('/home/pi', 'vapor_city2.jpg')
     vapor = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('worklight').setColor([128, 20, 50])
+    patch.fixture('spidergod').setColor([192,192,200])
     patch.fixture('desk').setColor([3, 15, 149])
     patch.fixture('dresser').setColor([211, 36, 196])
+    patch.fixture('whiteboard').setColor([40,120,190])
     vapor.start()
     activeThreads.append(vapor)
 
@@ -50,8 +52,10 @@ def eiffel():
     imagePath = ('/home/pi', 'eiffel4.jpg')
     eiffel3 = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('desk').setColor([150, 105, 50])
+    patch.fixture('spidergod').setColor([192,182,150])
     patch.fixture('dresser').setColor([175, 117, 82])
     patch.fixture('worklight').setColor([120, 85, 65])
+    patch.fixture('whiteboard').setColor([120,90,30])
     eiffel3.start()
     activeThreads.append(eiffel3)
 
@@ -59,17 +63,21 @@ def snowy():
     imagePath = ('/home/pi', 'snowy-dim.jpg')
     snow = multiprocessing.Process(target=web.imageSample, args=imagePath)
     patch.fixture('worklight').setColor([128,128,128])
+    patch.fixture('spidergod').setColor([192,192,192])
     patch.fixture('desk').setColor([128,128,128])
     patch.fixture('dresser').setColor([128,128,128])
+    patch.fixture('whiteboard').setColor([115,115,120])
     snow.start()
     activeThreads.append(snow)
 
 def valtari():
     imagePath = ('/home/pi', 'valtari2.jpg')
     valtari = multiprocessing.Process(target=web.imageSample, args=imagePath)
+    patch.fixture('spidergod').setColor([155,250,140])
     patch.fixture('worklight').setColor([228,208,70])
     patch.fixture('desk').setColor([52,61,52])
     patch.fixture('dresser').setColor([71,96,22])
+    patch.fixture('whiteboard').setColor([100,110,50])
     valtari.start()
     activeThreads.append(valtari)
 
@@ -79,9 +87,12 @@ def runFlies():
     activeThreads.append(flies)
 
 def killLights():
+    room.setArbitration('ButtonPress')
     patch.fixture('desk').off()
+    patch.fixture('spidergod').off()
     patch.fixture('dresser').off()
     patch.fixture('worklight').off()
+    patch.fixture('whiteboard').off()
     web.rollFade([0,0,0], .3)
 
 def iteratorTracker(i):
@@ -101,13 +112,11 @@ def iteratorTracker(i):
 def run1():
     print('button 1 pressed')
     killEveryone()
-    room.setArbitration('ButtonPress')
     iteratorTracker(image)
 
 def run2():
     print('button 2 pressed')
     killEveryone()
-    room.setArbitration('ButtonPressOff')
     killLights()
 
 def run3():
@@ -116,7 +125,6 @@ def run3():
 
 def run4():
     print('button 4 pressed')
-    room.setArbitration('ButtonPress')
     room.relaysOff()
 
 '''

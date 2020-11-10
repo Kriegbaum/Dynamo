@@ -1,15 +1,10 @@
 import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from DYNAcore import *
+sys.path.append('..')
 
+from Tantallion import *
 
-bridge.set_light(22, 'on', True)
-time.sleep(1)
-bridge.set_light(29, 'on', True)
-time.sleep(1)
-bridge.set_light(28, 'on', True)
-time.sleep(1)
-bridge.set_light(17, 'on', True)
-bridge.set_light(21, 'on', True)
-bridge.set_light(18, 'on', True)
+patch = Patch()
+
+patch.relay('left speaker').on()
+patch.relay('right speaker').on()
+patch.relay('subwoofer').on()

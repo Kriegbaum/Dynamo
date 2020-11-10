@@ -14,6 +14,14 @@ SG:
   room: bedroom
   controller: bedroomFC
 
+Whiteboard:
+  name: whiteboard
+  system: Fadecandy
+  indexes: [65]
+  colorCorrection: [1, .90, .57647]
+  room: bedroom
+  controller: bedroomFC
+
 Dresser:
   name: dresser
   system: Fadecandy
@@ -27,6 +35,7 @@ Desk:
   system: Hue
   id: 15
   room: bedroom
+  proportion: .8
 
 Left Speaker:
   name: left speaker
@@ -76,8 +85,8 @@ Soundcard:
   stage: 1
   controller: bedroomRelays
 
-Subwoofer:
-  name: subwoofer
+Subwoofer2:
+  name: bedroom sub
   system: CustomRelay
   index: 2
   room: bedroom
@@ -106,10 +115,10 @@ BedroomArray:
 
 #               LIVING ROOM
 
-Iris:
-  name: iris
+Reading:
+  name: reading lamp
   system: Hue
-  id: 27
+  id: 11
   room: living room
 
 FAIboi:
@@ -162,3 +171,85 @@ Front Speakers:
   stage: 2
   id: 21
   room: living room
+
+Subwoofer:
+  name: subwoofer
+  system: HueRelay
+  stage: 1
+  id: 18
+  room: living room
+
+#KITCHEN
+Undercab 1:
+  name: undercabinet 1
+  system: Hue
+  id: 24
+  room: kitchen
+
+Undercab 2:
+  name: undercabinet 2
+  system: Hue
+  id: 26
+  room: kitchen
+
+Kitchen Table:
+  name: kitchen table
+  system: Hue
+  id: 3
+  room: kitchen
+
+Kitchen Sink:
+  name: sink
+  system: Hue
+  id: 2
+  room: kitchen
+
+Kitchen Overhead:
+  name: kitchen overhead
+  system: Hue
+  id: 6
+  room: kitchen
+
+Kitchen Stereo:
+  name: kitchen stereo
+  system: HueRelay
+  id: 28
+  room: kitchen
+
+#Dining Room
+
+Overhead1:
+  name: overhead1
+  id: 16
+  system: Hue
+  room: dining room
+
+Overhead2:
+  name: overhead2
+  id: 30
+  system: Hue
+  room: dining room
+
+Overhead3:
+  name: overhead3
+  id: 31
+  system: Hue
+  room: dining room
+
+Iris:
+  name: iris
+  id: 27
+  system: Hue
+  room: dining room
+
+Coffee:
+  name: coffee station
+  id: 14
+  system: Hue
+  room: dining room
+
+  Dining Room Stereo:
+    name: dining room stereo
+    system: HueRelay
+    id: 34
+    room: dining room

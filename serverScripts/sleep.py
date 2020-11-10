@@ -25,6 +25,14 @@ if platform.system() == 'Windows':
     patch = Patch()
     mb = musicbeeipc.MusicBeeIPC()
     web = patch.fixture('bedroom array')
+    os.system('E:\\nircmd\\nircmd.exe setsysvolume 10000')
+    mb.set_volume(100)
+    def volumeDown():
+        vol = 100
+        for i in range(65):
+            mb.set_volume(vol)
+            vol -= 1
+            time.sleep(7)
 
     os.system('E:\\nircmd\\nircmd.exe monitor off')
 
@@ -37,18 +45,30 @@ if platform.system() == 'Windows':
     patch.fixture('dresser').off(45)
     patch.fixture('worklight').off(45)
     patch.fixture('spidergod').off(60)
+    patch.fixture('whiteboard').off(60)
+    patch.fixture('bedroom array').rollFade([15, 12, 75], 120)
     randPix = web.indexes.copy()
     shuffle(randPix)
+    volDown = threading.Thread(target=volumeDown)
+    volDown.start()
+    whiteVal = 90
     for i in randPix:
-        flyThread = threading.Thread(target=web.firefly, args=[i, [90,90,90], [20,20,20], [0,0,0], 0.8])
+        flyThread = threading.Thread(target=web.firefly, args=[i, [whiteVal,whiteVal,whiteVal], [whiteVal / 4,whiteVal / 4,whiteVal / 4], [0,12,22], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
+    shuffle(randPix)
+    for i in randPix:
+        flyThread = threading.Thread(target=web.firefly, args=[i, [85,117,0], [10,26,0], [0,0,0], 0.8])
+        flyThread.start()
+        time.sleep(1.5 * randomPercent(70, 155))
+        whiteVal -= 0.1
     time.sleep(10)
 
     while mb.get_play_state_str() != 'Stopped':
         time.sleep(1)
 
     patch.rooms['bedroom'].relaysOff()
+    mb.set_volume(100)
     os.system('rundll32.exe powrprof.dll,SetSuspendState 0,1,0')
 
 elif platform.system() == 'Linux':

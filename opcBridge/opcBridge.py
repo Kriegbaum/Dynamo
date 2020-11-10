@@ -2,30 +2,38 @@ import opc
 import time
 import os
 import socket
-import sys
 import json
 import threading
 import queue
 import datetime
-import atexit
 import numpy as np
 import yaml
+from flask import Flask, request
+from flask_restful import Resource, Api, reqparse
+import logging
+import requests
 
-#This will log EVERYTHING, disable when you've ceased being confused about your socket issues
-#sys.stdout = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'w')
-
-#typical command
-#{'type': 'absoluteFade', 'indexes': [0,512], 'color': [r,g,b], 'fadeTime': 8-bit integer}
-#{'type': 'pixelRequest'}
-#{'type': 'relativeFade', 'indexes': [0,512] 'positive': True, 'magnitude': 8-bit integer, 'fadeTime': 8-bit integer}
-#('type': 'multiCommand', [[fixture1, rgb1, fadeTime1], [fixture2, rgb2, fadeTime2]])
-
-#typical queue item
-#[{index: [r,g,b], index2, [r,g,b]}, {index: [r,g,b], index2: [r,g,b]}]
 #########################LOAD IN USER CONFIG####################################
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcConfig.yml')) as f:
     configFile = f.read()
 configs = yaml.safe_load(configFile)
+
+################################FLASK OBJECTS###################################
+FLASK_DEBUG = False
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+fetcher = Flask(__name__)
+api = Api(fetcher)
+parser = reqparse.RequestParser()
+
+#########################VARIOUS COMMAND FIELDS#################################
+parser.add_argument('fadetime', type=float, help='How long will this fade take?')
+parser.add_argument('indexes', type=json.loads, help='Which pixels are targeted')
+parser.add_argument('id', type=str, help='Arbtration ID')
+parser.add_argument('ip', type=str, help='IP address of client')
+parser.add_argument('rgb', type=json.loads, help='Target color')
+parser.add_argument('magnitude', type=float, help='Size of fade')
+parser.add_argument('commandlist', type=json.loads, help='List of commands for a multicommand')
 
 ##########################GET LOCAL IP##########################################
 ipSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -53,38 +61,11 @@ FCclient = opc.Client('localhost:7890')
 arbitration = [False, '127.0.0.1']
 
 ##################SERVER LOGGING AND REPORTING FUNCTIONS########################
-def constructErrorEntry(ip, err):
-    stringOut = str(datetime.datetime.now())
-    stringOut += ' from %s ' % ip
-    stringOut += str(err)
-    return stringOut
-
-def returnError(ip, err):
-    '''Send a report of an error back to the device that caused it'''
-    errSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        errSock.connect((ip, 8880))
-        errSock.sendall(err.encode())
-    except Exception as e:
-        print(e)
-    finally:
-        errSock.shutdown(socket.SHUT_RDWR)
-        errSock.close()
-
 def logError(err):
     print(err)
-    with open(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'opcBridge-log.txt'), 'a') as logFile:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'opcBridge-log.txt'), 'a') as logFile:
         logFile.write(err)
         logFile.write('\n')
-
-def ripServer(ip, err):
-    absoluteFade(range(0,512), [255,0,0], 0)
-    time.sleep(1)
-    absoluteFade(range(0,512), [0,0,0], 0)
-    err = constructErrorEntry(ip, err)
-    logError(err)
-    print(err)
-
 
 bootMsg = 'Server booted at ' + str(datetime.datetime.now()) + '\n'
 logError(bootMsg)
@@ -119,13 +100,6 @@ def brightnessChange(rgb, magnitude):
     else:
         return rgb
 
-def psuCheck(pixels):
-    for pix in pixels:
-        for color in pix:
-            if color > 0:
-                return True
-    return False
-
 def bridgeValues(totalSteps, start, end):
     '''Generator that creates interpolated steps between a start and end value'''
     newRGB = start
@@ -137,28 +111,26 @@ def bridgeValues(totalSteps, start, end):
         yield [int(newRGB[0]), int(newRGB[1]), int(newRGB[2])]
     yield end
 
-def socketKill(sock):
-    sock.shutdown(socket.SHUT_RDWR)
-    sock.close()
-
 def psuSwitch(state):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (configs['PSUs']['ip'], configs['PSUs']['port'])
-    message = json.dumps({'type': 'switch', 'index': configs['PSUs']['index'], 'state': state})
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as e:
-        if type(e) == socket.timeout:
-            print('Socket timed out, attempting connection again')
-        else:
-            print('Sending ' + command['type'] + ' failed')
-            print(e)
-    finally:
-        sock.close()
+    ip = configs['PSUs']['ip']
+    port = configs['PSUs']['port']
+    state = json.dumps(state)
+    params = {'index': configs['PSUs']['index'], 'state': state}
+    requests.get('http://' + ip + ':' + str(port) + '/switch', params=params)
 
-#############################SERVER LOOPS#######################################
+def psuCheck(pixels):
+    for pix in pixels:
+        for color in pix:
+            if color > 0:
+                return True
+    return False
+
+def runPSU():
+    if not psuCheck(pixels):
+        print('Spinning up PSU')
+        psuSwitch(True)
+
+#############################RENDER LOOP########################################
 
 def clockLoop():
     '''Processes individual frames'''
@@ -166,11 +138,14 @@ def clockLoop():
     while 1:
         now = time.perf_counter()
         while not commands.empty():
-            newCommand = commands.get()
+            newCommand, args = commands.get()
             try:
-                commandParse(newCommand)
-            except:
+                newCommand(*args)
+            except Exception as e:
                 print('YA FUCKED SOMETHING UP YOU IDIOT')
+                logError(str(e))
+
+
         anyRemaining = False
 
         for pix in range(512):
@@ -200,123 +175,9 @@ def clockLoop():
                 clockerActive.clear()
                 print('Sleeping clocker...')
         clockerActive.wait()
-
-def fetchLoop():
-    '''Fetches commands from the socket'''
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (localIP, 8000)
-    print('Initiating socket on %s port %s' % server_address)
-    sock.bind(server_address)
-    sock.listen(90)
-    sock.settimeout(None)
-    atexit.register(socketKill, sock)
-    while True:
-        connection, client_address = sock.accept()
-        command = ''
-        while True:
-            data = connection.recv(16).decode()
-            command += data
-            if data:
-                pass
-            else:
-                comDict = json.loads(command)
-                #print(datetime.datetime.now(), comDict['type'] + ' recieved from', client_address)
-                comDict['ip'] = client_address[0]
-                commands.put(comDict)
-                clockerActive.set()
-                break
-
-###################COMMAND TYPE HANDLING########################################
-
-def commandParse(command):
-    if command['type'] == 'absoluteFade':
-        try:
-            absoluteFade(command['indexes'], command['color'], command['fadeTime'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'relativeFade':
-        try:
-            relativeFade(command['indexes'], command['magnitude'], command['fadeTime'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'getPixels':
-        try:
-            getPixels(command['ip'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'getArbitration':
-        try:
-            getArbitration(command['id'], command['ip'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'setArbitration':
-        try:
-            setArbitration(command['id'], command['ip'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    elif command['type'] == 'multiCommand':
-        try:
-            multiCommand(command['commands'])
-        except Exception as err:
-            ripServer(command['ip'], err)
-    else:
-        err = 'Invalid command type recieved' + command['type'] + 'is not a valid command'
-        ripServer(command['ip'], err)
-
-def getPixels(ip):
-    '''Gives the entire pixel array back to the client as a 512 * 3 array'''
-    print('\nSending pixels to %s \n' % ip)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (ip, 8800)
-
-    message = json.dumps(pixelsToJson(pixels))
-
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as err:
-        err = constructErrorEntry(ip, err)
-        logError(err)
-    finally:
-        sock.close()
-
-def setArbitration(id, ip):
-    print('\nGiving arbitration to %s from %s\n' % (id, ip))
-    arbitration[0] = id
-    arbitration[1] = ip
-
-def getArbitration(id, ip):
-    print('\nSending arbitration to %s for %s\n' % (ip, id))
-    try:
-        if id != arbitration[0]:
-            response = False
-        elif ip != arbitration[1]:
-            response = False
-        else:
-            response = True
-    except Exception as err:
-        ripServer(ip, err)
-        response = False
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = (ip, 8800)
-    message = json.dumps(response)
-    try:
-        sock.connect(server_address)
-        sock.sendall(message.encode())
-        sock.shutdown(socket.SHUT_RDWR)
-    except Exception as err:
-        err = constructErrorEntry(ip, err)
-        logError(err)
-    finally:
-        sock.close()
-
-def absoluteFade(indexes, rgb, fadeTime):
-    '''Is given a color to fade to, and executes fade'''
-    if not psuCheck(pixels):
-        print('Spinning up PSU')
-        psuSwitch(True)
+##################ARRAY MANIPULATING FUNCTIONS##################################
+def absoluteFade(rgb, indexes, fadeTime):
+    runPSU()
     if not fadeTime:
         fadeTime = 2 / frameRate
     frames = int(fadeTime * frameRate)
@@ -326,13 +187,9 @@ def absoluteFade(indexes, rgb, fadeTime):
             diff[i][c] = (rgb[c] - pixels[i][c]) / frames
         endVals[i] = rgb
 
-
-def multiCommand(commands):
-    if not psuCheck(pixels):
-        print('Spinning up PSU')
-        psuSwitch(True)
-
-    for x in commands:
+def multiCommand(commandList):
+    runPSU()
+    for x in commandList:
         indexes = x[0]
         frames = int(x[2] * frameRate)
         if not frames:
@@ -344,18 +201,77 @@ def multiCommand(commands):
                 diff[i][c] = (rgb[c] - pixels[i][c]) / frames
             endVals[i] = rgb
 
-def relativeFade(indexes, magnitude, fadeTime):
-    '''Is given a brightness change, and alters the brightness, likely unpredicatable
-    behavior if called in the middle of another fade'''
+def relativeFade(magnitude, indexes, fadeTime):
+    runPSU()
     commandList = []
     for i in indexes:
         endVal = brightnessChange(pixels[i], magnitude)
-        commandList.append([[i, i + 1], endVal, fadeTime])
-    print('Fading to', endVal)
+        commandList.append([[i], endVal, fadeTime])
     multiCommand(commandList)
 
+###################COMMAND TYPE HANDLING########################################
+class Pixels(Resource):
+    def get(self):
+        '''Gives the entire pixel array back to the client as a 512 * 3 array'''
+        print('\nSending pixels to %s \n' % request.remote_addr)
+        message = pixelsToJson(pixels)
+        return message
+api.add_resource(Pixels, '/pixels')
+
+class Arbitration(Resource):
+    def put(self):
+        args = parser.parse_args()
+        id = args['id']
+        ip = request.remote_addr
+        print('\nGiving arbitration to %s from %s\n' % (id, ip))
+        arbitration[0] = id
+        arbitration[1] = ip
+
+    def get(self):
+        args = parser.parse_args()
+        id = args['id']
+        ip = request.remote_addr
+        print('\nSending arbitration to %s for %s\n' % (ip, id))
+        if id != arbitration[0]:
+            return False
+        elif ip != arbitration[1]:
+            return False
+        else:
+            return True
+api.add_resource(Arbitration, '/arbitration')
+
+class AbsoluteFade(Resource):
+    '''Is given a color to fade to, and executes fade'''
+    def get(self):
+        args = parser.parse_args()
+        fadeTime = args['fadetime']
+        rgb = args['rgb']
+        indexes = args['indexes']
+        commands.put((absoluteFade, [rgb, indexes, fadeTime]))
+        clockerActive.set()
+api.add_resource(AbsoluteFade, '/absolutefade')
+
+class MultiCommand(Resource):
+    def get(self):
+        args = parser.parse_args()
+        commandList = args['commandlist']
+        commands.put((multiCommand, [commandList]))
+        clockerActive.set()
+api.add_resource(MultiCommand, '/multicommand')
+
+class RelativeFade(Resource):
+    '''Is given a brightness change, and alters the brightness, likely unpredicatable
+    behavior if called in the middle of another fade'''
+    def get(self):
+        args = parser.parse_args()
+        indexes = args['indexes']
+        magnitude = args['magnitude']
+        fadeTime = args['fadetime']
+        commands.put((relativeFade, [magnitude, indexes, fadeTime]))
+        clockerActive.set()
+api.add_resource(RelativeFade, '/relativefade')
+
 clocker = threading.Thread(target=clockLoop)
-fetcher = threading.Thread(target=fetchLoop)
 
 #Test pattern to indicate server is up and running
 testPatternOff = np.zeros((512, 3))
@@ -377,5 +293,6 @@ del testPatternOff
 del testPatternRed
 
 #Initiate server
-fetcher.start()
+clocker.daemon = True
 clocker.start()
+fetcher.run(host=localIP, port=8000, debug=FLASK_DEBUG)
