@@ -53,13 +53,12 @@ if platform.system() == 'Windows':
     volDown.start()
     whiteVal = 90
     for i in randPix:
-        lowCol = [random.randrange(0,20), random.randrange(0,20), random.randrange(19,60)]
-        flyThread = threading.Thread(target=web.firefly, args=[i, [whiteVal,whiteVal,whiteVal], [whiteVal / 4,whiteVal / 4,whiteVal / 4], lowCol, 0.8])
+        flyThread = threading.Thread(target=web.firefly, args=[i, [whiteVal,whiteVal,whiteVal], [whiteVal / 4,whiteVal / 4,whiteVal / 4], [0,12,22], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
     shuffle(randPix)
     for i in randPix:
-        flyThread = threading.Thread(target=web.firefly, args=[i, [21,30,0], [10,20,0], [0,0,0], 0.8])
+        flyThread = threading.Thread(target=web.firefly, args=[i, [85,117,0], [10,26,0], [0,0,0], 0.8])
         flyThread.start()
         time.sleep(1.5 * randomPercent(70, 155))
         whiteVal -= 0.1

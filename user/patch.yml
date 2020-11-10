@@ -247,3 +247,9 @@ Coffee:
   id: 14
   system: Hue
   room: dining room
+
+  Dining Room Stereo:
+    name: dining room stereo
+    system: HueRelay
+    id: 34
+    room: dining room
