@@ -18,7 +18,7 @@ StaticJsonDocument<200> activeCommand;
 char* state(String command){
   DeserializationError error = deserializeJson(activeCommand, command);
   if(error){
-    return 0;
+    return "JSON ERROR";
   }
   byte index = activeCommand["index"];
   if(digitalRead(indexMap[index])) {
@@ -43,7 +43,7 @@ char* switchRelay(String command){
 char* toggle(String command){
   DeserializationError error = deserializeJson(activeCommand, command);
   if(error){
-    return 0;
+    return "JSON ERROR";
   }
   byte index = activeCommand["index"];
   if(digitalRead(indexMap[index])) {
@@ -58,7 +58,7 @@ char* toggle(String command){
 char* arbitration(String command){
   DeserializationError error = deserializeJson(activeCommand, command);
   if(error){
-    return 0;
+    return "JSON ERROR";
   }
 
   Serial.println(rest.method);
@@ -78,7 +78,7 @@ char* arbitration(String command){
     return "1";
   }
   else{
-    return "0";
+    return "INVALID COMMAND";
   }
 }
 
