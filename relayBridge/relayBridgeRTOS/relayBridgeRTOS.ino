@@ -1,14 +1,17 @@
 #include <NativeEthernet.h>
 #include <aREST.h>
 #include <ArduinoJson.h>
+#define AREST_PARAMS_MODE 1
+
+const int SERVER_PORT = 8001;
 
 //TODO: How do I want to generate a MAC address?
 byte mac[] = {0x00, 0xAA, 0x07, 0x02, 0xFF, 0x52};
-EthernetServer server(80);
-//EthernetServer server(8001);
+//EthernetServer server(80);
+EthernetServer server = EthernetServer(SERVER_PORT);
 aREST rest = aREST();
 
-byte indexMap[8] = {0, 1, 2, 13, 4, 5, 6, 7};
+byte indexMap[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 String arbitrationID = "UnInitialized";
 
 //Where the JSON for the current instruction lives
@@ -22,10 +25,10 @@ char* state(String command){
   }
   byte index = activeCommand["index"];
   if(digitalRead(indexMap[index])) {
-    return "True";
+    return "true";
   }
   else {
-    return "False";
+    return "false";
   }
 }
 
@@ -115,6 +118,8 @@ void setup() {
   server.begin();
   Serial.print("Server started at ");
   Serial.println(Ethernet.localIP());
+  Serial.print("Port ");
+  Serial.println(SERVER_PORT);
 }
 
 void loop() {
