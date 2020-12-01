@@ -114,8 +114,7 @@ def bridgeValues(totalSteps, start, end):
 def psuSwitch(state):
     ip = configs['PSUs']['ip']
     port = configs['PSUs']['port']
-    state = json.dumps(state)
-    params = {'index': configs['PSUs']['index'], 'state': state}
+    params = json.dumps({'index': configs['PSUs']['index'], 'state': state})
     requests.get('http://' + ip + ':' + str(port) + '/switch', params=params)
 
 def psuCheck(pixels):
