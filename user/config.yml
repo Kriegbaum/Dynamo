@@ -5,7 +5,7 @@ hueIP: 192.168.2.47
 controllers:
   bedroomRelays:
     name: bedroomRelays
-    ip: 192.168.2.45
+    ip: 192.168.2.8
     system: CustomRelay
     room: bedroom
   bedroomFC:

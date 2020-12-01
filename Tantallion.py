@@ -40,16 +40,22 @@ fixutre class member functions may depend on some of these functions'''
 
 def seaGet(controller, route, params=None):
     if params:
+        '''
         for p in params:
             params[p] = json.dumps(params[p])
-    response = requests.get('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params)
+        '''
+        params = json.dumps(params)
+    response = requests.get('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params, timeout=5)
     return response.content
 
 def seaPut(controller, route, params=None):
     if params:
+        '''
         for p in params:
             params[p] = json.dumps(params[p])
-    response = requests.put('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params)
+        '''
+        params = json.dumps(params)
+    response = requests.put('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params, timeout=5)
     return response.content
 
 def requestArbitration(id, controller):
