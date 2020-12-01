@@ -1,7 +1,8 @@
 #include <NativeEthernet.h>
 #include <aREST.h>
 #include <ArduinoJson.h>
-#define AREST_PARAMS_MODE 1
+#define AREST_PARAMS_MODE 3
+#define DEBUG 1
 
 const int SERVER_PORT = 8001;
 
@@ -24,6 +25,11 @@ char* state(String command){
     return "JSON ERROR";
   }
   byte index = activeCommand["index"];
+
+  if(DEBUG) {
+    Serial.print("Returning state for "); Serial.println(index);
+  }
+  
   if(digitalRead(indexMap[index])) {
     return "true";
   }
@@ -39,6 +45,12 @@ char* switchRelay(String command){
   }
   byte index = activeCommand["index"];
   bool state = activeCommand["state"];
+
+  if(DEBUG) {
+    Serial.print("Switching number "); Serial.print(index); Serial.println(state);
+    Serial.println(command);
+  }
+  
   digitalWrite(indexMap[index], state);
   return "1";
 }
@@ -49,6 +61,12 @@ char* toggle(String command){
     return "JSON ERROR";
   }
   byte index = activeCommand["index"];
+
+  if(DEBUG) {
+    Serial.print("Toggling number ");
+    Serial.println(index);
+  }
+  
   if(digitalRead(indexMap[index])) {
     digitalWrite(indexMap[index], LOW);
   }
@@ -93,6 +111,11 @@ void setup() {
   ///////////SET ALL PIN MODES/////////////////////
   for (int i = 0; i < sizeof(indexMap); i++) {
     pinMode(indexMap[i], OUTPUT);
+  }
+
+  //Default to all outlets on
+  for(int i=0; i < sizeof(indexMap); i++){
+    digitalWrite(indexMap[i], HIGH);
   }
   
   //////////ETHERNET STUFF////////////////////////
