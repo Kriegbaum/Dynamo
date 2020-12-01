@@ -45,7 +45,7 @@ def seaGet(controller, route, params=None):
             params[p] = json.dumps(params[p])
         '''
         params = json.dumps(params)
-    response = requests.get('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params, timeout=5)
+    response = requests.get('http://' + controller.ip + ':' + str(controller.port) + '/' + route, json=params, timeout=5)
     return response.content
 
 def seaPut(controller, route, params=None):
@@ -55,7 +55,7 @@ def seaPut(controller, route, params=None):
             params[p] = json.dumps(params[p])
         '''
         params = json.dumps(params)
-    response = requests.put('http://' + controller.ip + ':' + str(controller.port) + '/' + route, params=params, timeout=5)
+    response = requests.put('http://' + controller.ip + ':' + str(controller.port) + '/' + route, json=params, timeout=5)
     return response.content
 
 def requestArbitration(id, controller):
