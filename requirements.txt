@@ -10,7 +10,7 @@ Flask_RESTful == 0.3.8
 
 # E:\code\python\SeaCastle\Tantallion.py: 14,15
 # E:\code\python\SeaCastle\automatons.py: 5,6
-Pillow == 5.4.1
+Pillow == 7.1.0
 
 # E:\code\python\SeaCastle\guiTest.py: 10
 # E:\code\python\SeaCastle\imguiTest.py: 6
