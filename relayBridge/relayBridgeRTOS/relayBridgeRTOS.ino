@@ -82,9 +82,13 @@ char* arbitration(String command){
     return "JSON ERROR";
   }
 
-  Serial.println(rest.method);
-
   String id = activeCommand['id'];
+
+  if(DEBUG){
+    Serial.println(command);
+    Serial.println(sizeof(command));
+    Serial.print("Got arbitration request from "); Serial.println(id);
+  }
 
   if(rest.method == "GET") {
     if(arbitrationID == id) {

@@ -36,9 +36,17 @@ if platform.system() == 'Windows':
 
     os.system('E:\\nircmd\\nircmd.exe monitor off')
 
-    patch.rooms['bedroom'].setArbitration('SleepTime')
+    #patch.rooms['bedroom'].setArbitration('SleepTime')
+    patch.controller('bedroomFC').setArbitration('SleepTime')
     time.sleep(20)
-    patch.rooms['bedroom'].setColor([15,12,85], fadeTime=95)
+
+    #patch.rooms['bedroom'].setColor([15,12,85], fadeTime=95)
+    patch.fixture('dresser').setColor([15,12,85], fadeTime=95)
+    patch.fixture('worklight').setColor([15,12,85], fadeTime=95)
+    patch.fixture('spidergod').setColor([15,12,85], fadeTime=95)
+    patch.fixture('whiteboard').setColor([15,12,85], fadeTime=95)
+    patch.fixture('bedroom array').setColor([15,12,85], fadeTime=95)
+
     patch.fixture('spidergod').setColor([255,0,0], fadeTime=95)
     patch.fixture('desk').off()
     time.sleep(105)

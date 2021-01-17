@@ -112,10 +112,13 @@ def bridgeValues(totalSteps, start, end):
     yield end
 
 def psuSwitch(state):
-    ip = configs['PSUs']['ip']
-    port = configs['PSUs']['port']
-    params = {'index': configs['PSUs']['index'], 'state': state}
-    requests.get('http://' + ip + ':' + str(port) + '/switch', json=params)
+    try:
+        ip = configs['PSUs']['ip']
+        port = configs['PSUs']['port']
+        params = {'index': configs['PSUs']['index'], 'state': state}
+        requests.get('http://' + ip + ':' + str(port) + '/switch', json=params, timeout=5)
+    except:
+        print('Failed to contact relay processor')
 
 def psuCheck(pixels):
     for pix in pixels:
