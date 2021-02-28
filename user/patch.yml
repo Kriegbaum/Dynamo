@@ -213,7 +213,7 @@ Kitchen Overhead:
 Kitchen Stereo:
   name: kitchen stereo
   system: HueRelay
-  id: 28
+  id: 34
   room: kitchen
 
 #Dining Room
@@ -251,5 +251,5 @@ Coffee:
 Dining Room Stereo:
   name: dining room stereo
   system: HueRelay
-  id: 34
+  id: 28
   room: dining room
